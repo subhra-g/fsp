@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -117,6 +117,17 @@ typedef rsip_ret_t (* rsip_func_kdf_derived_iv_wrap_t)(const uint32_t InData_KDF
 
 /* OTF */
 typedef rsip_ret_t (* rsip_func_otf_t)(const uint32_t InData_KeyIndex[], const uint32_t InData_DOTFSEED[]);
+
+/* DLMS/COSEM */
+typedef rsip_ret_t (* rsip_func_dlms_initiate_request_dec_t)(const uint32_t InData_KeyIndex[],
+                                                             const uint32_t InData_IV[], const uint32_t InData_DataA[],
+                                                             const uint32_t InData_DataALen[],
+                                                             const uint32_t InData_EncAPDU[],
+                                                             const uint32_t InData_EncAPDULen[],
+                                                             const uint32_t InData_DataT[],
+                                                             const uint32_t InData_DataTLen[], uint32_t OutData_Data1[],
+                                                             uint32_t OutData_KeyIndex[], uint32_t OutData_Data2[],
+                                                             uint32_t MAX_CNT);
 
 /*
  * Private/Primitive function subsets
@@ -400,7 +411,8 @@ extern const rsip_func_pki_cert_key_import_t     gp_func_pki_cert_key_import_rsa
 extern const rsip_func_rng_t   gp_func_rng;
 extern const rsip_func_ghash_t gp_func_ghash_compute;
 
-extern const rsip_func_kdf_ecdh_secret_msg_wrap_t gp_func_kdf_sha_ecdh_secret_msg_wrap[RSIP_PRV_DKM_SUBTYPE_SHA_NUM];
+extern const rsip_func_kdf_ecdh_secret_msg_wrap_t gp_func_kdf_sha_ecdh_secret_msg_wrap[RSIP_PRV_DKM_SUBTYPE_SHA_NUM][
+    RSIP_PRV_KEY_SUBTYPE_ECC_NUM];
 
 extern const rsip_func_kdf_derived_key_import_t gp_func_kdf_sha_derived_key_import_aes
 [RSIP_PRV_DKM_SUBTYPE_SHA_NUM][RSIP_PRV_KEY_SUBTYPE_AES_NUM];
@@ -421,6 +433,8 @@ extern const rsip_func_kdf_derived_iv_wrap_t gp_func_kdf_hmac_derived_iv_wrap[RS
 ][3];
 
 extern const rsip_func_otf_t gp_func_otf[RSIP_OTF_CHANNEL_NUM][RSIP_PRV_KEY_SUBTYPE_AES_NUM];
+
+extern const rsip_func_dlms_initiate_request_dec_t gp_func_dlms_initiate_request_dec[RSIP_PRV_KEY_SUBTYPE_AES_NUM];
 
 /**********************************************************************************************************************
  * Public Function Prototypes
@@ -452,16 +466,11 @@ void r_rsip_kuk_set(const void * p_key_update_key);
  *
  * @param[in]  key_type         Key type of target key.
  * @param[out] wrapped_key_type Key type number used for primitives.
- * @param[out] key_index_size   Word size of key index.
- * @param[out] wrapped_key_size Word size of AES-wrapped key.
  *
  * @retval FSP_SUCCESS              Normal termination.
  * @retval FSP_ERR_INVALID_ARGUMENT Invalid key type.
  **********************************************************************************************************************/
-fsp_err_t get_rfc3394_key_wrap_param(rsip_key_type_t key_type,
-                                     uint32_t      * wrapped_key_type,
-                                     uint32_t      * key_index_size,
-                                     uint32_t      * wrapped_key_size);
+fsp_err_t r_rsip_get_rfc3394_key_wrap_param(rsip_key_type_t key_type, uint32_t * wrapped_key_type);
 
 /*******************************************************************************************************************//**
  * 1. Initialize hash operation.
@@ -908,54 +917,6 @@ RSIP_PRV_STATIC_INLINE rsip_key_type_extend_t r_rsip_key_type_parse (rsip_key_ty
     };
 
     return ret;
-}
-
-/*******************************************************************************************************************//**
- * Converts byte length to word (4-byte) length and rounds up it.
- *
- * @param[in] bytes Byte length
- *
- * @return Word length
- ***********************************************************************************************************************/
-RSIP_PRV_STATIC_INLINE uint32_t r_rsip_byte_to_word_convert (const uint32_t bytes)
-{
-    return (bytes + 3) >> 2;
-}
-
-/*******************************************************************************************************************//**
- * Converts word (4-byte) length to byte length.
- *
- * @param[in] words Word length
- *
- * @return Byte length
- ***********************************************************************************************************************/
-RSIP_PRV_STATIC_INLINE uint32_t r_rsip_word_to_byte_convert (const uint32_t words)
-{
-    return words << 2;
-}
-
-/*******************************************************************************************************************//**
- * Converts byte data to bit data. This function returns upper 3 digits.
- *
- * @param[in] bytes Byte length
- *
- * @return Bit length (upper 3 digits)
- ***********************************************************************************************************************/
-RSIP_PRV_STATIC_INLINE uint32_t r_rsip_byte_to_bit_convert_upper (const uint64_t bytes)
-{
-    return (uint32_t) (bytes >> 29);
-}
-
-/*******************************************************************************************************************//**
- * Converts byte data to bit data. This function returns lower 32 digits.
- *
- * @param[in] bytes Byte length
- *
- * @return Bit length (lower 32 digits)
- ***********************************************************************************************************************/
-RSIP_PRV_STATIC_INLINE uint32_t r_rsip_byte_to_bit_convert_lower (const uint64_t bytes)
-{
-    return (uint32_t) (bytes << 3);
 }
 
 #endif                                 /* R_RSIP_PRIVATE_H */

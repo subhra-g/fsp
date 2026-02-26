@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -129,89 +129,90 @@ static const uint32_t gs_rsa_e_len = RSIP_PRV_BYTE_SIZE_RSA_E;
 
 const rsip_api_t g_rsip_on_rsip =
 {
-    .open                       = R_RSIP_Open,
-    .close                      = R_RSIP_Close,
-    .randomNumberGenerate       = R_RSIP_RandomNumberGenerate,
-    .keyGenerate                = R_RSIP_KeyGenerate,
-    .keyPairGenerate            = R_RSIP_KeyPairGenerate,
-    .encryptedKeyWrap           = R_RSIP_EncryptedKeyWrap,
-    .rfc3394_KeyWrap            = R_RSIP_RFC3394_KeyWrap,
-    .rfc3394_KeyUnwrap          = R_RSIP_RFC3394_KeyUnwrap,
-    .publicKeyExport            = R_RSIP_PublicKeyExport,
-    .aesCipherInit              = R_RSIP_AES_Cipher_Init,
-    .aesCipherUpdate            = R_RSIP_AES_Cipher_Update,
-    .aesCipherFinish            = R_RSIP_AES_Cipher_Finish,
-    .aesAeadInit                = R_RSIP_AES_AEAD_Init,
-    .aesAeadLengthsSet          = R_RSIP_AES_AEAD_LengthsSet,
-    .aesAeadAadUpdate           = R_RSIP_AES_AEAD_AADUpdate,
-    .aesAeadUpdate              = R_RSIP_AES_AEAD_Update,
-    .aesAeadFinish              = R_RSIP_AES_AEAD_Finish,
-    .aesAeadVerify              = R_RSIP_AES_AEAD_Verify,
-    .aesMacInit                 = R_RSIP_AES_MAC_Init,
-    .aesMacUpdate               = R_RSIP_AES_MAC_Update,
-    .aesMacSignFinish           = R_RSIP_AES_MAC_SignFinish,
-    .aesMacVerifyFinish         = R_RSIP_AES_MAC_VerifyFinish,
-    .chacha20Init               = R_RSIP_ChaCha20_Init,
-    .chacha20Update             = R_RSIP_ChaCha20_Update,
-    .chacha20Finish             = R_RSIP_ChaCha20_Finish,
-    .chacha20Poly1305Init       = R_RSIP_ChaCha20_Poly1305_Init,
-    .chacha20Poly1305AadUpdate  = R_RSIP_ChaCha20_Poly1305_AADUpdate,
-    .chacha20Poly1305Update     = R_RSIP_ChaCha20_Poly1305_Update,
-    .chacha20Poly1305Finish     = R_RSIP_ChaCha20_Poly1305_Finish,
-    .chacha20Poly1305Verify     = R_RSIP_ChaCha20_Poly1305_Verify,
-    .ecdsaSign                  = R_RSIP_ECDSA_Sign,
-    .ecdsaVerify                = R_RSIP_ECDSA_Verify,
-    .eddsaSign                  = R_RSIP_PureEdDSA_Sign,
-    .eddsaVerify                = R_RSIP_PureEdDSA_Verify,
-    .ecdhKeyAgree               = (rsip_api_ecdh_key_agree_t) R_RSIP_ECDH_KeyAgree,
-    .ecdhPlainKeyAgree          = (rsip_api_ecdh_plain_key_agree_t) R_RSIP_ECDH_PlainKeyAgree,
-    .rsaEncrypt                 = R_RSIP_RSA_Encrypt,
-    .rsaDecrypt                 = R_RSIP_RSA_Decrypt,
-    .rsaesPkcs1V15Encrypt       = R_RSIP_RSAES_PKCS1_V1_5_Encrypt,
-    .rsaesPkcs1V15Decrypt       = R_RSIP_RSAES_PKCS1_V1_5_Decrypt,
-    .rsaesOaepEncrypt           = R_RSIP_RSAES_OAEP_Encrypt,
-    .rsaesOaepDecrypt           = R_RSIP_RSAES_OAEP_Decrypt,
-    .rsassaPkcs1V15Sign         = R_RSIP_RSASSA_PKCS1_V1_5_Sign,
-    .rsassaPkcs1V15Verify       = R_RSIP_RSASSA_PKCS1_V1_5_Verify,
-    .rsassaPssSign              = R_RSIP_RSASSA_PSS_Sign,
-    .rsassaPssVerify            = R_RSIP_RSASSA_PSS_Verify,
-    .shaCompute                 = R_RSIP_SHA_Compute,
-    .shaInit                    = R_RSIP_SHA_Init,
-    .shaUpdate                  = R_RSIP_SHA_Update,
-    .shaFinish                  = R_RSIP_SHA_Finish,
-    .shaSuspend                 = (rsip_api_sha_suspend_t) R_RSIP_SHA_Suspend,
-    .shaResume                  = (rsip_api_sha_resume_t) R_RSIP_SHA_Resume,
-    .hmacCompute                = R_RSIP_HMAC_Compute,
-    .hmacVerify                 = R_RSIP_HMAC_Verify,
-    .hmacInit                   = R_RSIP_HMAC_Init,
-    .hmacUpdate                 = R_RSIP_HMAC_Update,
-    .hmacSignFinish             = R_RSIP_HMAC_SignFinish,
-    .hmacVerifyFinish           = R_RSIP_HMAC_VerifyFinish,
-    .hmacSuspend                = (rsip_api_hmac_suspend_t) R_RSIP_HMAC_Suspend,
-    .hmacResume                 = (rsip_api_hmac_resume_t) R_RSIP_HMAC_Resume,
-    .pkiEcdsaCertVerify         = R_RSIP_PKI_ECDSA_CertVerify,
-    .pkiVerifiedCertInfoExport  = (rsip_api_pki_verified_cert_info_export_t) R_RSIP_PKI_VerifiedCertInfoExport,
-    .pkiVerifiedCertInfoImport  = (rsip_api_pki_verified_cert_info_import_t) R_RSIP_PKI_VerifiedCertInfoImport,
-    .pkiCertKeyImport           = R_RSIP_PKI_CertKeyImport,
-    .kdfShaInit                 = R_RSIP_KDF_SHA_Init,
-    .kdfShaEcdhSecretUpdate     = (rsip_api_kdf_sha_ecdh_secret_update_t) R_RSIP_KDF_SHA_ECDHSecretUpdate,
-    .kdfShaUpdate               = R_RSIP_KDF_SHA_Update,
-    .kdfShaFinish               = R_RSIP_KDF_SHA_Finish,
-    .kdfShaSuspend              = (rsip_api_kdf_sha_suspend_t) R_RSIP_KDF_SHA_Suspend,
-    .kdfShaResume               = (rsip_api_kdf_sha_resume_t) R_RSIP_KDF_SHA_Resume,
-    .kdfHmacDkmKeyImport        = R_RSIP_KDF_HMAC_DKMKeyImport,
-    .kdfHmacEcdhSecretKeyImport = (rsip_api_kdf_hmac_ecdh_secret_key_import_t) R_RSIP_KDF_HMAC_ECDHSecretKeyImport,
-    .kdfHmacInit                = R_RSIP_KDF_HMAC_Init,
-    .kdfHmacDkmUpdate           = R_RSIP_KDF_HMAC_DKMUpdate,
-    .kdfHmacEcdhSecretUpdate    = (rsip_api_kdf_hmac_ecdh_secret_update_t) R_RSIP_KDF_HMAC_ECDHSecretUpdate,
-    .kdfHmacUpdate              = R_RSIP_KDF_HMAC_Update,
-    .kdfHmacSignFinish          = R_RSIP_KDF_HMAC_SignFinish,
-    .kdfHmacSuspend             = (rsip_api_kdf_hmac_suspend_t) R_RSIP_KDF_HMAC_Suspend,
-    .kdfHmacResume              = (rsip_api_kdf_hmac_resume_t) R_RSIP_KDF_HMAC_Resume,
-    .kdfDkmConcatenate          = R_RSIP_KDF_DKMConcatenate,
-    .kdfDerivedKeyImport        = R_RSIP_KDF_DerivedKeyImport,
-    .kdfDerivedIvWrap           = R_RSIP_KDF_DerivedIVWrap,
-    .otfInit                    = R_RSIP_OTF_Init,
+    .open                        = R_RSIP_Open,
+    .close                       = R_RSIP_Close,
+    .randomNumberGenerate        = R_RSIP_RandomNumberGenerate,
+    .keyGenerate                 = R_RSIP_KeyGenerate,
+    .keyPairGenerate             = R_RSIP_KeyPairGenerate,
+    .encryptedKeyWrap            = R_RSIP_EncryptedKeyWrap,
+    .rfc3394_KeyWrap             = R_RSIP_RFC3394_KeyWrap,
+    .rfc3394_KeyUnwrap           = R_RSIP_RFC3394_KeyUnwrap,
+    .publicKeyExport             = R_RSIP_PublicKeyExport,
+    .aesCipherInit               = R_RSIP_AES_Cipher_Init,
+    .aesCipherUpdate             = R_RSIP_AES_Cipher_Update,
+    .aesCipherFinish             = R_RSIP_AES_Cipher_Finish,
+    .aesAeadInit                 = R_RSIP_AES_AEAD_Init,
+    .aesAeadLengthsSet           = R_RSIP_AES_AEAD_LengthsSet,
+    .aesAeadAadUpdate            = R_RSIP_AES_AEAD_AADUpdate,
+    .aesAeadUpdate               = R_RSIP_AES_AEAD_Update,
+    .aesAeadFinish               = R_RSIP_AES_AEAD_Finish,
+    .aesAeadVerify               = R_RSIP_AES_AEAD_Verify,
+    .aesMacInit                  = R_RSIP_AES_MAC_Init,
+    .aesMacUpdate                = R_RSIP_AES_MAC_Update,
+    .aesMacSignFinish            = R_RSIP_AES_MAC_SignFinish,
+    .aesMacVerifyFinish          = R_RSIP_AES_MAC_VerifyFinish,
+    .chacha20Init                = R_RSIP_ChaCha20_Init,
+    .chacha20Update              = R_RSIP_ChaCha20_Update,
+    .chacha20Finish              = R_RSIP_ChaCha20_Finish,
+    .chacha20Poly1305Init        = R_RSIP_ChaCha20_Poly1305_Init,
+    .chacha20Poly1305AadUpdate   = R_RSIP_ChaCha20_Poly1305_AADUpdate,
+    .chacha20Poly1305Update      = R_RSIP_ChaCha20_Poly1305_Update,
+    .chacha20Poly1305Finish      = R_RSIP_ChaCha20_Poly1305_Finish,
+    .chacha20Poly1305Verify      = R_RSIP_ChaCha20_Poly1305_Verify,
+    .ecdsaSign                   = R_RSIP_ECDSA_Sign,
+    .ecdsaVerify                 = R_RSIP_ECDSA_Verify,
+    .eddsaSign                   = R_RSIP_PureEdDSA_Sign,
+    .eddsaVerify                 = R_RSIP_PureEdDSA_Verify,
+    .ecdhKeyAgree                = (rsip_api_ecdh_key_agree_t) R_RSIP_ECDH_KeyAgree,
+    .ecdhPlainKeyAgree           = (rsip_api_ecdh_plain_key_agree_t) R_RSIP_ECDH_PlainKeyAgree,
+    .rsaEncrypt                  = R_RSIP_RSA_Encrypt,
+    .rsaDecrypt                  = R_RSIP_RSA_Decrypt,
+    .rsaesPkcs1V15Encrypt        = R_RSIP_RSAES_PKCS1_V1_5_Encrypt,
+    .rsaesPkcs1V15Decrypt        = R_RSIP_RSAES_PKCS1_V1_5_Decrypt,
+    .rsaesOaepEncrypt            = R_RSIP_RSAES_OAEP_Encrypt,
+    .rsaesOaepDecrypt            = R_RSIP_RSAES_OAEP_Decrypt,
+    .rsassaPkcs1V15Sign          = R_RSIP_RSASSA_PKCS1_V1_5_Sign,
+    .rsassaPkcs1V15Verify        = R_RSIP_RSASSA_PKCS1_V1_5_Verify,
+    .rsassaPssSign               = R_RSIP_RSASSA_PSS_Sign,
+    .rsassaPssVerify             = R_RSIP_RSASSA_PSS_Verify,
+    .shaCompute                  = R_RSIP_SHA_Compute,
+    .shaInit                     = R_RSIP_SHA_Init,
+    .shaUpdate                   = R_RSIP_SHA_Update,
+    .shaFinish                   = R_RSIP_SHA_Finish,
+    .shaSuspend                  = (rsip_api_sha_suspend_t) R_RSIP_SHA_Suspend,
+    .shaResume                   = (rsip_api_sha_resume_t) R_RSIP_SHA_Resume,
+    .hmacCompute                 = R_RSIP_HMAC_Compute,
+    .hmacVerify                  = R_RSIP_HMAC_Verify,
+    .hmacInit                    = R_RSIP_HMAC_Init,
+    .hmacUpdate                  = R_RSIP_HMAC_Update,
+    .hmacSignFinish              = R_RSIP_HMAC_SignFinish,
+    .hmacVerifyFinish            = R_RSIP_HMAC_VerifyFinish,
+    .hmacSuspend                 = (rsip_api_hmac_suspend_t) R_RSIP_HMAC_Suspend,
+    .hmacResume                  = (rsip_api_hmac_resume_t) R_RSIP_HMAC_Resume,
+    .pkiEcdsaCertVerify          = R_RSIP_PKI_ECDSA_CertVerify,
+    .pkiVerifiedCertInfoExport   = (rsip_api_pki_verified_cert_info_export_t) R_RSIP_PKI_VerifiedCertInfoExport,
+    .pkiVerifiedCertInfoImport   = (rsip_api_pki_verified_cert_info_import_t) R_RSIP_PKI_VerifiedCertInfoImport,
+    .pkiCertKeyImport            = R_RSIP_PKI_CertKeyImport,
+    .kdfShaInit                  = R_RSIP_KDF_SHA_Init,
+    .kdfShaEcdhSecretUpdate      = (rsip_api_kdf_sha_ecdh_secret_update_t) R_RSIP_KDF_SHA_ECDHSecretUpdate,
+    .kdfShaUpdate                = R_RSIP_KDF_SHA_Update,
+    .kdfShaFinish                = R_RSIP_KDF_SHA_Finish,
+    .kdfShaSuspend               = (rsip_api_kdf_sha_suspend_t) R_RSIP_KDF_SHA_Suspend,
+    .kdfShaResume                = (rsip_api_kdf_sha_resume_t) R_RSIP_KDF_SHA_Resume,
+    .kdfHmacDkmKeyImport         = R_RSIP_KDF_HMAC_DKMKeyImport,
+    .kdfHmacEcdhSecretKeyImport  = (rsip_api_kdf_hmac_ecdh_secret_key_import_t) R_RSIP_KDF_HMAC_ECDHSecretKeyImport,
+    .kdfHmacInit                 = R_RSIP_KDF_HMAC_Init,
+    .kdfHmacDkmUpdate            = R_RSIP_KDF_HMAC_DKMUpdate,
+    .kdfHmacEcdhSecretUpdate     = (rsip_api_kdf_hmac_ecdh_secret_update_t) R_RSIP_KDF_HMAC_ECDHSecretUpdate,
+    .kdfHmacUpdate               = R_RSIP_KDF_HMAC_Update,
+    .kdfHmacSignFinish           = R_RSIP_KDF_HMAC_SignFinish,
+    .kdfHmacSuspend              = (rsip_api_kdf_hmac_suspend_t) R_RSIP_KDF_HMAC_Suspend,
+    .kdfHmacResume               = (rsip_api_kdf_hmac_resume_t) R_RSIP_KDF_HMAC_Resume,
+    .kdfDkmConcatenate           = R_RSIP_KDF_DKMConcatenate,
+    .kdfDerivedKeyImport         = R_RSIP_KDF_DerivedKeyImport,
+    .kdfDerivedIvWrap            = R_RSIP_KDF_DerivedIVWrap,
+    .otfInit                     = R_RSIP_OTF_Init,
+    .xdlmsInitiateRequestDecrypt = R_RSIP_xDLMS_InitiateRequest_Decrypt,
 };
 
 /*******************************************************************************************************************//**
@@ -248,7 +249,7 @@ const rsip_api_t g_rsip_on_rsip =
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption or hardware fault is detected.
  *
- * @note  This version does not have an optional feature to disable TRNG initialization.
+ * @note  This module does not provide an optional feature to disable TRNG initialization.
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_Open (rsip_ctrl_t * const p_ctrl, rsip_cfg_t const * const p_cfg)
 {
@@ -409,10 +410,10 @@ fsp_err_t R_RSIP_RandomNumberGenerate (rsip_ctrl_t * const p_ctrl, uint8_t * con
  * Implements @ref rsip_api_t::keyGenerate.
  *
  * @par Conditions
- * Argument key_type must be one of the following:
- * - @ref RSIP_KEY_TYPE_AES_128, @ref RSIP_KEY_TYPE_AES_256
- * - @ref RSIP_KEY_TYPE_XTS_AES_128, @ref RSIP_KEY_TYPE_XTS_AES_256
- * - @ref RSIP_KEY_TYPE_HMAC_SHA224, @ref RSIP_KEY_TYPE_HMAC_SHA256, @ref RSIP_KEY_TYPE_HMAC_SHA384, @ref RSIP_KEY_TYPE_HMAC_SHA512
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
@@ -425,10 +426,8 @@ fsp_err_t R_RSIP_RandomNumberGenerate (rsip_ctrl_t * const p_ctrl, uint8_t * con
  *
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
- * @retval FSP_ERR_CRYPTO_RSIP_FAIL              A generated AES-XTS key is illegal.(Data Key == Tweak Key)
+ * @retval FSP_ERR_CRYPTO_RSIP_FAIL              A generated AES-XTS key is illegal (Data Key == Tweak Key).
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_KeyGenerate (rsip_ctrl_t * const p_ctrl, rsip_wrapped_key_t * const p_wrapped_key)
 {
@@ -492,15 +491,16 @@ fsp_err_t R_RSIP_KeyGenerate (rsip_ctrl_t * const p_ctrl, rsip_wrapped_key_t * c
  * Implements @ref rsip_api_t::keyPairGenerate.
  *
  * @par Conditions
- * Argument p_wrapped_public_key->type must be one of the following:
- * - RSIP_KEY_TYPE_ECC_*_PUBLIC
- * - RSIP_KEY_TYPE_RSA_*_PUBLIC
- * Argument p_wrapped_private_key->type must be one of the following:
- * - RSIP_KEY_TYPE_ECC_*_PRIVATE
- * - RSIP_KEY_TYPE_RSA_*_PRIVATE
+ * @parblock
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
+ *
  * Here, p_wrapped_public_key->type and p_wrapped_private_key->type must match.
  * For example, if p_wrapped_public_key->type is @ref RSIP_KEY_TYPE_ECC_SECP256R1_PUBLIC,
  * then p_wrapped_public_key->type must be @ref RSIP_KEY_TYPE_ECC_SECP256R1_PRIVATE.
+ * @endparblock
  *
  * @par State transition
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
@@ -514,8 +514,6 @@ fsp_err_t R_RSIP_KeyGenerate (rsip_ctrl_t * const p_ctrl, rsip_wrapped_key_t * c
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_KeyPairGenerate (rsip_ctrl_t * const        p_ctrl,
                                   rsip_wrapped_key_t * const p_wrapped_public_key,
@@ -584,6 +582,12 @@ fsp_err_t R_RSIP_KeyPairGenerate (rsip_ctrl_t * const        p_ctrl,
  *
  * Implements @ref rsip_api_t::encryptedKeyWrap.
  *
+ * @par Conditions
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
+ *
  * @par State transition
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
  *
@@ -599,8 +603,6 @@ fsp_err_t R_RSIP_KeyPairGenerate (rsip_ctrl_t * const        p_ctrl,
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms"
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_EncryptedKeyWrap (rsip_ctrl_t * const              p_ctrl,
                                    rsip_wrapped_key_t const * const p_key_update_key,
@@ -682,12 +684,10 @@ fsp_err_t R_RSIP_EncryptedKeyWrap (rsip_ctrl_t * const              p_ctrl,
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
  *
  * @par Conditions
- * - Key type of p_wrapped_kek must be one of the following:
- *   - @ref RSIP_KEY_TYPE_AES_128
- *   - @ref RSIP_KEY_TYPE_AES_256
- * - Key type of p_wrapped_target_key must be one of the following:
- *   - @ref RSIP_KEY_TYPE_AES_128
- *   - @ref RSIP_KEY_TYPE_AES_256
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @retval FSP_SUCCESS                           Normal termination.
  * @retval FSP_ERR_ASSERTION                     A required parameter is NULL.
@@ -733,12 +733,11 @@ fsp_err_t R_RSIP_RFC3394_KeyWrap (rsip_ctrl_t * const              p_ctrl,
 
     /* Check key type and get parameters */
     uint32_t wrapped_key_type[1] = {0};
-    uint32_t key_index_size      = 0;
-    uint32_t wrapped_key_size    = 0;
+    uint32_t key_index_size      = r_rsip_byte_to_word_convert(RSIP_BYTE_SIZE_WRAPPED_KEY(p_wrapped_target_key->type));
+    uint32_t wrapped_key_size    =
+        r_rsip_byte_to_word_convert(RSIP_BYTE_SIZE_PLAIN_KEY(p_wrapped_target_key->type) + 8);
 
-    FSP_ERROR_RETURN(FSP_SUCCESS ==
-                     get_rfc3394_key_wrap_param(p_wrapped_target_key->type, wrapped_key_type, &key_index_size,
-                                                &wrapped_key_size),
+    FSP_ERROR_RETURN(FSP_SUCCESS == r_rsip_get_rfc3394_key_wrap_param(p_wrapped_target_key->type, wrapped_key_type),
                      FSP_ERR_INVALID_ARGUMENT);
 
     /* Call function (cast to match the argument type with the primitive function) */
@@ -796,12 +795,10 @@ fsp_err_t R_RSIP_RFC3394_KeyWrap (rsip_ctrl_t * const              p_ctrl,
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
  *
  * @par Conditions
- * - Key type of p_wrapped_kek must be one of the following:
- *   - @ref RSIP_KEY_TYPE_AES_128
- *   - @ref RSIP_KEY_TYPE_AES_256
- * - The third argument key_type represents the key type of p_rfc3394_wrapped_target_key must be one of the following:
- *   - @ref RSIP_KEY_TYPE_AES_128
- *   - @ref RSIP_KEY_TYPE_AES_256
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @retval FSP_SUCCESS                           Normal termination.
  * @retval FSP_ERR_ASSERTION                     A required parameter is NULL.
@@ -847,11 +844,12 @@ fsp_err_t R_RSIP_RFC3394_KeyUnwrap (rsip_ctrl_t * const              p_ctrl,
 
     /* Check key type and get parameters */
     uint32_t wrapped_key_type[1] = {0};
-    uint32_t key_index_size      = 0;
-    uint32_t wrapped_key_size    = 0;
+    uint32_t key_index_size      = r_rsip_byte_to_word_convert(RSIP_BYTE_SIZE_WRAPPED_KEY(p_wrapped_target_key->type));
+    uint32_t wrapped_key_size    =
+        r_rsip_byte_to_word_convert(RSIP_BYTE_SIZE_PLAIN_KEY(p_wrapped_target_key->type) + 8);
+
     FSP_ERROR_RETURN(FSP_SUCCESS ==
-                     get_rfc3394_key_wrap_param(p_wrapped_target_key->type, wrapped_key_type, &key_index_size,
-                                                &wrapped_key_size),
+                     r_rsip_get_rfc3394_key_wrap_param(p_wrapped_target_key->type, wrapped_key_type),
                      FSP_ERR_INVALID_ARGUMENT);
 
     /* Call function (cast to match the argument type with the primitive function) */
@@ -928,8 +926,6 @@ fsp_err_t R_RSIP_RFC3394_KeyUnwrap (rsip_ctrl_t * const              p_ctrl,
  * @retval FSP_SUCCESS                           Normal termination.
  * @retval FSP_ERR_ASSERTION                     A required parameter is NULL.
  * @retval FSP_ERR_CRYPTO_RSIP_KEY_SET_FAIL      Input key value is illegal.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_PublicKeyExport (rsip_wrapped_key_t const * const p_wrapped_public_key,
                                   uint8_t * const                  p_raw_public_key)

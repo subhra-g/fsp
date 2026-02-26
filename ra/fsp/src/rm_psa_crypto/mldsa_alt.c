@@ -146,7 +146,7 @@ static int mbedtls_mldsa_oid_get(mbedtls_md_type_t md_alg, char *oid_buf, size_t
     {
         return MBEDTLS_ERR_ERROR_GENERIC_ERROR;
     }
-    memcpy(oid_buf, oid, *oid_len-1);
+    memcpy(oid_buf, oid, *oid_len);
 
     return 0;
 }
@@ -214,7 +214,8 @@ int mbedtls_mldsa_sign(mbedtls_mldsa_context * ctx,
     st_pqc_mldsa_ctx_t pqc_ctx;
     st_pqc_data_t mldsa_ctx_string = {0x00, 0x00};
     st_pqc_data_t mldsa_oid_data = {0x00, 0x00};
-    char oid_buf[8] BSP_ALIGN_VARIABLE(4);
+    /* Set the first two values of the OID with the DER object type and length */
+    char oid_buf[11] BSP_ALIGN_VARIABLE(4) = {0x06, 0x09};
 
     mldsa_initialize_context(&pqc_ctx, bits);
     pqc_ctx.p_drbg_api = f_rng;
@@ -227,13 +228,14 @@ int mbedtls_mldsa_sign(mbedtls_mldsa_context * ctx,
     if (MBEDTLS_MD_NONE != md_alg)
     {
         size_t oid_size  = 0;
-        if (mbedtls_mldsa_oid_get(md_alg, oid_buf, &oid_size) != 0)
+        /* This function only returns the raw OID value */
+        if (mbedtls_mldsa_oid_get(md_alg, (oid_buf+2), &oid_size) != 0)
         {
             return(MBEDTLS_ERR_ERROR_GENERIC_ERROR);
         }
 
         mldsa_oid_data.p_data = (uint32_t*)oid_buf;
-        mldsa_oid_data.len = oid_size;
+        mldsa_oid_data.len = oid_size + 2;
         pqc_ctx.p_pre_hash_oid = &mldsa_oid_data;
     }
     else
@@ -269,14 +271,15 @@ int mbedtls_mldsa_verify(mbedtls_mldsa_context * ctx,
                          mbedtls_mldsa_bits_t bits,
                          mbedtls_md_type_t md_alg,
                          mbedtls_mldsa_data_t * signature,
-                         mbedtls_mldsa_data_t * msg, 
+                         mbedtls_mldsa_data_t * msg,
                          uint32_t (*f_rng)(uint32_t, uint32_t *))
 {
     pqc_ret_t pqc_ret;
     st_pqc_mldsa_ctx_t pqc_ctx;
     st_pqc_data_t mldsa_ctx_string = {0x00, 0x00};
     st_pqc_data_t mldsa_oid_data = {0x00, 0x00};
-    char oid_buf[8] BSP_ALIGN_VARIABLE(4);
+    /* Set the first two values of the OID with the DER object type and length */
+    char oid_buf[11] BSP_ALIGN_VARIABLE(4) = {0x06, 0x09};
 
     mldsa_initialize_context(&pqc_ctx, bits);
     pqc_ctx.p_drbg_api = f_rng;
@@ -287,13 +290,14 @@ int mbedtls_mldsa_verify(mbedtls_mldsa_context * ctx,
     if (MBEDTLS_MD_NONE != md_alg)
     {
         size_t oid_size  = 0;
-        if (mbedtls_mldsa_oid_get(md_alg, oid_buf, &oid_size) != 0)
+        /* This function only returns the raw OID value */
+        if (mbedtls_mldsa_oid_get(md_alg, (oid_buf+2), &oid_size) != 0)
         {
             return(MBEDTLS_ERR_ERROR_GENERIC_ERROR);
         }
 
         mldsa_oid_data.p_data = (uint32_t*)oid_buf;
-        mldsa_oid_data.len = oid_size;
+        mldsa_oid_data.len = oid_size + 2;
         pqc_ctx.p_pre_hash_oid = &mldsa_oid_data;
     }
     else

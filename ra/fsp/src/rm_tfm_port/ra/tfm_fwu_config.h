@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022, Arm Limited. All rights reserved.
- * Copyright (C) 2025 Modified by Renesas Electronics Corporation and/or its affiliates
+ * Copyright (C) 2026 Modified by Renesas Electronics Corporation and/or its affiliates
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *

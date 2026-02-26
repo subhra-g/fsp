@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -25,8 +25,15 @@
 
 /* Register definitions, common services and error codes. */
 #include "bsp_api.h"
-#include "rm_motor_speed_api.h"
-#include "rm_motor_current_api.h"
+#if __has_include("rm_motor_speed_api.h")
+ #include "rm_motor_speed_api.h"
+#endif
+#if __has_include("rm_motor_current_api.h")
+ #include "rm_motor_current_api.h"
+#endif
+#if __has_include("rm_motor_algorithm_api.h")
+ #include "rm_motor_algorithm_api.h"
+#endif
 
 /* Common macro for FSP header files. There is also a corresponding FSP_FOOTER macro at the end of this file. */
 FSP_HEADER
@@ -42,18 +49,23 @@ FSP_HEADER
 /** Error information */
 typedef enum e_rm_motor_error
 {
-    MOTOR_ERROR_NONE              = 0x0000,
-    MOTOR_ERROR_OVER_CURRENT_HW   = 0x0001,
-    MOTOR_ERROR_OVER_VOLTAGE      = 0x0002,
-    MOTOR_ERROR_OVER_SPEED        = 0x0004,
-    MOTOR_ERROR_HALL_TIMEOUT      = 0x0008,
-    MOTOR_ERROR_BEMF_TIMEOUT      = 0x0010,
-    MOTOR_ERROR_HALL_PATTERN      = 0x0020,
-    MOTOR_ERROR_BEMF_PATTERN      = 0x0040,
-    MOTOR_ERROR_LOW_VOLTAGE       = 0x0080,
-    MOTOR_ERROR_OVER_CURRENT_SW   = 0x0100,
-    MOTOR_ERROR_INDUCTION_CORRECT = 0x0200,
-    MOTOR_ERROR_UNKNOWN           = 0xFFFF,
+    MOTOR_ERROR_NONE                     = 0x0000,
+    MOTOR_ERROR_OVER_CURRENT_HW          = 0x0001, /* Hardware Detection entered */
+    MOTOR_ERROR_OVER_VOLTAGE             = 0x0002, /* vdc High voltage */
+    MOTOR_ERROR_OVER_SPEED               = 0x0004, /* The motor's speed limit has been exceeded */
+    MOTOR_ERROR_HALL_TIMEOUT             = 0x0008, /* Unable to get value from hall sensor */
+    MOTOR_ERROR_BEMF_TIMEOUT             = 0x0010, /* Back electromotive force cannot be obtained from the sensor */
+    MOTOR_ERROR_HALL_PATTERN             = 0x0020, /* The hall pattern is different from what was expected */
+    MOTOR_ERROR_BEMF_PATTERN             = 0x0040, /* The back electromotive force reception pattern is different from what was expected */
+    MOTOR_ERROR_LOW_VOLTAGE              = 0x0080, /* vdc low voltage */
+    MOTOR_ERROR_OVER_CURRENT_SW          = 0x0100, /* u,v,w, Which one is over limit */
+    MOTOR_ERROR_INDUCTION_CORRECT        = 0x0200, /* The motor inductance setting is incorrect */
+    MOTOR_ERROR_ABNOMAL_OFFSET_VALUE     = 0x0400, /* Current offset value (result) is exceeding n% or more */
+    MOTOR_ERROR_PHASE_CONNECTION_FAILURE = 0x0800, /* Detects the difference of Duty waveform and current waveform */
+    MOTOR_ERROR_DISCONNECTION_DETECTION  = 0x1000, /* Current value always 0A when duty outputs */
+    MOTOR_ERROR_MTPA_INCORRECT           = 0x2000, /* MTPA Parameters incorrect error */
+    MOTOR_ERROR_FLUX_WEAKENING           = 0x4000, /* Flux weakening error */
+    MOTOR_ERROR_UNKNOWN                  = 0xFFFF, /* Does not exist error */
 } motor_error_t;
 
 /** Events that can trigger a callback function */
@@ -67,6 +79,7 @@ typedef enum e_motor_callback_event
     MOTOR_CALLBACK_EVENT_ADC_BACKWARD,      ///< Event after motor 120 driver process
     MOTOR_CALLBACK_EVENT_CYCLE_FORWARD,     ///< Before cyclic process of speed control
     MOTOR_CALLBACK_EVENT_CYCLE_BACKWARD,    ///< After cyclic process of speed control
+    MOTOR_CALLBACK_EVENT_ERROR,             ///< Error event detected
 } motor_callback_event_t;
 
 /** Flag for waiting for motor stop */
@@ -98,8 +111,12 @@ typedef void motor_ctrl_t;
 /** Configuration parameters. */
 typedef struct st_motor_cfg
 {
-    motor_speed_instance_t const   * p_motor_speed_instance;   ///< Speed Instance
+#if __has_include("rm_motor_speed_api.h")
+    motor_speed_instance_t const * p_motor_speed_instance;     ///< Speed Instance
+#endif
+#if __has_include("rm_motor_current_api.h")
     motor_current_instance_t const * p_motor_current_instance; ///< Current Instance
+#endif
 
     /** Placeholder for user data.  Passed to the user callback in motor_callback_args_t. */
     void (* p_callback)(motor_callback_args_t * p_args);

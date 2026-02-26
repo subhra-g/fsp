@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -33,22 +33,28 @@ rsip_ret_t r_rsip_p41i (const uint32_t InData_KeyIndex[])
 
     r_rsip_func_sub002(0x000000a7U, 0x800100e0U, 0x00000041U, 0x00000000U);
 
-    r_rsip_func101(bswap_32big(0x1142c72bU),
-                   bswap_32big(0x5a0d3e95U),
-                   bswap_32big(0x0ba49b89U),
-                   bswap_32big(0x5cb7c012U));
+    static const uint32_t Param_p41i_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x1142c72bU), BSWAP_32BIG_C(0x5a0d3e95U), BSWAP_32BIG_C(0x0ba49b89U), BSWAP_32BIG_C(0x5cb7c012U),
+    };
+    r_rsip_func101(Param_p41i_func101_001);
     r_rsip_func440(InData_KeyIndex);
 
-    r_rsip_func100(bswap_32big(0x6238acb3U),
-                   bswap_32big(0x4b626921U),
-                   bswap_32big(0xee36318dU),
-                   bswap_32big(0xdd07d18aU));
+    static const uint32_t Param_p41i_func100_001[] =
+    {
+        BSWAP_32BIG_C(0x6238acb3U), BSWAP_32BIG_C(0x4b626921U), BSWAP_32BIG_C(0xee36318dU), BSWAP_32BIG_C(0xdd07d18aU),
+    };
+    r_rsip_func100(Param_p41i_func100_001);
     WR1_PROG(REG_0040H, 0x00400000U);
 
     if (CHCK_STS(REG_0040H, 22, 1))
     {
-        r_rsip_func102(bswap_32big(0x46f4f2dbU), bswap_32big(0xafd766e0U), bswap_32big(0x0c3fe143U),
-                       bswap_32big(0x514dda5eU));
+        static const uint32_t Param_p41i_func102_001[] =
+        {
+            BSWAP_32BIG_C(0x46f4f2dbU), BSWAP_32BIG_C(0xafd766e0U), BSWAP_32BIG_C(0x0c3fe143U), BSWAP_32BIG_C(
+                0x514dda5eU),
+        };
+        r_rsip_func102(Param_p41i_func102_001);
         WR1_PROG(REG_006CH, 0x00000040U);
         WAIT_STS(REG_0020H, 12, 0);
 
@@ -56,8 +62,12 @@ rsip_ret_t r_rsip_p41i (const uint32_t InData_KeyIndex[])
     }
     else
     {
-        r_rsip_func100(bswap_32big(0x36d8a8ddU), bswap_32big(0x483ba6bdU), bswap_32big(0x1cba0811U),
-                       bswap_32big(0xf0b3c4e5U));
+        static const uint32_t Param_p41i_func100_002[] =
+        {
+            BSWAP_32BIG_C(0x36d8a8ddU), BSWAP_32BIG_C(0x483ba6bdU), BSWAP_32BIG_C(0x1cba0811U), BSWAP_32BIG_C(
+                0xf0b3c4e5U),
+        };
+        r_rsip_func100(Param_p41i_func100_002);
 
         WR1_PROG(REG_00D0H, 0x08000085U);
         r_rsip_func_sub009(0x00000801U, 0x00430009U, 0x00001800U);

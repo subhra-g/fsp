@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -102,12 +102,10 @@ fsp_err_t R_RSIP_PKI_VerifiedCertInfoImport (rsip_ctrl_t * const                
  *
  * @par Conditions
  * @parblock
- * Argument key_type must be one of the following:
- *  - @ref RSIP_KEY_TYPE_ECC_SECP256R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_SECP384R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_SECP521R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP256R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP384R1_PUBLIC
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  * @endparblock
  *
  * @par State transition
@@ -129,8 +127,6 @@ fsp_err_t R_RSIP_PKI_VerifiedCertInfoImport (rsip_ctrl_t * const                
  *   R_RSIP_PKI_RSASSA_PKCS1_V1_5_CertVerify(), or R_RSIP_PKI_RSASSA_PSS_CertVerify().
  * - For arguments p_key_param1 and p_key_param2, specify an address inside the certificate.
  *   Addresses outside the certificate are invalid.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms"
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_PKI_CertKeyImport (rsip_ctrl_t * const        p_ctrl,
                                     uint8_t const * const      p_cert,

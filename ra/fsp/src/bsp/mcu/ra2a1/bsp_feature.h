@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -232,10 +232,12 @@
 #define BSP_FEATURE_DMAC_HAS_DMCTL                                      (0UL)           // Feature not available on this device.
 #define BSP_FEATURE_DMAC_HAS_REPEAT_BLOCK_MODE                          (0UL)           // Feature not available on this device.
 #define BSP_FEATURE_DMAC_NUM_CHANNELS                                   (0UL)           // Feature not available on this device.
+#define BSP_FEATURE_DMAC_SUPPORT_TRANSFER_8_BYTE                        (0UL)           // Feature not available on this device.
 
 #define BSP_FEATURE_DOC_IS_AVAILABLE                                    (1UL)
 #define BSP_FEATURE_DOC_VERSION                                         (1UL)           // The version of the DOC peripheral.
 
+#define BSP_FEATURE_DTC_SUPPORT_TRANSFER_8_BYTE                         (0UL)           // DTC Support 64 bit transfer size.
 #define BSP_FEATURE_DTC_TRANSFER_INFO_ALIGNMENT                         (4UL)           // Byte alignment that must be used for DTC transfer info structs.
 
 #define BSP_FEATURE_DWT_CYCCNT                                          (0UL)           // CYCNT register is available on CM33 and higher devices.
@@ -304,7 +306,7 @@
 #define BSP_FEATURE_FLASH_LP_CF_DUAL_BANK_START                         (0x00UL)        // Start address of the second bank.
 #define BSP_FEATURE_FLASH_LP_CF_WRITE_SIZE                              (0x08UL)        // Write size of code flash.
 #define BSP_FEATURE_FLASH_LP_DF_BLOCK_SIZE                              (0x0400UL)      // Block size of data flash.
-#define BSP_FEATURE_FLASH_LP_DF_WRITE_SIZE                              (0x01UL)        // Write size of data flashmote.
+#define BSP_FEATURE_FLASH_LP_DF_WRITE_SIZE                              (0x01UL)        // Write size of data flash.
 #define BSP_FEATURE_FLASH_LP_FLASH_CLOCK_SRC                            (FSP_PRIV_CLOCK_FCLK)   // Clock source for the flash memory.
 #define BSP_FEATURE_FLASH_LP_SUPPORTS_DUAL_BANK                         (0UL)           // Dual bank is supported for FLASH_LP.
 #define BSP_FEATURE_FLASH_LP_VERSION                                    (3UL)           // Version of the flash memory, either MF3 or MF4.

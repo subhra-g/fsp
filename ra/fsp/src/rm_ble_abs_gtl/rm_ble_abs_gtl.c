@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -1590,6 +1590,19 @@ static void ble_abs_gap_callback (uint16_t event_type, ble_status_t event_result
                 /* Update in FLASH, bond number in ref sector*/
                 act_num_bond = r_ble_gtl_sec_get_active_bond_entries();
                 err          = rm_ble_abs_gtl_storage_update_bond_num(act_num_bond);
+
+                /* Wrap around timestamp if needed */
+                if (bond_timestmp_var >= TIMESTAMP_WRAP_THRESHOLD)
+                {
+                    r_ble_gtl_sec_wrap_bond_timestamp();
+
+                    // save valid indexes to flash
+                    for (int i = 0; i < act_num_bond; i++)
+                    {
+                        r_ble_gtl_sec_get_bond_info(i, &rec_size, &rec_ptr);
+                        err = rm_ble_abs_gtl_storage_write_bond_data(i + 1, rec_ptr, rec_size);
+                    }
+                }
 #endif
                 FSP_PARAMETER_NOT_USED(act_num_bond);
                 FSP_PARAMETER_NOT_USED(err);

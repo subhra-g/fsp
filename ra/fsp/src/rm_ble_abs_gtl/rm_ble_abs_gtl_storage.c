@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -308,7 +308,7 @@ fsp_err_t rm_ble_abs_gtl_read_bond_data (uint8_t num_of_entries, uint8_t ** addr
         }
         else
         {
-            rm_ble_gtl_free(p_ref_data);
+            rm_ble_gtl_free(p_ref_data_start);
             p_ref_data_start = NULL;
 
             return err;

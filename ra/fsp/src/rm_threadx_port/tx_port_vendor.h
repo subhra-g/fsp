@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -53,46 +53,46 @@ extern "C" {
 #endif
 
 #ifdef TX_PORT_VENDOR_STACK_MONITOR_ENABLE
- #define TX_PORT_VENDOR_ASM_STACK_MONITOR_CONFIGURE                                                    \
-    /* Setup the Hardware Stack Monitor for thread to schedule.  */                                    \
-                                                                                                       \
-    /* Disable PSP monitoring  */                                                                      \
-                                                                                                       \
-    /* R_MPU_SPMON->SP[1].CTL = 0; */                                                                  \
-    "LDR     r0, ="RM_THREADX_PORT_STRINGIFY_EXPANDED (RM_THREADX_PORT_SPMON_BASE) /* R_SPMON base. */ \
-    "                                    \n"                                                           \
-    "LDR     r1, =0                      \n"                                       /* r1 = 0. */       \
+ #define TX_PORT_VENDOR_ASM_STACK_MONITOR_CONFIGURE                                                     \
+    /* Setup the Hardware Stack Monitor for thread to schedule.  */                                     \
+                                                                                                        \
+    /* Disable PSP monitoring  */                                                                       \
+                                                                                                        \
+    /* R_MPU_SPMON->SP[1].CTL = 0; */                                                                   \
+    "LDR     r0, =" RM_THREADX_PORT_STRINGIFY_EXPANDED (RM_THREADX_PORT_SPMON_BASE) /* R_SPMON base. */ \
+    "                                    \n"                                                            \
+    "LDR     r1, =0                      \n"                                       /* r1 = 0. */        \
     "STR     r1, [r0, #" RM_THREADX_PORT_STRINGIFY_EXPANDED (RM_THREADX_PORT_OFFSET_PSPMPUCTL)          \
-    "]                                   \n"                                                           \
-                                                                                                       \
-    /* Setup start address  */                                                                         \
-                                                                                                       \
+    "]                                   \n"                                                            \
+                                                                                                        \
+    /* Setup start address  */                                                                          \
+                                                                                                        \
     /* Bits 0 and 1 of _tx_thread_current_ptr->tx_thread_stack_start are always 0 since the stack must be aligned \
-     * on an 8 byte boundary. */                                                                \
-                                                                                                \
-    /* R_MPU_SPMON->SP[1].SA = (uint32_t)_tx_thread_current_ptr->tx_thread_stack_start; */      \
+     * on an 8 byte boundary. */                                                                 \
+                                                                                                 \
+    /* R_MPU_SPMON->SP[1].SA = (uint32_t)_tx_thread_current_ptr->tx_thread_stack_start; */       \
     "LDR     r1, [r6, #" RM_THREADX_PORT_STRINGIFY_EXPANDED (RM_THREADX_PORT_OFFSET_STACK_START) \
-    "]                                   \n"                                                    \
+    "]                                   \n"                                                     \
     "STR     r1, [r0, #" RM_THREADX_PORT_STRINGIFY_EXPANDED (RM_THREADX_PORT_OFFSET_PSPMPUSA)    \
-    "]                                   \n"                                                    \
-                                                                                                \
-    /* Setup end address  */                                                                    \
-                                                                                                \
+    "]                                   \n"                                                     \
+                                                                                                 \
+    /* Setup end address  */                                                                     \
+                                                                                                 \
     /* Bits 0 and 1 of _tx_thread_current_ptr->tx_thread_stack_end are always 1 since the stack must be aligned \
-     * on an 8 byte boundary and a multiple of 8 bytes. */                                    \
-                                                                                              \
-    /* R_MPU_SPMON->SP[1].EA = (uint32_t)_tx_thread_current_ptr->tx_thread_stack_end; */      \
+     * on an 8 byte boundary and a multiple of 8 bytes. */                                     \
+                                                                                               \
+    /* R_MPU_SPMON->SP[1].EA = (uint32_t)_tx_thread_current_ptr->tx_thread_stack_end; */       \
     "LDR     r1, [r6, #" RM_THREADX_PORT_STRINGIFY_EXPANDED (RM_THREADX_PORT_OFFSET_STACK_END) \
-    "]                                   \n"                                                  \
+    "]                                   \n"                                                   \
     "STR     r1, [r0, #" RM_THREADX_PORT_STRINGIFY_EXPANDED (RM_THREADX_PORT_OFFSET_PSPMPUEA)  \
     "]                                   \n"
 
- #define TX_PORT_VENDOR_ASM_STACK_MONITOR_ENABLE                                              \
-                                                                                              \
-    /* Enable PSP monitoring  */                                                              \
-                                                                                              \
-    /* R_MPU_SPMON->SP[1].CTL = 1; */                                                         \
-    "LDR     r1, =1                      \n" /* r1 = 1. */                                    \
+ #define TX_PORT_VENDOR_ASM_STACK_MONITOR_ENABLE                                               \
+                                                                                               \
+    /* Enable PSP monitoring  */                                                               \
+                                                                                               \
+    /* R_MPU_SPMON->SP[1].CTL = 1; */                                                          \
+    "LDR     r1, =1                      \n" /* r1 = 1. */                                     \
     "STR     r1, [r0, #" RM_THREADX_PORT_STRINGIFY_EXPANDED (RM_THREADX_PORT_OFFSET_PSPMPUCTL) \
     "]                                   \n"
 #endif

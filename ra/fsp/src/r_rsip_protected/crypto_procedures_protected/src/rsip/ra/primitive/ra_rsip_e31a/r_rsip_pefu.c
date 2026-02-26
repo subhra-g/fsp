@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -40,10 +40,11 @@ rsip_ret_t r_rsip_pefu (const uint32_t InData_Msg1[],
     r_rsip_func_sub022(0x00000821U, 0x00002423U, 0x00002424U);
     WR1_PROG(REG_0094H, 0x00002425U);
 
-    r_rsip_func100(bswap_32big(0xff64a057U),
-                   bswap_32big(0x86cee4b4U),
-                   bswap_32big(0xc91b36fdU),
-                   bswap_32big(0x0a6f1e13U));
+    static const uint32_t Param_pefu_func100_001[] =
+    {
+        BSWAP_32BIG_C(0xff64a057U), BSWAP_32BIG_C(0x86cee4b4U), BSWAP_32BIG_C(0xc91b36fdU), BSWAP_32BIG_C(0x0a6f1e13U),
+    };
+    r_rsip_func100(Param_pefu_func100_001);
     WR1_PROG(REG_0094H, 0x00007c00U);
     WR1_PROG(REG_0040H, 0x00600000U);
 
@@ -53,8 +54,12 @@ rsip_ret_t r_rsip_pefu (const uint32_t InData_Msg1[],
 
         r_rsip_func_sub010(0x38008c20U, 0x0000000fU, 0x00A70000U);
 
-        r_rsip_func101(bswap_32big(0xe6bfbc10U), bswap_32big(0xaaceb13eU), bswap_32big(0x807481a9U),
-                       bswap_32big(0xbd688306U));
+        static const uint32_t Param_pefu_func101_001[] =
+        {
+            BSWAP_32BIG_C(0xe6bfbc10U), BSWAP_32BIG_C(0xaaceb13eU), BSWAP_32BIG_C(0x807481a9U), BSWAP_32BIG_C(
+                0xbd688306U),
+        };
+        r_rsip_func101(Param_pefu_func101_001);
     }
     else if (RD1_MASK(REG_0044H, 0xffffffffU) == 0x00000001U)
     {
@@ -62,20 +67,29 @@ rsip_ret_t r_rsip_pefu (const uint32_t InData_Msg1[],
 
         r_rsip_func_sub010(0x38008c20U, 0x0000001fU, 0x00A70000U);
 
-        r_rsip_func101(bswap_32big(0xdac1d33dU), bswap_32big(0x286928afU), bswap_32big(0x544cd454U),
-                       bswap_32big(0xe5d49026U));
+        static const uint32_t Param_pefu_func101_002[] =
+        {
+            BSWAP_32BIG_C(0xdac1d33dU), BSWAP_32BIG_C(0x286928afU), BSWAP_32BIG_C(0x544cd454U), BSWAP_32BIG_C(
+                0xe5d49026U),
+        };
+        r_rsip_func101(Param_pefu_func101_002);
     }
 
-    r_rsip_func100(bswap_32big(0xa8f4fd74U),
-                   bswap_32big(0xc4156e06U),
-                   bswap_32big(0xd26d034bU),
-                   bswap_32big(0x497b9f2dU));
+    static const uint32_t Param_pefu_func100_002[] =
+    {
+        BSWAP_32BIG_C(0xa8f4fd74U), BSWAP_32BIG_C(0xc4156e06U), BSWAP_32BIG_C(0xd26d034bU), BSWAP_32BIG_C(0x497b9f2dU),
+    };
+    r_rsip_func100(Param_pefu_func100_002);
     WR1_PROG(REG_0040H, 0x00400000U);
 
     if (CHCK_STS(REG_0040H, 22, 1))
     {
-        r_rsip_func102(bswap_32big(0x1c728a35U), bswap_32big(0x0ed0200dU), bswap_32big(0xb2840e39U),
-                       bswap_32big(0x1218f1b4U));
+        static const uint32_t Param_pefu_func102_001[] =
+        {
+            BSWAP_32BIG_C(0x1c728a35U), BSWAP_32BIG_C(0x0ed0200dU), BSWAP_32BIG_C(0xb2840e39U), BSWAP_32BIG_C(
+                0x1218f1b4U),
+        };
+        r_rsip_func102(Param_pefu_func102_001);
         WR1_PROG(REG_006CH, 0x00000040U);
         WAIT_STS(REG_0020H, 12, 0);
 
@@ -87,108 +101,115 @@ rsip_ret_t r_rsip_pefu (const uint32_t InData_Msg1[],
 
         r_rsip_func_sub010(0x00003405U, 0x38000c84U, 0x00A70000U);
 
-        r_rsip_func100(bswap_32big(0x0fc045faU), bswap_32big(0x7a6dc5afU), bswap_32big(0xc2fee67cU),
-                       bswap_32big(0x8555fb20U));
+        static const uint32_t Param_pefu_func100_003[] =
+        {
+            BSWAP_32BIG_C(0x0fc045faU), BSWAP_32BIG_C(0x7a6dc5afU), BSWAP_32BIG_C(0xc2fee67cU), BSWAP_32BIG_C(
+                0x8555fb20U),
+        };
+        r_rsip_func100(Param_pefu_func100_003);
         WR1_PROG(REG_0040H, 0x00400000U);
 
         if (CHCK_STS(REG_0040H, 22, 1))
         {
-            r_rsip_func_sub014(0x000000c7U, 0x800100c0U);
-            WR1_PROG(REG_002CH, InData_EncMsg[0]);
-            WR1_PROG(REG_0024H, 0x00000000U);
+            r_rsip_func_sub022(0x0000b4e0U, 0x00000010U, 0x00003847U);
 
-            r_rsip_func_sub002(0x000000a7U, 0x800100e0U, 0x0000ef01U, 0x00000000U);
-
-            r_rsip_func101(bswap_32big(0x7fdbd792U), bswap_32big(0x7995ae49U), bswap_32big(0xcb0754b2U),
-                           bswap_32big(0x5f422355U));
-            r_rsip_func043();
-
-            WR1_PROG(REG_0094H, 0x0000b4c0U);
+            WR1_PROG(REG_0094H, 0x0000b4a0U);
             WR1_PROG(REG_0094H, 0x01799093U);
 
-            r_rsip_func_sub002(0x000000a7U, 0x800100e0U, 0x0000ef01U, 0x00000000U);
-
-            r_rsip_func101(bswap_32big(0x898ed2e3U), bswap_32big(0xd8ca91a9U), bswap_32big(0xde8de765U),
-                           bswap_32big(0x2ca1bda2U));
-            r_rsip_func044();
-
-            r_rsip_func_sub022(0x0000b4e0U, 0x00000010U, 0x000038a7U);
-
-            r_rsip_func100(bswap_32big(0x5ba315c3U), bswap_32big(0x75c9cb7eU), bswap_32big(0xc285b798U),
-                           bswap_32big(0xb17097c5U));
-
-            WR1_PROG(REG_0094H, 0x00007c05U);
+            static const uint32_t Param_pefu_func100_004[] =
+            {
+                BSWAP_32BIG_C(0x9c5cac86U), BSWAP_32BIG_C(0x5072f33dU), BSWAP_32BIG_C(0x3adab18eU), BSWAP_32BIG_C(
+                    0x541d1eadU),
+            };
+            r_rsip_func100(Param_pefu_func100_004);
+            WR1_PROG(REG_0094H, 0x00007c02U);
             WR1_PROG(REG_0040H, 0x00600000U);
 
             if (RD1_MASK(REG_0044H, 0xffffffffU) == 0x00000000U)
             {
-                r_rsip_func_sub011(0x000007c1U, 0x40000100U, 0xf7009d07U);
-                WR4_ADDR(REG_002CH, &InData_EncMsg[1]);
-                WAIT_STS(REG_0014H, 31, 1);
-                WR4_ADDR(REG_002CH, &InData_EncMsg[5]);
+                static const uint32_t Param_pefu_sub100_001[] =
+                {
+                    BSWAP_32BIG_C(0x0000ef01U), BSWAP_32BIG_C(0xd4f51a01U), BSWAP_32BIG_C(0xc51c5c8eU),
+                    BSWAP_32BIG_C(0x35f2fd69U),
+                    BSWAP_32BIG_C(0x934175faU), BSWAP_32BIG_C(0x0000ef01U), BSWAP_32BIG_C(0x6a6f76ddU),
+                    BSWAP_32BIG_C(0x6f46bb68U),
+                    BSWAP_32BIG_C(0x34c3cbd6U),
+                    BSWAP_32BIG_C(0x5453a632U), 0x00001404U,
+                };
+                r_rsip_func_sub100(InData_EncMsg, Param_pefu_sub100_001, RSIP_SEL_BIT_LENGTH_256);
 
-                r_rsip_func_sub009(0x00001404U, 0x00c10021U, 0x00001800U);
-
-                r_rsip_func_sub011(0x000003c1U, 0x40000000U, 0x07008d05U);
-                WR4_ADDR(REG_002CH, &InData_EncMsg[9]);
-
-                r_rsip_func101(bswap_32big(0x5879596dU),
-                               bswap_32big(0x7a14b289U),
-                               bswap_32big(0x63ee6ccaU),
-                               bswap_32big(0x2b4597d3U));
+                static const uint32_t Param_pefu_func101_003[] =
+                {
+                    BSWAP_32BIG_C(0xbaca535aU), BSWAP_32BIG_C(0x2a07944eU), BSWAP_32BIG_C(0x3cf254efU), BSWAP_32BIG_C(
+                        0xead2e502U),
+                };
+                r_rsip_func101(Param_pefu_func101_003);
             }
             else if (RD1_MASK(REG_0044H, 0xffffffffU) == 0x00000001U)
             {
-                WR1_PROG(REG_0014H, 0x00000bc1U);
-                WR1_PROG(REG_00D4H, 0x40000200U);
-                WR1_PROG(REG_00D0H, 0xf7009d07U);
-
-                for (iLoop = 0U; iLoop < 12U; )
+                static const uint32_t Param_pefu_sub100_002[] =
                 {
-                    WAIT_STS(REG_0014H, 31, 1);
-                    WR4_ADDR(REG_002CH, &InData_EncMsg[1 + iLoop]);
-                    iLoop = iLoop + 4U;
-                }
+                    BSWAP_32BIG_C(0x0000ef02U), BSWAP_32BIG_C(0x39c5d7fbU), BSWAP_32BIG_C(0xa089ad07U),
+                    BSWAP_32BIG_C(0x33150623U),
+                    BSWAP_32BIG_C(0xea1ef341U), BSWAP_32BIG_C(0x0000ef02U), BSWAP_32BIG_C(0x543732eeU),
+                    BSWAP_32BIG_C(0x62443bdfU),
+                    BSWAP_32BIG_C(0x9f3912dcU),
+                    BSWAP_32BIG_C(0x82e3da77U), 0x00009406U,
+                };
+                r_rsip_func_sub100(InData_EncMsg, Param_pefu_sub100_002, RSIP_SEL_BIT_LENGTH_384);
 
-                r_rsip_func_sub009(0x00009406U, 0x00c10031U, 0x00001800U);
-
-                r_rsip_func_sub011(0x000003c1U, 0x40000000U, 0x07008d05U);
-                WR4_ADDR(REG_002CH, &InData_EncMsg[13]);
-
-                r_rsip_func101(bswap_32big(0x6462a0ffU),
-                               bswap_32big(0x990c96e0U),
-                               bswap_32big(0x1f9b5fb6U),
-                               bswap_32big(0x5693cc1eU));
+                static const uint32_t Param_pefu_func101_004[] =
+                {
+                    BSWAP_32BIG_C(0xd27ece6cU), BSWAP_32BIG_C(0x7c96092aU), BSWAP_32BIG_C(0xece0fa66U), BSWAP_32BIG_C(
+                        0xd2589e09U),
+                };
+                r_rsip_func101(Param_pefu_func101_004);
             }
 
-            r_rsip_func_sub013(0x9c100005U, 0x00410011U);
-
-            r_rsip_func100(bswap_32big(0xbe051680U), bswap_32big(0xde1852e3U), bswap_32big(0x687cba5cU),
-                           bswap_32big(0x2d76f1d1U));
+            static const uint32_t Param_pefu_func100_005[] =
+            {
+                BSWAP_32BIG_C(0x8754f038U), BSWAP_32BIG_C(0x826eae1aU), BSWAP_32BIG_C(0xac79b134U), BSWAP_32BIG_C(
+                    0x96c972cfU),
+            };
+            r_rsip_func100(Param_pefu_func100_005);
             WR1_PROG(REG_0040H, 0x00400000U);
 
             if (CHCK_STS(REG_0040H, 22, 1))
             {
                 WR1_PROG(REG_0094H, 0x00002c20U);
-                r_rsip_func101(bswap_32big(0xfe8ad779U),
-                               bswap_32big(0x775a13e6U),
-                               bswap_32big(0x69d5eb3dU),
-                               bswap_32big(0x37ad73d8U));
+                static const uint32_t Param_pefu_func101_005[] =
+                {
+                    BSWAP_32BIG_C(0x9cb09171U), BSWAP_32BIG_C(0x156f8362U), BSWAP_32BIG_C(0x0938168eU), BSWAP_32BIG_C(
+                        0xea6e0a09U),
+                };
+                r_rsip_func101(Param_pefu_func101_005);
             }
 
-            r_rsip_func101(bswap_32big(0xa0e14f3fU), bswap_32big(0x3fc6cadeU), bswap_32big(0x916cb08aU),
-                           bswap_32big(0x1d60ea61U));
+            static const uint32_t Param_pefu_func101_006[] =
+            {
+                BSWAP_32BIG_C(0xe0f69c2bU), BSWAP_32BIG_C(0xe463b145U), BSWAP_32BIG_C(0x67c022ccU), BSWAP_32BIG_C(
+                    0x269b75e5U),
+            };
+            r_rsip_func101(Param_pefu_func101_006);
         }
 
         r_rsip_func_sub016(0x38000c21U, 0x00000080U, 0x00A70000U);
 
-        r_rsip_func100(bswap_32big(0x1c3894f0U), bswap_32big(0x60ebf507U), bswap_32big(0x53d67cc8U),
-                       bswap_32big(0x98ff88aeU));
+        static const uint32_t Param_pefu_func100_006[] =
+        {
+            BSWAP_32BIG_C(0x1c3894f0U), BSWAP_32BIG_C(0x60ebf507U), BSWAP_32BIG_C(0x53d67cc8U), BSWAP_32BIG_C(
+                0x98ff88aeU),
+        };
+        r_rsip_func100(Param_pefu_func100_006);
         WR1_PROG(REG_0040H, 0x00400000U);
         if (CHCK_STS(REG_0040H, 22, 1))
         {
-            r_rsip_func102(bswap_32big(0x87d2ca05U), bswap_32big(0xaaadac9bU), bswap_32big(0xd75e727fU),
-                           bswap_32big(0xd40fddd3U));
+            static const uint32_t Param_pefu_func102_002[] =
+            {
+                BSWAP_32BIG_C(0x87d2ca05U), BSWAP_32BIG_C(0xaaadac9bU), BSWAP_32BIG_C(0xd75e727fU), BSWAP_32BIG_C(
+                    0xd40fddd3U),
+            };
+            r_rsip_func102(Param_pefu_func102_002);
             WR1_PROG(REG_006CH, 0x00000040U);
             WAIT_STS(REG_0020H, 12, 0);
 
@@ -196,12 +217,18 @@ rsip_ret_t r_rsip_pefu (const uint32_t InData_Msg1[],
         }
         else
         {
+            r_rsip_func_sub022(0x0000b4e0U, 0x00000010U, 0x000038a7U);
+
             WAIT_STS(REG_0118H, 0, 1);
 
             r_rsip_func_sub016(0x38000c63U, 0x00000080U, 0x00A70000U);
 
-            r_rsip_func100(bswap_32big(0x5ffd79f3U), bswap_32big(0xcf727188U), bswap_32big(0x1994d4f1U),
-                           bswap_32big(0x3eef3219U));
+            static const uint32_t Param_pefu_func100_007[] =
+            {
+                BSWAP_32BIG_C(0xdaffde07U), BSWAP_32BIG_C(0x139d2a67U), BSWAP_32BIG_C(0xb326f3b7U), BSWAP_32BIG_C(
+                    0xae3e968dU),
+            };
+            r_rsip_func100(Param_pefu_func100_007);
             WR1_PROG(REG_0040H, 0x00400000U);
 
             if (CHCK_STS(REG_0040H, 22, 1))
@@ -210,24 +237,32 @@ rsip_ret_t r_rsip_pefu (const uint32_t InData_Msg1[],
                 WAIT_STS(REG_0014H, 31, 1);
                 WR1_PROG(REG_002CH, InData_Msg1[0]);
 
-                r_rsip_func101(bswap_32big(0xa6899babU),
-                               bswap_32big(0x1986fce4U),
-                               bswap_32big(0xb4b4fd5fU),
-                               bswap_32big(0x5bbf668aU));
+                static const uint32_t Param_pefu_func101_007[] =
+                {
+                    BSWAP_32BIG_C(0xdda53785U), BSWAP_32BIG_C(0xd002c26eU), BSWAP_32BIG_C(0xc1951870U), BSWAP_32BIG_C(
+                        0xc096d2e7U),
+                };
+                r_rsip_func101(Param_pefu_func101_007);
             }
 
             r_rsip_func_sub016(0x38000c84U, 0x00000080U, 0x00A70000U);
 
-            r_rsip_func100(bswap_32big(0xc184b10aU), bswap_32big(0x74ce1f80U), bswap_32big(0xe2133660U),
-                           bswap_32big(0x9460ba26U));
+            static const uint32_t Param_pefu_func100_008[] =
+            {
+                BSWAP_32BIG_C(0x0ddbdd28U), BSWAP_32BIG_C(0x2df72907U), BSWAP_32BIG_C(0x8d3ecaeeU), BSWAP_32BIG_C(
+                    0xaf02c042U),
+            };
+            r_rsip_func100(Param_pefu_func100_008);
             WR1_PROG(REG_0040H, 0x00400000U);
 
             if (CHCK_STS(REG_0040H, 22, 1))
             {
-                r_rsip_func100(bswap_32big(0xfd852830U),
-                               bswap_32big(0xa9f2698eU),
-                               bswap_32big(0xe8bb0e7fU),
-                               bswap_32big(0xaa8b52eaU));
+                static const uint32_t Param_pefu_func100_009[] =
+                {
+                    BSWAP_32BIG_C(0x91f34d74U), BSWAP_32BIG_C(0x59ba81e9U), BSWAP_32BIG_C(0x9d43b1e5U), BSWAP_32BIG_C(
+                        0x6e073eccU),
+                };
+                r_rsip_func100(Param_pefu_func100_009);
 
                 WR1_PROG(REG_0094H, 0x00007c05U);
                 WR1_PROG(REG_0040H, 0x00600000U);
@@ -236,29 +271,39 @@ rsip_ret_t r_rsip_pefu (const uint32_t InData_Msg1[],
                 {
                     r_rsip_func_sub009(0x00001804U, 0x01430021U, 0x00001800U);
 
-                    r_rsip_func101(bswap_32big(0x90543b41U),
-                                   bswap_32big(0xe3c84065U),
-                                   bswap_32big(0xd9191897U),
-                                   bswap_32big(0xeca5f567U));
+                    static const uint32_t Param_pefu_func101_008[] =
+                    {
+                        BSWAP_32BIG_C(0x47b5ed69U), BSWAP_32BIG_C(0xcc01986cU), BSWAP_32BIG_C(0x03e4615bU),
+                        BSWAP_32BIG_C(0xe4bb10f3U),
+                    };
+                    r_rsip_func101(Param_pefu_func101_008);
                 }
                 else if (RD1_MASK(REG_0044H, 0xffffffffU) == 0x00000001U)
                 {
                     r_rsip_func_sub009(0x00009806U, 0x01430031U, 0x00001800U);
 
-                    r_rsip_func101(bswap_32big(0xd8d6628bU),
-                                   bswap_32big(0x33fde46dU),
-                                   bswap_32big(0x9207c2aeU),
-                                   bswap_32big(0x45435ba8U));
+                    static const uint32_t Param_pefu_func101_009[] =
+                    {
+                        BSWAP_32BIG_C(0xb5412875U), BSWAP_32BIG_C(0x6dd29a68U), BSWAP_32BIG_C(0xdb53f414U),
+                        BSWAP_32BIG_C(0x94f91be1U),
+                    };
+                    r_rsip_func101(Param_pefu_func101_009);
                 }
 
-                r_rsip_func101(bswap_32big(0xe064237aU),
-                               bswap_32big(0x04beadc2U),
-                               bswap_32big(0xc8581fddU),
-                               bswap_32big(0xdfba7314U));
+                static const uint32_t Param_pefu_func101_010[] =
+                {
+                    BSWAP_32BIG_C(0xa30c561fU), BSWAP_32BIG_C(0x7cd03c08U), BSWAP_32BIG_C(0xb6789f13U), BSWAP_32BIG_C(
+                        0x92392fd7U),
+                };
+                r_rsip_func101(Param_pefu_func101_010);
             }
 
-            r_rsip_func100(bswap_32big(0xd3da2dc2U), bswap_32big(0x99d7c0d2U), bswap_32big(0x95523b18U),
-                           bswap_32big(0x72fd7f13U));
+            static const uint32_t Param_pefu_func100_010[] =
+            {
+                BSWAP_32BIG_C(0x483e7c36U), BSWAP_32BIG_C(0xa7e0e24eU), BSWAP_32BIG_C(0x6872fc41U), BSWAP_32BIG_C(
+                    0x47373fa2U),
+            };
+            r_rsip_func100(Param_pefu_func100_010);
 
             r_rsip_func_sub017(0x81010000U, 0x00005006U);
             RD1_ADDR(REG_002CH, &S_RAM[0]);
@@ -286,8 +331,12 @@ rsip_ret_t r_rsip_pefu (const uint32_t InData_Msg1[],
 
             r_rsip_func_sub022(0x0000b420U, 0x00000010U, 0x00003801U);
 
-            r_rsip_func101(bswap_32big(0x59dbba41U), bswap_32big(0xacd4abfcU), bswap_32big(0xd91f655eU),
-                           bswap_32big(0x78a81ad5U));
+            static const uint32_t Param_pefu_func101_011[] =
+            {
+                BSWAP_32BIG_C(0xf15bb351U), BSWAP_32BIG_C(0x70c1d967U), BSWAP_32BIG_C(0xc97ac4c8U), BSWAP_32BIG_C(
+                    0x41f582c9U),
+            };
+            r_rsip_func101(Param_pefu_func101_011);
 
             return RSIP_RET_PASS;
         }

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -125,6 +125,10 @@ void r_rsip_func405(void);
 void r_rsip_func406(const uint32_t ARG1[]);
 void r_rsip_func407(const uint32_t ARG1[]);
 void r_rsip_func408(void);
+void r_rsip_func411(const uint32_t ARG1[]);
+void r_rsip_func412(const uint32_t ARG1[]);
+void r_rsip_func413(void);
+void r_rsip_func414(uint32_t ARG1[]);
 void r_rsip_func420(void);
 void r_rsip_func421(void);
 void r_rsip_func422(const uint32_t ARG1[], uint32_t ARG2);
@@ -362,6 +366,8 @@ rsip_ret_t r_rsip_p0a(uint32_t OutData_KeyIndex[]);
 rsip_ret_t r_rsip_p0b(uint32_t OutData_KeyIndex[]);
 rsip_ret_t r_rsip_p3c(uint32_t OutData_KeyIndex[]);
 rsip_ret_t r_rsip_p3d(uint32_t OutData_KeyIndex[]);
+rsip_ret_t r_rsip_p3e(uint32_t OutData_KeyIndex[]);
+rsip_ret_t r_rsip_p3f(uint32_t OutData_KeyIndex[]);
 rsip_ret_t r_rsip_p56(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
 rsip_ret_t r_rsip_p57(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
 rsip_ret_t r_rsip_p79(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
@@ -465,6 +471,7 @@ rsip_ret_t r_rsip_p90(const uint32_t InData_KeyType[],
                       uint32_t       KEY_INDEX_SIZE);
 
 rsip_ret_t r_rsip_pe1(const uint32_t InData_Sel_KeyType[],
+                      const uint32_t InData_HashType[],
                       const uint32_t InData_Certificate[],
                       const uint32_t InData_CertificateLength[],
                       const uint32_t InData_CertificatePubKey[],
@@ -530,6 +537,27 @@ rsip_ret_t r_rsip_pe7(const uint32_t InData_HashType[],
                       uint32_t       OutData_HMACKeyIndex[],
                       uint32_t       OutData_KeyIndex[],
                       uint32_t       OutData_EncIV[]);
+rsip_ret_t r_rsip_pedf(const uint32_t InData_SignatureType[],
+                       const uint32_t InData_HashType[],
+                       const uint32_t InData_MsgDgst[],
+                       const uint32_t InData_Salt[],
+                       const uint32_t InData_SaltLength[],
+                       uint32_t       OutData_EncCertificateInfo[]);
+rsip_ret_t r_rsip_pedi(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
+rsip_ret_t r_rsip_pdef(const uint32_t InData_SignatureType[],
+                       const uint32_t InData_HashType[],
+                       const uint32_t InData_MsgDgst[],
+                       const uint32_t InData_Salt[],
+                       const uint32_t InData_SaltLength[],
+                       uint32_t       OutData_EncCertificateInfo[]);
+rsip_ret_t r_rsip_pdei(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
+rsip_ret_t r_rsip_pdff(const uint32_t InData_SignatureType[],
+                       const uint32_t InData_HashType[],
+                       const uint32_t InData_MsgDgst[],
+                       const uint32_t InData_Salt[],
+                       const uint32_t InData_SaltLength[],
+                       uint32_t       OutData_EncCertificateInfo[]);
+rsip_ret_t r_rsip_pdfi(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
 rsip_ret_t r_rsip_peef(uint32_t OutData_EncCertificateInfo[]);
 rsip_ret_t r_rsip_peei(const uint32_t InData_CurveType[],
                        const uint32_t InData_KeyIndex[],

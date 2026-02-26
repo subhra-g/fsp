@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -126,14 +126,16 @@ static void ccm_format(const uint8_t * nonce,
  *
  * @par Conditions
  * @parblock
- * Key type of p_wrapped_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_AES_128, @ref RSIP_KEY_TYPE_AES_192, @ref RSIP_KEY_TYPE_AES_256
- * - @ref RSIP_KEY_TYPE_XTS_AES_128, @ref RSIP_KEY_TYPE_XTS_AES_256
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * Argument mode must be the following:
  * - AES key
  *   - @ref RSIP_AES_CIPHER_MODE_ECB_ENC, @ref RSIP_AES_CIPHER_MODE_ECB_DEC
  *   - @ref RSIP_AES_CIPHER_MODE_CBC_ENC, @ref RSIP_AES_CIPHER_MODE_CBC_DEC
+ *   - @ref RSIP_AES_CIPHER_MODE_CBC_ENC_WRAPPED_IV, @ref RSIP_AES_CIPHER_MODE_CBC_DEC_WRAPPED_IV
  *   - @ref RSIP_AES_CIPHER_MODE_CTR
  * - XTS-AES key
  *   - @ref RSIP_AES_CIPHER_MODE_XTS_ENC, @ref RSIP_AES_CIPHER_MODE_XTS_DEC
@@ -165,10 +167,8 @@ static void ccm_format(const uint8_t * nonce,
  *
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
- * @retval FSP_ERR_CRYPTO_RSIP_FAIL              Input AES-XTS key value is illegal.(Data Key == Tweak Key)
+ * @retval FSP_ERR_CRYPTO_RSIP_FAIL              Input AES-XTS key value is illegal (Data Key == Tweak Key).
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_AES_Cipher_Init (rsip_ctrl_t * const              p_ctrl,
                                   rsip_aes_cipher_mode_t const     mode,
@@ -367,10 +367,10 @@ fsp_err_t R_RSIP_AES_Cipher_Finish (rsip_ctrl_t * const p_ctrl)
  *
  * @par Conditions
  * @parblock
- * Key type of p_wrapped_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_AES_128
- * - @ref RSIP_KEY_TYPE_AES_192
- * - @ref RSIP_KEY_TYPE_AES_256
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * Argument mode accepts any member of enumeration @ref rsip_aes_aead_mode_t.
  *
@@ -406,8 +406,6 @@ fsp_err_t R_RSIP_AES_Cipher_Finish (rsip_ctrl_t * const p_ctrl)
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_AES_AEAD_Init (rsip_ctrl_t * const              p_ctrl,
                                 rsip_aes_aead_mode_t             mode,
@@ -830,10 +828,10 @@ fsp_err_t R_RSIP_AES_AEAD_Verify (rsip_ctrl_t * const   p_ctrl,
  *
  * @par Conditions
  * @parblock
- * Key type of p_wrapped_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_AES_128
- * - @ref RSIP_KEY_TYPE_AES_192
- * - @ref RSIP_KEY_TYPE_AES_256
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * Argument mode accepts any member of enumeration @ref rsip_aes_aead_mode_t.
  * @endparblock
@@ -861,8 +859,6 @@ fsp_err_t R_RSIP_AES_AEAD_Verify (rsip_ctrl_t * const   p_ctrl,
  *
  * @note To calculate AES-GMAC, please use not R_RSIP_MAC_*() but R_RSIP_AEAD_*().
  *       For detailed usage, refer to example code.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_AES_MAC_Init (rsip_ctrl_t * const              p_ctrl,
                                rsip_aes_mac_mode_t const        mode,
@@ -1223,7 +1219,7 @@ fsp_err_t R_RSIP_AES_MAC_VerifyFinish (rsip_ctrl_t * const   p_ctrl,
 }
 
 /*******************************************************************************************************************//**
- * @} (end addtogroup RSIP)
+ * @} (end addtogroup RSIP_PROTECTED)
  **********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -1437,7 +1433,7 @@ static fsp_err_t aes_finish (rsip_ctrl_t * p_ctrl)
  *
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
- * @retval FSP_ERR_CRYPTO_RSIP_FAIL              Input AES-XTS key value is illegal.(Data Key == Tweak Key)
+ * @retval FSP_ERR_CRYPTO_RSIP_FAIL              Input AES-XTS key value is illegal (Data Key == Tweak Key).
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
  **********************************************************************************************************************/
 static fsp_err_t xts_init (rsip_ctrl_t              * p_ctrl,
@@ -2508,10 +2504,10 @@ static fsp_err_t ccm_aad_update (rsip_ctrl_t * p_ctrl, const uint8_t * p_aad, ui
 
             case RSIP_RET_KEY_FAIL:
             {
-                err = FSP_ERR_CRYPTO_RSIP_KEY_SET_FAIL;
-
                 /* State transition*/
                 p_instance_ctrl->state = RSIP_STATE_MAIN;
+
+                err = FSP_ERR_CRYPTO_RSIP_KEY_SET_FAIL;
                 break;
             }
 

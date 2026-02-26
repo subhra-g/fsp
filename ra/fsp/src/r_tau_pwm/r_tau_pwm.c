@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -377,19 +377,24 @@ fsp_err_t R_TAU_PWM_DutyCycleSet (timer_ctrl_t * const p_ctrl, uint32_t const du
 
     FSP_ASSERT(NULL != p_instance_ctrl);
 
+    timer_cfg_t const * p_cfg = p_instance_ctrl->p_cfg;
+
     /* Duty cycle counts must be in valid range. */
-    if (TIMER_SOURCE_DIV_1 == p_instance_ctrl->p_cfg->source_div)
+    if (TIMER_SOURCE_DIV_1 == p_cfg->source_div)
     {
         FSP_ERROR_RETURN(1 <= duty_cycle_counts, FSP_ERR_INVALID_ARGUMENT);
     }
 
     FSP_ERROR_RETURN(duty_cycle_counts <= UINT16_MAX, FSP_ERR_INVALID_ARGUMENT);
 
-    /* Duty cycle must be <= period. */
-    FSP_ERROR_RETURN(duty_cycle_counts <= p_instance_ctrl->p_cfg->period_counts, FSP_ERR_INVALID_ARGUMENT);
+    if (TIMER_MODE_PWM == p_cfg->mode)
+    {
+        /* Duty cycle must be <= period. */
+        FSP_ERROR_RETURN(duty_cycle_counts <= (R_TAU->TDR0[p_cfg->channel].TDR0n + 1U), FSP_ERR_INVALID_ARGUMENT);
+    }
 
     /* Do not select the pin of master channel. */
-    FSP_ASSERT(pin != p_instance_ctrl->p_cfg->channel);
+    FSP_ASSERT(pin != p_cfg->channel);
     FSP_ERROR_RETURN(TAU_PWM_OPEN == p_instance_ctrl->open, FSP_ERR_NOT_OPEN);
 #else
     FSP_PARAMETER_NOT_USED(p_ctrl);

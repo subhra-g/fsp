@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -33,10 +33,18 @@ FSP_HEADER
  #if defined(__ICCARM__)
   #pragma section=".ram_from_flash"
  #endif
- #if defined(__ARMCC_VERSION) || defined(__GNUC__)
-  #define PLACE_IN_RAM_SECTION    __attribute__((noinline)) BSP_PLACE_IN_SECTION(".ram_from_flash")
+ #if BSP_RAM_SIZE_BYTES > 2048
+  #if defined(__ARMCC_VERSION) || defined(__GNUC__)
+   #define PLACE_IN_RAM_SECTION    __attribute__((noinline)) BSP_PLACE_IN_SECTION(".ram_from_flash")
+  #else
+   #define PLACE_IN_RAM_SECTION    BSP_PLACE_IN_SECTION(".ram_from_flash")
+  #endif
  #else
-  #define PLACE_IN_RAM_SECTION    BSP_PLACE_IN_SECTION(".ram_from_flash")
+  #if defined(__ARMCC_VERSION) || defined(__GNUC__)
+   #define PLACE_IN_RAM_SECTION    __attribute__((noinline)) __attribute__((section(".ram_from_flash")))
+  #else
+   #define PLACE_IN_RAM_SECTION    __attribute__((section(".ram_from_flash")))
+  #endif
  #endif
 #else
  #define PLACE_IN_RAM_SECTION

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -1227,12 +1227,6 @@ void sau_uart_txi_isr (void)
         p_ctrl->p_src             += 1 + p_ctrl->extra_data_byte;
 
         p_ctrl->tx_count--;
-
-        if (!p_ctrl->tx_count)
-        {
-            /* Change the TX interrupt to end of transfer instead so the complete callback happens at the right time. */
-            reg_smr &= (uint16_t) ~SAU_UART_SMR_MD0_BUFFER_EMPTY;
-        }
     }
     else
     {
@@ -1240,8 +1234,10 @@ void sau_uart_txi_isr (void)
         p_ctrl->p_src = NULL;
         if (reg_smr & R_SAU0_SMR_MD0_Msk)
         {
-            /* Change the TX interrupt to end of transfer instead so the complete callback happens at the right time. */
+            /* After all data has been transmitted, switch the buffer empty interrupt to the transfer end interrupt. */
             reg_smr &= (uint16_t) ~SAU_UART_SMR_MD0_BUFFER_EMPTY;
+
+            r_sau_uart_call_callback(p_ctrl, 0U, UART_EVENT_TX_DATA_EMPTY);
         }
         else if (!SAU_REG->SSR[SAU_TX_INDEX])
         {

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -47,14 +47,10 @@
  *
  * @par Conditions
  * @parblock
- * Key type of p_wrapped_private_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_ECC_SECP256R1_PRIVATE
- * - @ref RSIP_KEY_TYPE_ECC_SECP384R1_PRIVATE
- * - @ref RSIP_KEY_TYPE_ECC_SECP521R1_PRIVATE
- * - @ref RSIP_KEY_TYPE_ECC_SECP256K1_PRIVATE
- * - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP256R1_PRIVATE
- * - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP384R1_PRIVATE
- * - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP512R1_PRIVATE
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * Message hash p_hash should be computed in advance.
  * In the case of hash length is less than the key length, padding is required to make it the same as the key length.
@@ -91,8 +87,6 @@
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_ECDSA_Sign (rsip_ctrl_t * const              p_ctrl,
                              rsip_wrapped_key_t const * const p_wrapped_private_key,
@@ -169,14 +163,10 @@ fsp_err_t R_RSIP_ECDSA_Sign (rsip_ctrl_t * const              p_ctrl,
  *
  * @par Conditions
  * @parblock
- * Key type of p_wrapped_public_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_ECC_SECP256R1_PUBLIC
- * - @ref RSIP_KEY_TYPE_ECC_SECP384R1_PUBLIC
- * - @ref RSIP_KEY_TYPE_ECC_SECP521R1_PUBLIC
- * - @ref RSIP_KEY_TYPE_ECC_SECP256K1_PUBLIC
- * - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP256R1_PUBLIC
- * - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP384R1_PUBLIC
- * - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP512R1_PUBLIC
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * Message hash p_hash should be computed in advance.
  * In the case of hash length is less than the key length, padding is required to make it the same as the key length.
@@ -213,8 +203,6 @@ fsp_err_t R_RSIP_ECDSA_Sign (rsip_ctrl_t * const              p_ctrl,
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_ECDSA_Verify (rsip_ctrl_t * const              p_ctrl,
                                rsip_wrapped_key_t const * const p_wrapped_public_key,
@@ -293,12 +281,10 @@ fsp_err_t R_RSIP_ECDSA_Verify (rsip_ctrl_t * const              p_ctrl,
  *
  * @par Conditions
  * @parblock
- * Key type of p_wrapped_public_key must be one of the following:
- *  - @ref RSIP_KEY_TYPE_ECC_SECP256R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_SECP384R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_SECP521R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP256R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP384R1_PUBLIC
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * Message hash p_hash should be computed in advance.
  * In the case of hash length is less than the key length, padding is required to make it the same as the key length.
@@ -417,13 +403,10 @@ fsp_err_t R_RSIP_PKI_ECDSA_CertVerify (rsip_ctrl_t * const              p_ctrl,
  * Implements @ref rsip_api_t::eddsaSign.
  *
  * @par Conditions
- * @parblock
- * Key type of p_wrapped_private_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_ECC_EDWARDS25519_PRIVATE
- *
- * Key type of p_wrapped_public_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_ECC_EDWARDS25519_PUBLIC
- * @endparblock
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
@@ -439,8 +422,6 @@ fsp_err_t R_RSIP_PKI_ECDSA_CertVerify (rsip_ctrl_t * const              p_ctrl,
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_PureEdDSA_Sign (rsip_ctrl_t * const              p_ctrl,
                                  rsip_wrapped_key_t const * const p_wrapped_private_key,
@@ -530,10 +511,10 @@ fsp_err_t R_RSIP_PureEdDSA_Sign (rsip_ctrl_t * const              p_ctrl,
  * Implements @ref rsip_api_t::eddsaVerify.
  *
  * @par Conditions
- * @parblock
- * Key type of p_wrapped_public_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_ECC_EDWARDS25519_PUBLIC
- * @endparblock
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
@@ -549,8 +530,6 @@ fsp_err_t R_RSIP_PureEdDSA_Sign (rsip_ctrl_t * const              p_ctrl,
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_PureEdDSA_Verify (rsip_ctrl_t * const              p_ctrl,
                                    rsip_wrapped_key_t const * const p_wrapped_public_key,
@@ -632,14 +611,10 @@ fsp_err_t R_RSIP_PureEdDSA_Verify (rsip_ctrl_t * const              p_ctrl,
  * Implements @ref rsip_api_t::ecdhKeyAgree.
  *
  * @par Conditions
- * @parblock
- * Key type of p_wrapped_private_key and p_wrapped_public_key must be one of the following:
- *  - @ref RSIP_KEY_TYPE_ECC_SECP256R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_SECP384R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_SECP521R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP256R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP384R1_PUBLIC
- * @endparblock
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
@@ -739,12 +714,10 @@ fsp_err_t R_RSIP_ECDH_KeyAgree (rsip_ctrl_t * const              p_ctrl,
  *
  * @par Conditions
  * @parblock
- * Key type of p_wrapped_private_key must be one of the following:
- *  - @ref RSIP_KEY_TYPE_ECC_SECP256R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_SECP384R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_SECP521R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP256R1_PUBLIC
- *  - @ref RSIP_KEY_TYPE_ECC_BRAINPOOLP384R1_PUBLIC
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * For secp521r1 operation, the length of the argument p_plain_public_key must be set as 132 byte.
  * Since 521 bit is not a 8-bit multiple, zero padding is required and the data format is as follows:
@@ -851,7 +824,7 @@ fsp_err_t R_RSIP_ECDH_PlainKeyAgree (rsip_ctrl_t * const              p_ctrl,
 }
 
 /*******************************************************************************************************************//**
- * @} (end addtogroup RSIP)
+ * @} (end addtogroup RSIP_PROTECTED)
  **********************************************************************************************************************/
 
 /***********************************************************************************************************************

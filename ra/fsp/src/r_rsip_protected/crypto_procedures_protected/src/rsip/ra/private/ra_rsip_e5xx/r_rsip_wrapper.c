@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -92,6 +92,8 @@ typedef enum e_cmd
     CMD_HMAC_HASH_TYPE_SHA256 = 2,
 
     CMD_PKI_KEY_TYPE_RSA_2048            = 0,
+    CMD_PKI_KEY_TYPE_RSA_3072            = 1,
+    CMD_PKI_KEY_TYPE_RSA_4096            = 2,
     CMD_PKI_KEY_TYPE_ECC_SECP256R1       = 3,
     CMD_PKI_KEY_TYPE_ECC_SECP384R1       = 4,
     CMD_PKI_KEY_TYPE_ECC_SECP521R1       = 5,
@@ -869,6 +871,30 @@ rsip_ret_t r_rsip_wrapper_p6f_hmacsha512 (const uint32_t InData_IV[],
     return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
 }
 
+rsip_ret_t r_rsip_wrapper_p6f_hmacsha512_224 (const uint32_t InData_IV[],
+                                              const uint32_t InData_InstData[],
+                                              uint32_t       OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA512_224)};
+    uint32_t LC[1]  = {0};
+    LC[0]          = R_PSCU->DLMMON;
+    INST_DATA_SIZE = RSIP_OEM_KEY_SIZE_HMAC_SHA512_224_KEY_INST_DATA_WORD;
+
+    return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p6f_hmacsha512_256 (const uint32_t InData_IV[],
+                                              const uint32_t InData_InstData[],
+                                              uint32_t       OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA512_256)};
+    uint32_t LC[1]  = {0};
+    LC[0]          = R_PSCU->DLMMON;
+    INST_DATA_SIZE = RSIP_OEM_KEY_SIZE_HMAC_SHA512_256_KEY_INST_DATA_WORD;
+
+    return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
+}
+
 rsip_ret_t r_rsip_wrapper_p8f_aes128 (const uint32_t InData_KeyIndex[],
                                       const uint32_t InData_WrappedKeyType[],
                                       const uint32_t InData_WrappedKeyIndex[],
@@ -1606,9 +1632,8 @@ rsip_ret_t r_rsip_wrapper_pe1_secp256r1 (const uint32_t InData_HashType[],
                                          const uint32_t InData_EncCertificateInfo[],
                                          uint32_t       OutData_KeyIndex[])
 {
-    FSP_PARAMETER_NOT_USED(InData_HashType);
-
     return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_ECC_SECP256R1],
+                      InData_HashType,
                       InData_Certificate,
                       InData_CertificateLength,
                       InData_CertificatePubKey,
@@ -1623,9 +1648,8 @@ rsip_ret_t r_rsip_wrapper_pe1_secp384r1 (const uint32_t InData_HashType[],
                                          const uint32_t InData_EncCertificateInfo[],
                                          uint32_t       OutData_KeyIndex[])
 {
-    FSP_PARAMETER_NOT_USED(InData_HashType);
-
     return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_ECC_SECP384R1],
+                      InData_HashType,
                       InData_Certificate,
                       InData_CertificateLength,
                       InData_CertificatePubKey,
@@ -1640,9 +1664,8 @@ rsip_ret_t r_rsip_wrapper_pe1_secp521r1 (const uint32_t InData_HashType[],
                                          const uint32_t InData_EncCertificateInfo[],
                                          uint32_t       OutData_KeyIndex[])
 {
-    FSP_PARAMETER_NOT_USED(InData_HashType);
-
     return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_ECC_SECP521R1],
+                      InData_HashType,
                       InData_Certificate,
                       InData_CertificateLength,
                       InData_CertificatePubKey,
@@ -1657,9 +1680,8 @@ rsip_ret_t r_rsip_wrapper_pe1_brainpoolp256r1 (const uint32_t InData_HashType[],
                                                const uint32_t InData_EncCertificateInfo[],
                                                uint32_t       OutData_KeyIndex[])
 {
-    FSP_PARAMETER_NOT_USED(InData_HashType);
-
     return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_ECC_BRAINPOOLP256R1],
+                      InData_HashType,
                       InData_Certificate,
                       InData_CertificateLength,
                       InData_CertificatePubKey,
@@ -1674,9 +1696,8 @@ rsip_ret_t r_rsip_wrapper_pe1_brainpoolp384r1 (const uint32_t InData_HashType[],
                                                const uint32_t InData_EncCertificateInfo[],
                                                uint32_t       OutData_KeyIndex[])
 {
-    FSP_PARAMETER_NOT_USED(InData_HashType);
-
     return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_ECC_BRAINPOOLP384R1],
+                      InData_HashType,
                       InData_Certificate,
                       InData_CertificateLength,
                       InData_CertificatePubKey,
@@ -1691,9 +1712,56 @@ rsip_ret_t r_rsip_wrapper_pe1_brainpoolp512r1 (const uint32_t InData_HashType[],
                                                const uint32_t InData_EncCertificateInfo[],
                                                uint32_t       OutData_KeyIndex[])
 {
-    FSP_PARAMETER_NOT_USED(InData_HashType);
-
     return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_ECC_BRAINPOOLP512R1],
+                      InData_HashType,
+                      InData_Certificate,
+                      InData_CertificateLength,
+                      InData_CertificatePubKey,
+                      InData_EncCertificateInfo,
+                      OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_pe1_rsa2048 (const uint32_t InData_HashType[],
+                                       const uint32_t InData_Certificate[],
+                                       const uint32_t InData_CertificateLength[],
+                                       const uint32_t InData_CertificatePubKey[],
+                                       const uint32_t InData_EncCertificateInfo[],
+                                       uint32_t       OutData_KeyIndex[])
+{
+    return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_RSA_2048],
+                      InData_HashType,
+                      InData_Certificate,
+                      InData_CertificateLength,
+                      InData_CertificatePubKey,
+                      InData_EncCertificateInfo,
+                      OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_pe1_rsa3072 (const uint32_t InData_HashType[],
+                                       const uint32_t InData_Certificate[],
+                                       const uint32_t InData_CertificateLength[],
+                                       const uint32_t InData_CertificatePubKey[],
+                                       const uint32_t InData_EncCertificateInfo[],
+                                       uint32_t       OutData_KeyIndex[])
+{
+    return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_RSA_3072],
+                      InData_HashType,
+                      InData_Certificate,
+                      InData_CertificateLength,
+                      InData_CertificatePubKey,
+                      InData_EncCertificateInfo,
+                      OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_pe1_rsa4096 (const uint32_t InData_HashType[],
+                                       const uint32_t InData_Certificate[],
+                                       const uint32_t InData_CertificateLength[],
+                                       const uint32_t InData_CertificatePubKey[],
+                                       const uint32_t InData_EncCertificateInfo[],
+                                       uint32_t       OutData_KeyIndex[])
+{
+    return r_rsip_pe1(&gs_cmd[CMD_PKI_KEY_TYPE_RSA_4096],
+                      InData_HashType,
                       InData_Certificate,
                       InData_CertificateLength,
                       InData_CertificatePubKey,

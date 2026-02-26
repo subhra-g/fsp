@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -1075,15 +1075,15 @@ ble_status_t R_BLE_VS_SetPublicBdAddress (st_ble_dev_addr_t * p_addr)
  **********************************************************************************************************************/
 static int r_ble_gtl_api_transport_open (void * p_context)
 {
-    fsp_err_t       err;
+    fsp_err_t       err          = FSP_SUCCESS;
     ble_abs_cfg_t * bkup_context = (ble_abs_cfg_t *) p_context;
 
 #if defined(RM_BLE_ABS_GTL_TRANSPORT_INTERFACE_UART)
     err = bkup_context->p_uart_instance->p_api->open(bkup_context->p_uart_instance->p_ctrl,
                                                      bkup_context->p_uart_instance->p_cfg);
 #elif defined(RM_BLE_ABS_GTL_TRANSPORT_INTERFACE_SPI)
-
-    /* SPI supported not yet implemented */
+    err = bkup_context->p_spi_instance->p_api->open(bkup_context->p_spi_instance->p_ctrl,
+                                                    bkup_context->p_spi_instance->p_cfg);
 #endif
 
     return (int) err;
@@ -1099,15 +1099,16 @@ static int r_ble_gtl_api_transport_open (void * p_context)
  **********************************************************************************************************************/
 static int r_ble_gtl_api_transport_write (void * p_context, uint8_t * p_data, uint32_t len)
 {
-    fsp_err_t       err;
+    fsp_err_t       err          = FSP_SUCCESS;
     ble_abs_cfg_t * bkup_context = (ble_abs_cfg_t *) p_context;
 
 #if defined(RM_BLE_ABS_GTL_TRANSPORT_INTERFACE_UART)
     err = bkup_context->p_uart_instance->p_api->write(bkup_context->p_uart_instance->p_ctrl, p_data, len);
 #elif defined(RM_BLE_ABS_GTL_TRANSPORT_INTERFACE_SPI)
-
-    /* SPI supported not yet implemented */
+    err = r_ble_gtl_spihddr_master_tx(bkup_context->p_spi_instance->p_ctrl, p_data, len);
 #endif
+    FSP_PARAMETER_NOT_USED(p_data);
+    FSP_PARAMETER_NOT_USED(len);
 
     return (int) err;
 }
@@ -1128,6 +1129,7 @@ static int r_ble_gtl_api_transport_close (void * p_context)
 #elif defined(RM_BLE_ABS_GTL_TRANSPORT_INTERFACE_SPI)
 
     /* SPI supported not yet implemented */
+    err = bkup_context->p_spi_instance->p_api->close(bkup_context->p_spi_instance->p_ctrl);
 #endif
 
     return (int) err;

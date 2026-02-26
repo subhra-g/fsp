@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -38,39 +38,39 @@ fsp_err_t HW_SCE_Sha3GenerateMessageDigestResumeSub (const uint32_t InData_HashT
 
     if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000000U)
     {
-        WR1_PROG(REG_2404H, 0x00001000U);
+        WR1_PROG(REG_2404H, 0x00001001U);
 
         WR1_PROG(REG_1600H, 0x0000b420U);
         WR1_PROG(REG_1600H, 0x00000024U);
 
-        HW_SCE_p_func101(0x938da92eU, 0x7085fd70U, 0x4535a46eU, 0x0801848aU);
+        HW_SCE_p_func101(0x8ae5364fU, 0x4e832792U, 0x8407e84eU, 0x226e02cfU);
     }
     else if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000001U)
     {
-        WR1_PROG(REG_2404H, 0x00001010U);
+        WR1_PROG(REG_2404H, 0x00001011U);
 
         WR1_PROG(REG_1600H, 0x0000b420U);
         WR1_PROG(REG_1600H, 0x00000022U);
 
-        HW_SCE_p_func101(0xb2147191U, 0xf69ff033U, 0xc9abd3ddU, 0xc6de4955U);
+        HW_SCE_p_func101(0xc01b5771U, 0xbff2398bU, 0xff5b4b75U, 0x696593e7U);
     }
     else if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000002U)
     {
-        WR1_PROG(REG_2404H, 0x00001020U);
+        WR1_PROG(REG_2404H, 0x00001021U);
 
         WR1_PROG(REG_1600H, 0x0000b420U);
         WR1_PROG(REG_1600H, 0x0000001aU);
 
-        HW_SCE_p_func101(0xa32695ccU, 0x75b3bcc6U, 0x244555c2U, 0x308acc5fU);
+        HW_SCE_p_func101(0x4e92cbdbU, 0x8afee9c7U, 0x0d308dafU, 0xa4c3c7e3U);
     }
     else if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000003U)
     {
-        WR1_PROG(REG_2404H, 0x00001030U);
+        WR1_PROG(REG_2404H, 0x00001031U);
 
         WR1_PROG(REG_1600H, 0x0000b420U);
         WR1_PROG(REG_1600H, 0x00000012U);
 
-        HW_SCE_p_func101(0x3c40ec80U, 0xf2771473U, 0x99512ed8U, 0xfafe8d05U);
+        HW_SCE_p_func101(0xa25d9206U, 0xff669b5bU, 0x77d9c6d8U, 0x02706249U);
     }
 
     WR1_PROG(REG_1444H, 0x00000040U);

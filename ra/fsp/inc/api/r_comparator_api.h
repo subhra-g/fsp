@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -49,7 +49,7 @@ typedef enum e_comparator_mode
     COMPARATOR_MODE_WINDOW = 1,        ///< Window mode, not supported by all implementations
 } comparator_mode_t;
 
-#ifndef BSP_OVERRIDE_COMARATOR_TRIGGER_T
+#ifndef BSP_OVERRIDE_COMPARATOR_TRIGGER_T
 /** Trigger type: rising edge, falling edge, both edges, low level. */
 typedef enum e_comparator_trigger
 {

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -975,15 +975,13 @@ fsp_err_t r_tml_open_param_checking (tml_instance_ctrl_t * const p_instance_ctrl
     }
  #endif
 
-    /* Validate period must be configured in correct range and channel must be selected according to each mode. */
-    FSP_ASSERT(1 < p_cfg->period_counts);
-
  #if TML_CFG_SINGLE_CHANNEL_ENABLE
 
     /* Selected channel must match the channel selected by TML_CFG_SINGLE_CHANNEL_ENABLE */
     FSP_ERROR_RETURN(0U == p_cfg->channel, FSP_ERR_INVALID_CHANNEL);
  #endif
 
+    /* Validate period must be configured in correct range and channel must be selected according to each mode. */
     if (TIMER_MODE_8_BIT_COUNTER == mode)
     {
         FSP_ASSERT(1 < p_cfg->period_counts);
@@ -1007,6 +1005,7 @@ fsp_err_t r_tml_open_param_checking (tml_instance_ctrl_t * const p_instance_ctrl
     }
     else                               // TIMER_MODE_32_BIT_COUNTER == mode
     {
+        FSP_ASSERT(0 < (p_cfg->period_counts - 1));
         FSP_ERROR_RETURN((channel_mask & VALID_32_BIT_COUNTER_CHANNEL_MASK), FSP_ERR_INVALID_CHANNEL);
     }
 

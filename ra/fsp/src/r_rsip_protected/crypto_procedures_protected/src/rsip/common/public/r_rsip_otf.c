@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -42,6 +42,14 @@
  * Initialize on-the-fly decryption on RSIP.
  * Implements @ref rsip_api_t::otfInit.
  *
+ * @par Conditions
+ * @parblock
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
+ * @endparblock
+ *
  * @par State transition
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
  *
@@ -55,8 +63,6 @@
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms"
  *
  * @attention This function is only part of on-the-fly decryption activation process and intended to be called from
  *            a higher level FSP module. Even if a user calls this function directly, the feature will not be enabled.

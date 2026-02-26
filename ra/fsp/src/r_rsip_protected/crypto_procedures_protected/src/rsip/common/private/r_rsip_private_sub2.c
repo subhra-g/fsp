@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -58,7 +58,7 @@ RSIP_PRV_STATIC_INLINE uint32_t                            get_cmd_kdf_hmac_alg(
  * Private global variables
  **********************************************************************************************************************/
 
-static const uint32_t gs_sha_hash_type[] =
+static const uint32_t gs_sha_hash_type[RSIP_HASH_TYPE_NUM] =
 {
     [RSIP_HASH_TYPE_SHA1]       = BSWAP_32BIG_C(0U),
     [RSIP_HASH_TYPE_SHA224]     = BSWAP_32BIG_C(1U),
@@ -73,7 +73,7 @@ static const uint32_t gs_sha_hash_type[] =
     [RSIP_HASH_TYPE_SHA3_512]   = BSWAP_32BIG_C(3U),
 };
 
-static const uint32_t gs_hmac_hash_type[] =
+static const uint32_t gs_hmac_hash_type[RSIP_PRV_KEY_SUBTYPE_HMAC_NUM] =
 {
     [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA1]       = BSWAP_32BIG_C(0U),
     [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA224]     = BSWAP_32BIG_C(1U),
@@ -94,6 +94,7 @@ static const uint32_t gs_kdf_sha_hash_type[] =
 {
     [RSIP_HASH_TYPE_SHA256] = BSWAP_32BIG_C(0U),
     [RSIP_HASH_TYPE_SHA384] = BSWAP_32BIG_C(1U),
+    [RSIP_HASH_TYPE_SHA512] = BSWAP_32BIG_C(2U),
 };
 
 static const uint32_t gs_kdf_hmac_hash_type[] =

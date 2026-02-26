@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -34,10 +34,11 @@ rsip_ret_t r_rsip_p21 (const uint32_t InData_HV[],
     WR1_PROG(REG_0070H, 0x00210001U);
     WR1_PROG(REG_004CH, 0x00000000U);
 
-    r_rsip_func100(bswap_32big(0xd3961764U),
-                   bswap_32big(0x78402dabU),
-                   bswap_32big(0xfc5c992aU),
-                   bswap_32big(0x4eabf806U));
+    static const uint32_t Param_p21_func100_001[] =
+    {
+        BSWAP_32BIG_C(0xd3961764U), BSWAP_32BIG_C(0x78402dabU), BSWAP_32BIG_C(0xfc5c992aU), BSWAP_32BIG_C(0x4eabf806U),
+    };
+    r_rsip_func100(Param_p21_func100_001);
     r_rsip_func_sub019(0x000003c1U, 0x080000a5U);
     WR4_ADDR(REG_002CH, &InData_HV[0]);
     r_rsip_func_sub019(0x000003c1U, 0x08000055U);
@@ -57,18 +58,20 @@ rsip_ret_t r_rsip_p21 (const uint32_t InData_HV[],
 
     r_rsip_func_sub008(0x000000a1U, 0x0c100104U, 0x00000000U);
 
-    r_rsip_func100(bswap_32big(0x23ba16fdU),
-                   bswap_32big(0x5b1bab0aU),
-                   bswap_32big(0x5f44d5c3U),
-                   bswap_32big(0x0435e745U));
+    static const uint32_t Param_p21_func100_002[] =
+    {
+        BSWAP_32BIG_C(0x23ba16fdU), BSWAP_32BIG_C(0x5b1bab0aU), BSWAP_32BIG_C(0x5f44d5c3U), BSWAP_32BIG_C(0x0435e745U),
+    };
+    r_rsip_func100(Param_p21_func100_002);
     WR1_PROG(REG_0008H, 0x00001012U);
     WAIT_STS(REG_0008H, 30, 1);
     RD4_ADDR(REG_002CH, &OutData_DataT[0]);
 
-    r_rsip_func102(bswap_32big(0x2b2653dbU),
-                   bswap_32big(0xefa81ddaU),
-                   bswap_32big(0x16996a3aU),
-                   bswap_32big(0xa5922dedU));
+    static const uint32_t Param_p21_func102_001[] =
+    {
+        BSWAP_32BIG_C(0x2b2653dbU), BSWAP_32BIG_C(0xefa81ddaU), BSWAP_32BIG_C(0x16996a3aU), BSWAP_32BIG_C(0xa5922dedU),
+    };
+    r_rsip_func102(Param_p21_func102_001);
     WR1_PROG(REG_0068H, 0x00000040U);
     WAIT_STS(REG_0020H, 12, 0);
 

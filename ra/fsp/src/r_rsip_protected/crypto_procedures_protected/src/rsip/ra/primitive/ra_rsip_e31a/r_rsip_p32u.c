@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -21,10 +21,11 @@ void r_rsip_p32u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_
 {
     uint32_t iLoop = 0U;
 
-    r_rsip_func100(bswap_32big(0xcaa11fc5U),
-                   bswap_32big(0xfdef6956U),
-                   bswap_32big(0x351cdfbeU),
-                   bswap_32big(0x8ed34245U));
+    static const uint32_t Param_p32u_func100_001[] =
+    {
+        BSWAP_32BIG_C(0xcaa11fc5U), BSWAP_32BIG_C(0xfdef6956U), BSWAP_32BIG_C(0x351cdfbeU), BSWAP_32BIG_C(0x8ed34245U),
+    };
+    r_rsip_func100(Param_p32u_func100_001);
 
     WR1_PROG(REG_0014H, 0x00020061U);
     WR1_PROG(REG_00D4H, 0x00008020U);
@@ -46,8 +47,9 @@ void r_rsip_p32u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_
 
     r_rsip_func206();
 
-    r_rsip_func101(bswap_32big(0x0a20f230U),
-                   bswap_32big(0x585257d9U),
-                   bswap_32big(0x23cadee5U),
-                   bswap_32big(0xf69ea77bU));
+    static const uint32_t Param_p32u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x0a20f230U), BSWAP_32BIG_C(0x585257d9U), BSWAP_32BIG_C(0x23cadee5U), BSWAP_32BIG_C(0xf69ea77bU),
+    };
+    r_rsip_func101(Param_p32u_func101_001);
 }

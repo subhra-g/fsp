@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -67,10 +67,10 @@ static fsp_err_t chacha_poly_verify(rsip_ctrl_t * const   p_ctrl,
  * Implements @ref rsip_api_t::chacha20Init.
  *
  * @par Conditions
- * @parblock
- * Key type of p_wrapped_key must be RSIP_KEY_TYPE_CHACHA20.
- *
- * @endparblock
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * @parblock
@@ -523,11 +523,10 @@ fsp_err_t R_RSIP_ChaCha20_Poly1305_AADUpdate (rsip_ctrl_t * const   p_ctrl,
  *
  * Implements @ref rsip_api_t::chacha20Poly1305Update.
  *
- * @par Conditions
- * At least one byte of data must be input with this API before calling R_RSIP_ChaCha20_Poly1305_Finish() or R_RSIP_ChaCha20_Poly1305_Verify().
- *
  * @par Output length
  * Output length to p_output (p_output_length) is calculated text that has not yet been output in multiple of 64 bytes.
+ *
+ * At least one byte of data must be input with this API before calling R_RSIP_ChaCha20_Poly1305_Finish() or R_RSIP_ChaCha20_Poly1305_Verify().
  *
  * @par State transition
  * @parblock
@@ -721,7 +720,7 @@ fsp_err_t R_RSIP_ChaCha20_Poly1305_Verify (rsip_ctrl_t * const   p_ctrl,
 }
 
 /*******************************************************************************************************************//**
- * @} (end addtogroup RSIP)
+ * @} (end addtogroup RSIP_PROTECTED)
  **********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -1036,10 +1035,9 @@ static fsp_err_t chacha_poly_update (rsip_ctrl_t         * p_ctrl,
             break;
         }
 
-        case RSIP_RET_KEY_FAIL:
-
         /* RSIP_RET_KEY_FAIL does not occur unless the key value in the handle structure is destroyed,
          * so it is returned as FSP_ERR_CRYPTO_RSIP_FATAL */
+        case RSIP_RET_KEY_FAIL:
         default:
         {
             err = FSP_ERR_CRYPTO_RSIP_FATAL;

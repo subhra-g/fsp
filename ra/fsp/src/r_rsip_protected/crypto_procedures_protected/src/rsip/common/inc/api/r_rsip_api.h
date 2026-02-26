@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -95,7 +95,8 @@ FSP_HEADER
 #define RSIP_PRV_DKM_SUBTYPE_INVALID                (0x0)
 #define RSIP_PRV_DKM_SUBTYPE_SHA_256                (0x0)
 #define RSIP_PRV_DKM_SUBTYPE_SHA_384                (0x1)
-#define RSIP_PRV_DKM_SUBTYPE_SHA_NUM                (0x2)
+#define RSIP_PRV_DKM_SUBTYPE_SHA_512                (0x2)
+#define RSIP_PRV_DKM_SUBTYPE_SHA_NUM                (0x3)
 #define RSIP_PRV_DKM_SUBTYPE_HMAC_SHA256            (0x0)
 #define RSIP_PRV_DKM_SUBTYPE_HMAC_SHA384            (0x1)
 #define RSIP_PRV_DKM_SUBTYPE_HMAC_SHA512            (0x2)
@@ -296,6 +297,27 @@ typedef enum e_rsip_otf_channel
     RSIP_OTF_CHANNEL_2,                ///< Channel 2
     RSIP_OTF_CHANNEL_NUM               // Number of channels
 } rsip_otf_channel_t;
+
+/** Return values for DLMS/COSEM. */
+typedef enum e_rsip_dlms_ret
+{
+    RSIP_DLMS_RET_SUCCESS,                  ///< Normal termination.
+    RSIP_DLMS_RET_INVALID_OPERATIONAL_MODE, ///< xDLMS Operational Mode is invalid (not Authenticated encryption mode).
+    RSIP_DLMS_RET_INVALID_SECURITY_SUITE,   ///< Security Suite id is unexpected value.
+    RSIP_DLMS_RET_INVALID_APDU_CHOICE,      ///< APDU CHOICE is unexpected value.
+    RSIP_DLMS_RET_INVALID_KEY_LENGTH,       ///< Key Length is unexpected value.
+    RSIP_DLMS_RET_INVALID_SIZE_AAD,         ///< Input AAD length is invalid.
+    RSIP_DLMS_RET_INVALID_SIZE_LEN,         ///< LEN field within the APDU is invalid.
+    RSIP_DLMS_RET_SECURITY_SUITE_MISMATCH,  ///< Key type is mismatch with Security Suite id.
+    RSIP_DLMS_RET_NO_DEDICATED_KEY,         ///< Dedicated key not present.
+} rsip_dlms_ret_t;
+
+/** APDU data structure for DLMS/COSEM API. */
+typedef struct st_rsip_dlms_apdu_data
+{
+    uint8_t part_1[3];                 ///< Buffer to store the first 3 bytes of the decrypted ADPU (APDU Choice, Key Flag, and Key Length)
+    uint8_t part_2[14];                ///< Buffer to store the decrypted ADPU, excluding part_1 and the dedicated key.
+} rsip_dlms_apdu_data_t;
 
 /** Wrapped key structure for all supported algorithms. */
 typedef struct st_rsip_wrapped_key
@@ -1276,6 +1298,26 @@ typedef struct st_rsip_api
      */
     fsp_err_t (* otfInit)(rsip_ctrl_t * const p_ctrl, rsip_otf_channel_t const channel,
                           rsip_wrapped_key_t * const p_wrapped_key, uint8_t const * const p_seed);
+
+    /**
+     * Decrypts and Verifies ciphered InitiateRequest message, and wraps Dedicated Key (AES-128 or AES-256) embedded in the message.
+     * @param[in,out] p_ctrl          Pointer to control block.
+     * @param[in]     p_wrapped_key   Pointer to wrapped key of ciphered InitiateRequest APDU decryption key.
+     * @param[in]     p_apdu          Pointer to ciphered xDLMS InitiateRequest APDU (TAG || LEN || SH || C || T).
+     * @param[in]     p_nonce         Pointer to nonce (Sys-T || IC). The length must be 12 bytes.
+     * @param[in]     p_aad           Pointer to additional authentication data (SC || AK). The length is aad_length.
+     * @param[in]     aad_length      Byte length of additional authentication data.
+     * @param[in]     p_dedicated_key Pointer to Dedicated Key wrapped with HUK.
+     * @param[in]     p_apdu_data     Pointer to decrypted xDLMS InitiateRequest APDU structure.
+     * @param[out]    p_dlms_ret      DLMS/COSEM specific return value.
+     */
+    fsp_err_t (* xdlmsInitiateRequestDecrypt)(rsip_ctrl_t * const p_ctrl,
+                                              rsip_wrapped_key_t const * const p_wrapped_key,
+                                              uint8_t const * const p_apdu, uint8_t const * const p_nonce,
+                                              uint8_t const * const p_aad, uint32_t const aad_length,
+                                              rsip_wrapped_key_t * const p_dedicated_key,
+                                              rsip_dlms_apdu_data_t * const p_apdu_data,
+                                              rsip_dlms_ret_t * const p_dlms_ret);
 } rsip_api_t;
 
 /** This structure encompasses everything that is needed to use an instance of this interface. */

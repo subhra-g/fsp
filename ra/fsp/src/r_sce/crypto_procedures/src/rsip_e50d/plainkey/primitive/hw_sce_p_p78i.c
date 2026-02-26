@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -36,39 +36,39 @@ fsp_err_t HW_SCE_Sha3GenerateMessageDigestInitSub (const uint32_t InData_HashTyp
 
     if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000000U)
     {
-        WR1_PROG(REG_2404H, 0x00000000U);
+        WR1_PROG(REG_2404H, 0x00000001U);
 
         WR1_PROG(REG_1600H, 0x0000b420U);
         WR1_PROG(REG_1600H, 0x00000024U);
 
-        HW_SCE_p_func101(0x324e9754U, 0x7d14beadU, 0x6b5a6786U, 0x4c71b5c2U);
+        HW_SCE_p_func101(0x4cbdc1a7U, 0x47118b30U, 0x24fb89b2U, 0x9d565d52U);
     }
     else if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000001U)
     {
-        WR1_PROG(REG_2404H, 0x00000010U);
+        WR1_PROG(REG_2404H, 0x00000011U);
 
         WR1_PROG(REG_1600H, 0x0000b420U);
         WR1_PROG(REG_1600H, 0x00000022U);
 
-        HW_SCE_p_func101(0xd70b3732U, 0xf9f65611U, 0x3a3ddc3fU, 0x42269b61U);
+        HW_SCE_p_func101(0x9d55c563U, 0xa4654c8dU, 0x19d823ffU, 0xf3e2b8a4U);
     }
     else if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000002U)
     {
-        WR1_PROG(REG_2404H, 0x00000020U);
+        WR1_PROG(REG_2404H, 0x00000021U);
 
         WR1_PROG(REG_1600H, 0x0000b420U);
         WR1_PROG(REG_1600H, 0x0000001aU);
 
-        HW_SCE_p_func101(0x2703bdf5U, 0xd55e97f4U, 0x0a604eedU, 0x8fba773bU);
+        HW_SCE_p_func101(0xb23cd11dU, 0xd5c905a8U, 0xaa5c9b78U, 0xca60cd55U);
     }
     else if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000003U)
     {
-        WR1_PROG(REG_2404H, 0x00000030U);
+        WR1_PROG(REG_2404H, 0x00000031U);
 
         WR1_PROG(REG_1600H, 0x0000b420U);
         WR1_PROG(REG_1600H, 0x00000012U);
 
-        HW_SCE_p_func101(0x51793d0fU, 0x5dbf7ac9U, 0xe468cd8dU, 0x47800d85U);
+        HW_SCE_p_func101(0x6a06e456U, 0x0d5b3309U, 0x935ac07dU, 0x08ecfcfbU);
     }
 
     HW_SCE_p_func100(0xe86c8321U, 0x7b8a512dU, 0xab74ead3U, 0xfc453cb1U);

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -204,6 +204,9 @@
 #define RSIP_PRV_FUNC_NAME_OTF_CHANNEL_0_AES_256                            NULL
 #define RSIP_PRV_FUNC_NAME_OTF_CHANNEL_1_AES_128                            NULL
 #define RSIP_PRV_FUNC_NAME_OTF_CHANNEL_1_AES_256                            NULL
+
+#define RSIP_PRV_FUNC_NAME_XDLMS_INITIATEREQUEST_AES_128                    NULL
+#define RSIP_PRV_FUNC_NAME_XDLMS_INITIATEREQUEST_AES_256                    NULL
 
 /***********************************************************************************************************************
  * Typedef definitions

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -49,8 +49,8 @@ typedef struct st_rm_ethosu_cfg
     void    * p_context;                                     ///< Placeholder for user data
     uint32_t  ipl;                                           ///< Interrupt priority level
     IRQn_Type irq;                                           ///< NPU IRQ number
-    bool      secure_enable;                                 ///< DEPRECATED, please configure OFS2.NPUSA instead
-    bool      privilege_enable;                              ///< DEPRECATED, please configure OFS2.NPUPA instead
+    bool      secure_enable;                                 ///< Configure NPU in secure or non-secure mode
+    bool      privilege_enable;                              ///< Configure NPU in privileged or non-privileged mode
 } rm_ethosu_cfg_t;
 
 /** Ethos-U NPU API control block.  Allocate an instance specific control block to pass into the Ethos-U NPU API calls.

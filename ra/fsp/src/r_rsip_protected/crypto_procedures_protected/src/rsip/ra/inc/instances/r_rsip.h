@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -26,7 +26,7 @@ FSP_HEADER
 
 /* Version Number of Module. */
 #define FSP_R_RSIP_PROTECTED_VERSION_MAJOR    (2U)
-#define FSP_R_RSIP_PROTECTED_VERSION_MINOR    (3U)
+#define FSP_R_RSIP_PROTECTED_VERSION_MINOR    (4U)
 #define FSP_R_RSIP_PROTECTED_VERSION_PATCH    (0U)
 
 /** Returns the plain key size formatted for RSIP driver of the key type. */
@@ -250,6 +250,10 @@ typedef enum e_rsip_byte_size_wrapped_key
         RSIP_BYTE_SIZE_WRAPPED_KEY(RSIP_KEY_TYPE_HMAC_SHA384),                 ///< HMAC-SHA384
     RSIP_BYTE_SIZE_WRAPPED_KEY_HMAC_SHA512 =
         RSIP_BYTE_SIZE_WRAPPED_KEY(RSIP_KEY_TYPE_HMAC_SHA512),                 ///< HMAC-SHA512
+    RSIP_BYTE_SIZE_WRAPPED_KEY_HMAC_SHA512_224 =
+        RSIP_BYTE_SIZE_WRAPPED_KEY(RSIP_KEY_TYPE_HMAC_SHA512_224),             ///< HMAC-SHA512/224
+    RSIP_BYTE_SIZE_WRAPPED_KEY_HMAC_SHA512_256 =
+        RSIP_BYTE_SIZE_WRAPPED_KEY(RSIP_KEY_TYPE_HMAC_SHA512_256),             ///< HMAC-SHA512/256
     RSIP_BYTE_SIZE_WRAPPED_KEY_KDF_HMAC_SHA256 =
         RSIP_BYTE_SIZE_WRAPPED_KEY(RSIP_KEY_TYPE_KDF_HMAC_SHA256),             ///< KDF HMAC-SHA256
     RSIP_BYTE_SIZE_WRAPPED_KEY_KDF_HMAC_SHA384 =
@@ -335,6 +339,10 @@ typedef enum e_rsip_byte_size_encrypted_key
         RSIP_BYTE_SIZE_ENCRYPTED_KEY(RSIP_KEY_TYPE_HMAC_SHA384),                 ///< HMAC-SHA384
     RSIP_BYTE_SIZE_ENCRYPTED_KEY_HMAC_SHA512 =
         RSIP_BYTE_SIZE_ENCRYPTED_KEY(RSIP_KEY_TYPE_HMAC_SHA512),                 ///< HMAC-SHA512
+    RSIP_BYTE_SIZE_ENCRYPTED_KEY_HMAC_SHA512_224 =
+        RSIP_BYTE_SIZE_ENCRYPTED_KEY(RSIP_KEY_TYPE_HMAC_SHA512_224),             ///< HMAC-SHA512/224
+    RSIP_BYTE_SIZE_ENCRYPTED_KEY_HMAC_SHA512_256 =
+        RSIP_BYTE_SIZE_ENCRYPTED_KEY(RSIP_KEY_TYPE_HMAC_SHA512_256),             ///< HMAC-SHA512/256
     RSIP_BYTE_SIZE_ENCRYPTED_KEY_KDF_HMAC_SHA256 =
         RSIP_BYTE_SIZE_ENCRYPTED_KEY(RSIP_KEY_TYPE_KDF_HMAC_SHA256),             ///< KDF HMAC-SHA256
     RSIP_BYTE_SIZE_ENCRYPTED_KEY_KDF_HMAC_SHA384 =
@@ -351,8 +359,14 @@ typedef enum e_rsip_byte_size_wrapped_dkm
     RSIP_BYTE_SIZE_WRAPPED_DKM_HEADER       = 12,                                  ///< Header
     RSIP_BYTE_SIZE_WRAPPED_DKM_BLOCK_SHA256 = RSIP_PRV_BYTE_SIZE_WRAPPED_DATA(8),  ///< A block of SHA-256
     RSIP_BYTE_SIZE_WRAPPED_DKM_BLOCK_SHA384 = RSIP_PRV_BYTE_SIZE_WRAPPED_DATA(12), ///< A block of SHA-384
-    RSIP_BYTE_SIZE_WRAPPED_DKM_BLOCK_SHA512 = RSIP_PRV_BYTE_SIZE_WRAPPED_DATA(16), ///< A block of SHA-384
+    RSIP_BYTE_SIZE_WRAPPED_DKM_BLOCK_SHA512 = RSIP_PRV_BYTE_SIZE_WRAPPED_DATA(16), ///< A block of SHA-512
 } rsip_byte_size_wrapped_dkm_t;
+
+/** Byte size of wrapped IV or nonce */
+typedef enum e_rsip_byte_size_wrapped_iv
+{
+    RSIP_BYTE_SIZE_WRAPPED_IV = RSIP_PRV_BYTE_SIZE_WRAPPED_DATA(4), ///< Wrapped IV size for all algorithms
+} rsip_byte_size_wrapped_iv_t;
 
 /* Working area for AES block cipher */
 typedef struct st_rsip_aes_cihper_handle
@@ -870,6 +884,17 @@ fsp_err_t R_RSIP_OTF_Init(rsip_ctrl_t * const        p_ctrl,
                           rsip_otf_channel_t const   channel,
                           rsip_wrapped_key_t * const p_wrapped_key,
                           uint8_t const * const      p_seed);
+
+/* r_rsip_dlms.c */
+fsp_err_t R_RSIP_xDLMS_InitiateRequest_Decrypt(rsip_ctrl_t * const              p_ctrl,
+                                               rsip_wrapped_key_t const * const p_wrapped_key,
+                                               uint8_t const * const            p_apdu,
+                                               uint8_t const * const            p_nonce,
+                                               uint8_t const * const            p_aad,
+                                               uint32_t const                   aad_length,
+                                               rsip_wrapped_key_t * const       p_dedicated_key,
+                                               rsip_dlms_apdu_data_t * const    p_apdu_data,
+                                               rsip_dlms_ret_t * const          p_dlms_ret);
 
 /* r_rsip_ra.c */
 fsp_err_t R_RSIP_FSBL_OEM_BL_Digest_Generate(rsip_ctrl_t * const   p_ctrl,

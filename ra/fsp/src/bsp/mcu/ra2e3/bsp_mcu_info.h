@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -8,6 +8,7 @@
  * @ingroup BSP_MCU
  * @defgroup BSP_MCU_RA2E3 RA2E3
  * @includedoc config_bsp_ra2e3_fsp.html
+ * @includedoc device_ra2e3_fsp_modules_list.html
  * @{
  **********************************************************************************************************************/
 

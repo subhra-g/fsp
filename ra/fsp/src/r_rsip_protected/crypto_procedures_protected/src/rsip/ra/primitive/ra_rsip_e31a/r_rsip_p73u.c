@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -35,10 +35,11 @@ rsip_ret_t r_rsip_p73u (const uint32_t InData_Msg[], uint32_t MAX_CNT)
     WAIT_STS(REG_0118H, 8, 0);
     WR1_PROG(REG_0040H, 0x00001600U);
 
-    r_rsip_func101(bswap_32big(0x5054b29cU),
-                   bswap_32big(0xa9a4a217U),
-                   bswap_32big(0xe5725336U),
-                   bswap_32big(0x23ff770dU));
+    static const uint32_t Param_p73u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x5054b29cU), BSWAP_32BIG_C(0xa9a4a217U), BSWAP_32BIG_C(0xe5725336U), BSWAP_32BIG_C(0x23ff770dU),
+    };
+    r_rsip_func101(Param_p73u_func101_001);
 
     return RSIP_RET_PASS;
 }

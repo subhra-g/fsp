@@ -9,7 +9,7 @@
 /*
  *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
- *  Copyright (C) 2025 Modified by Renesas Electronics Corporation and/or its affiliates
+ *  Copyright (C) 2026 Modified by Renesas Electronics Corporation and/or its affiliates
  */
 
 #ifndef MBEDTLS_AES_ALT_H

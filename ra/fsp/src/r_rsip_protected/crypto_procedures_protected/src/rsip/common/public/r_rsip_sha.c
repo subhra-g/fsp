@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -77,8 +77,6 @@ static const uint32_t gs_hmac_length[] =
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
  * @retval FSP_ERR_NOT_ENABLED                   Input key type is disabled in this function by configuration.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_SHA_Compute (rsip_ctrl_t * const    p_ctrl,
                               rsip_hash_type_t const hash_type,
@@ -135,7 +133,10 @@ fsp_err_t R_RSIP_SHA_Compute (rsip_ctrl_t * const    p_ctrl,
  * Implements @ref rsip_api_t::shaInit.
  *
  * @par Conditions
- * Argument hash_function accepts any member of enumeration @ref rsip_hash_type_t.
+ * Argument hash_type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * @parblock
@@ -152,8 +153,6 @@ fsp_err_t R_RSIP_SHA_Compute (rsip_ctrl_t * const    p_ctrl,
  * @retval FSP_ERR_NOT_OPEN                      Module is not open.
  * @retval FSP_ERR_INVALID_STATE                 Internal state is illegal.
  * @retval FSP_ERR_NOT_ENABLED                   Input key type is disabled in this function by configuration.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_SHA_Init (rsip_ctrl_t * const p_ctrl, rsip_hash_type_t const hash_type)
 {
@@ -396,8 +395,6 @@ fsp_err_t R_RSIP_SHA_Resume (rsip_ctrl_t * const p_ctrl, rsip_sha_handle_t const
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_HMAC_Compute (rsip_ctrl_t * const        p_ctrl,
                                const rsip_wrapped_key_t * p_wrapped_key,
@@ -482,8 +479,6 @@ fsp_err_t R_RSIP_HMAC_Compute (rsip_ctrl_t * const        p_ctrl,
  * @retval FSP_ERR_CRYPTO_RSIP_RESOURCE_CONFLICT A resource conflict occurred because a hardware resource required
  *                                               by the processing is in use by other processing.
  * @retval FSP_ERR_CRYPTO_RSIP_FATAL             Software corruption is detected.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_HMAC_Verify (rsip_ctrl_t * const        p_ctrl,
                               const rsip_wrapped_key_t * p_wrapped_key,
@@ -565,13 +560,10 @@ fsp_err_t R_RSIP_HMAC_Verify (rsip_ctrl_t * const        p_ctrl,
  * Implements @ref rsip_api_t::hmacInit.
  *
  * @par Conditions
- * Key type of p_wrapped_key must be one of the following:
- * - @ref RSIP_KEY_TYPE_HMAC_SHA224
- * - @ref RSIP_KEY_TYPE_HMAC_SHA256
- * - @ref RSIP_KEY_TYPE_HMAC_SHA384
- * - @ref RSIP_KEY_TYPE_HMAC_SHA512
- * - @ref RSIP_KEY_TYPE_HMAC_SHA512_224
- * - @ref RSIP_KEY_TYPE_HMAC_SHA512_256
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * @parblock
@@ -589,8 +581,6 @@ fsp_err_t R_RSIP_HMAC_Verify (rsip_ctrl_t * const        p_ctrl,
  * @retval FSP_ERR_INVALID_STATE                 Internal state is illegal.
  * @retval FSP_ERR_NOT_ENABLED                   Input key type is disabled in this function by configuration.
  * @retval FSP_ERR_CRYPTO_RSIP_KEY_SET_FAIL      Input key is illegal.
- *
- * @sa Section @ref r-rsip-protected-supported-algorithms "Supported Algorithms".
  **********************************************************************************************************************/
 fsp_err_t R_RSIP_HMAC_Init (rsip_ctrl_t * const p_ctrl, rsip_wrapped_key_t const * const p_wrapped_key)
 {

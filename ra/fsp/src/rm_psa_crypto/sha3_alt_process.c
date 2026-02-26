@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -47,11 +47,6 @@ int mbedtls_internal_sha3_process_ext (mbedtls_sha3_context * ctx,
     uint32_t   sce_hash_type[1];
     uint32_t   sce_hash_cmd[1] = {((uint32_t) ctx->sce_operation_state)};
     uint32_t   InData_MsgLen[2];
-
-    for (uint32_t i = 0; i < len; i += 4)
-    {
-        MBEDTLS_PUT_UINT32_BE(*(uint32_t *) &data[i], (unsigned char *) &data[i], 0);
-    }
 
     /* Determine SHA3 variant based on output length */
     switch (ctx->sha3_type)

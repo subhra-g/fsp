@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -13,10 +13,8 @@
 /***********************************************************************************************************************
  * Macro definitions
  **********************************************************************************************************************/
-#define RM_ETHOS_OPEN                             (0x524D4554UL) // "RMET"
 
-#define BSP_CFG_OPTION_SETTING_OFS2_NPUSA_MASK    (1 << 2)
-#define BSP_CFG_OPTION_SETTING_OFS2_NPUPA_MASK    (1 << 3)
+#define RM_ETHOSU_OPEN    (0x524D4554UL) // "RMET"
 
 /***********************************************************************************************************************
  * Typedef definitions
@@ -79,18 +77,14 @@ fsp_err_t RM_ETHOSU_Open (rm_ethosu_ctrl_t * p_api_ctrl, rm_ethosu_cfg_t const *
     FSP_ASSERT(NULL != p_ctrl);
     FSP_ASSERT(NULL != p_cfg);
     FSP_ASSERT(p_cfg->irq >= 0);
-    FSP_ERROR_RETURN(RM_ETHOS_OPEN != p_ctrl->open, FSP_ERR_ALREADY_OPEN);
+    FSP_ERROR_RETURN(RM_ETHOSU_OPEN != p_ctrl->open, FSP_ERR_ALREADY_OPEN);
 #endif
 
     R_BSP_MODULE_START(FSP_IP_NPU, 0);
 
-    /* NPUSA: 1 - secure, 0 - non secure*/
-    uint32_t secure_enable = (BSP_CFG_OPTION_SETTING_OFS2 & BSP_CFG_OPTION_SETTING_OFS2_NPUSA_MASK) > 0 ? 1 : 0;
-
-    /* NPUPA: 1 - unprivilege, 0 - privilege*/
-    uint32_t privilege_enable = (BSP_CFG_OPTION_SETTING_OFS2 & BSP_CFG_OPTION_SETTING_OFS2_NPUPA_MASK) > 0 ? 0 : 1;
-
-    if (0 != ethosu_init(p_ctrl->p_dev, (void *) R_NPU_BASE, NULL, 0, secure_enable, privilege_enable))
+    if (0 !=
+        ethosu_init(p_ctrl->p_ext_cfg->p_dev, (void *) R_NPU_BASE, NULL, 0, p_cfg->secure_enable,
+                    p_cfg->privilege_enable))
     {
         return FSP_ERR_INVALID_ARGUMENT;
     }
@@ -102,7 +96,7 @@ fsp_err_t RM_ETHOSU_Open (rm_ethosu_ctrl_t * p_api_ctrl, rm_ethosu_cfg_t const *
     p_ctrl->p_context         = p_cfg->p_context;
     p_ctrl->p_callback_memory = NULL;
 
-    p_ctrl->open = RM_ETHOS_OPEN;
+    p_ctrl->open = RM_ETHOSU_OPEN;
 
     return FSP_SUCCESS;
 }
@@ -125,7 +119,7 @@ fsp_err_t RM_ETHOSU_CallbackSet (rm_ethosu_ctrl_t * const          p_api_ctrl,
 
 #if (RM_ETHOSU_CFG_PARAM_CHECKING_ENABLE)
     FSP_ASSERT(NULL != p_ctrl);
-    FSP_ERROR_RETURN(RM_ETHOS_OPEN == p_ctrl->open, FSP_ERR_NOT_OPEN);
+    FSP_ERROR_RETURN(RM_ETHOSU_OPEN == p_ctrl->open, FSP_ERR_NOT_OPEN);
 #endif
 
 #if BSP_TZ_SECURE_BUILD
@@ -173,12 +167,12 @@ fsp_err_t RM_ETHOSU_Close (rm_ethosu_ctrl_t * p_api_ctrl)
     rm_ethosu_instance_ctrl_t * p_ctrl = (rm_ethosu_instance_ctrl_t *) p_api_ctrl;
 #if RM_ETHOSU_CFG_PARAM_CHECKING_ENABLE
     FSP_ASSERT(NULL != p_ctrl);
-    FSP_ERROR_RETURN(RM_ETHOS_OPEN == p_ctrl->open, FSP_ERR_NOT_OPEN);
+    FSP_ERROR_RETURN(RM_ETHOSU_OPEN == p_ctrl->open, FSP_ERR_NOT_OPEN);
 #endif
 
     R_BSP_IrqDisable(p_ctrl->p_cfg->irq);
 
-    ethosu_deinit((struct ethosu_driver *) p_ctrl->p_dev);
+    ethosu_deinit(p_ctrl->p_ext_cfg->p_dev);
 
     R_BSP_MODULE_STOP(FSP_IP_NPU, 0);
 
@@ -253,7 +247,7 @@ void rm_ethosu_isr (void)
     IRQn_Type irq = R_FSP_CurrentIrqGet();
     rm_ethosu_instance_ctrl_t * p_ctrl = (rm_ethosu_instance_ctrl_t *) R_FSP_IsrContextGet(irq);
 
-    ethosu_irq_handler(p_ctrl->p_dev);
+    ethosu_irq_handler(p_ctrl->p_ext_cfg->p_dev);
 
     if (p_ctrl->p_callback)
     {
@@ -264,4 +258,52 @@ void rm_ethosu_isr (void)
 
     /* Restore context if RTOS is used */
     FSP_CONTEXT_RESTORE
+}
+
+/******************************************************************************
+ * Overwrite weak functions in the ethos-u driver
+ ******************************************************************************/
+
+/*
+ * Flush/clean the data cache by address and size. Passing NULL as p argument
+ * expects the whole cache to be flushed.
+ */
+void ethosu_flush_dcache (uint32_t * p, size_t bytes)
+{
+#if BSP_CFG_DCACHE_ENABLED
+    if (!p)
+    {
+        SCB_CleanDCache();
+    }
+    else
+    {
+        SCB_CleanDCache_by_Addr(p, (int32_t) bytes);
+    }
+
+#else
+    FSP_PARAMETER_NOT_USED(p);
+    FSP_PARAMETER_NOT_USED(bytes);
+#endif
+}
+
+/*
+ * Invalidate the data cache by address and size. Passing NULL as p argument
+ * expects the whole cache to be invalidated.
+ */
+void ethosu_invalidate_dcache (uint32_t * p, size_t bytes)
+{
+#if BSP_CFG_DCACHE_ENABLED
+    if (!p)
+    {
+        SCB_CleanInvalidateDCache();
+    }
+    else
+    {
+        SCB_CleanInvalidateDCache_by_Addr(p, (int32_t) bytes);
+    }
+
+#else
+    FSP_PARAMETER_NOT_USED(p);
+    FSP_PARAMETER_NOT_USED(bytes);
+#endif
 }

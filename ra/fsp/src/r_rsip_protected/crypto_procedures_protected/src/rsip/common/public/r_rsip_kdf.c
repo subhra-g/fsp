@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -65,6 +65,7 @@ static const uint8_t gs_convert_to_kdf_sha_subtype[RSIP_HASH_TYPE_NUM] =
 {
     [RSIP_HASH_TYPE_SHA256] = RSIP_PRV_DKM_SUBTYPE_SHA_256,
     [RSIP_HASH_TYPE_SHA384] = RSIP_PRV_DKM_SUBTYPE_SHA_384,
+    [RSIP_HASH_TYPE_SHA512] = RSIP_PRV_DKM_SUBTYPE_SHA_512,
 };
 
 /***********************************************************************************************************************
@@ -86,9 +87,10 @@ static const uint8_t gs_convert_to_kdf_sha_subtype[RSIP_HASH_TYPE_NUM] =
  * Implements @ref rsip_api_t::kdfShaInit.
  *
  * @par Conditions
- * Argument hash_type must be one of the following:
- *   - @ref RSIP_HASH_TYPE_SHA256
- *   - @ref RSIP_HASH_TYPE_SHA384
+ * Argument hash_type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * @parblock
@@ -145,7 +147,7 @@ fsp_err_t R_RSIP_KDF_SHA_Init (rsip_ctrl_t * const p_ctrl, rsip_hash_type_t cons
             break;
         }
 
-        /* SHA-384 */
+        /* SHA-384, SHA-512 */
         default:
         {
             p_handle->block_size = RSIP_PRV_BYTE_SIZE_HASH_BLOCK_SHA384_SHA512;
@@ -200,7 +202,7 @@ fsp_err_t R_RSIP_KDF_SHA_ECDHSecretUpdate (rsip_ctrl_t * const                 p
     /* Set function */
     uint8_t subtype = gs_convert_to_kdf_sha_subtype[p_handle->type];
     FSP_ERROR_RETURN(subtype < RSIP_PRV_DKM_SUBTYPE_SHA_NUM, FSP_ERR_CRYPTO_RSIP_FATAL);
-    rsip_func_kdf_ecdh_secret_msg_wrap_t p_func = gp_func_kdf_sha_ecdh_secret_msg_wrap[subtype];
+    rsip_func_kdf_ecdh_secret_msg_wrap_t p_func = gp_func_kdf_sha_ecdh_secret_msg_wrap[subtype][p_wrapped_secret->type];
 
 #if RSIP_CFG_PARAM_CHECKING_ENABLE
 
@@ -239,10 +241,28 @@ fsp_err_t R_RSIP_KDF_SHA_ECDHSecretUpdate (rsip_ctrl_t * const                 p
                 }
 
                 /* ECC secp384r1, brainpoolP384r1 */
-                default:
+                case RSIP_PRV_KEY_SUBTYPE_ECC_SECP384R1:
+                case RSIP_PRV_KEY_SUBTYPE_ECC_BRAINPOOLP384R1:
                 {
                     p_handle->wrapped_msg_length        = RSIP_PRV_BYTE_SIZE_ECDH_WRAPPED_SECRET_384;
                     p_handle->actual_wrapped_msg_length = RSIP_PRV_BYTE_SIZE_ECC_384_PARAM;
+                    break;
+                }
+
+                /* ECC brainpoolP512r1 */
+                case RSIP_PRV_KEY_SUBTYPE_ECC_BRAINPOOLP512R1:
+                {
+                    p_handle->wrapped_msg_length        = RSIP_PRV_BYTE_SIZE_ECDH_WRAPPED_SECRET_512;
+                    p_handle->actual_wrapped_msg_length = RSIP_PRV_BYTE_SIZE_ECC_512_PARAM;
+                    break;
+                }
+
+                /* ECC secp521r1 */
+                default:
+                {
+                    p_handle->wrapped_msg_length        = RSIP_PRV_BYTE_SIZE_ECDH_WRAPPED_SECRET_521;
+                    p_handle->actual_wrapped_msg_length = RSIP_PRV_BYTE_SIZE_ECC_521_PARAM;
+                    break;
                 }
             }
 
@@ -506,10 +526,18 @@ fsp_err_t R_RSIP_KDF_SHA_Finish (rsip_ctrl_t * const p_ctrl, rsip_wrapped_dkm_t 
                 }
 
                 /* SHA-384 */
-                default:
+                case RSIP_HASH_TYPE_SHA384:
                 {
                     p_wrapped_dkm->subtype      = RSIP_PRV_DKM_SUBTYPE_SHA_384;
                     p_wrapped_dkm->block_length = RSIP_BYTE_SIZE_WRAPPED_DKM_BLOCK_SHA384;
+                    break;
+                }
+
+                /* SHA-512 */
+                default:
+                {
+                    p_wrapped_dkm->subtype      = RSIP_PRV_DKM_SUBTYPE_SHA_512;
+                    p_wrapped_dkm->block_length = RSIP_BYTE_SIZE_WRAPPED_DKM_BLOCK_SHA512;
                 }
             }
 
@@ -671,10 +699,10 @@ fsp_err_t R_RSIP_KDF_SHA_Resume (rsip_ctrl_t * const p_ctrl, rsip_kdf_sha_handle
  *
  * @par Conditions
  * @parblock
- * Argument key_type must be one of the following:
- *  - @ref RSIP_KEY_TYPE_KDF_HMAC_SHA256
- *  - @ref RSIP_KEY_TYPE_KDF_HMAC_SHA384
- *  - @ref RSIP_KEY_TYPE_KDF_HMAC_SHA512
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration"
  *
  * The argument p_wrapped_dkm must be input the result of R_RSIP_KDF_HMAC_SignFinish().
  * @endparblock
@@ -776,12 +804,10 @@ fsp_err_t R_RSIP_KDF_HMAC_DKMKeyImport (rsip_ctrl_t * const              p_ctrl,
  * Implements @ref rsip_api_t::kdfHmacEcdhSecretKeyImport.
  *
  * @par Conditions
- * @parblock
- * Argument key_type must be one of the following:
- *  - @ref RSIP_KEY_TYPE_KDF_HMAC_SHA256
- *  - @ref RSIP_KEY_TYPE_KDF_HMAC_SHA384
- *  - @ref RSIP_KEY_TYPE_KDF_HMAC_SHA512
- * @endparblock
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * This API can only be executed in **STATE_MAIN**, and does not cause any state transitions.
@@ -863,9 +889,10 @@ fsp_err_t R_RSIP_KDF_HMAC_ECDHSecretKeyImport (rsip_ctrl_t * const              
  * Implements @ref rsip_api_t::kdfHmacInit.
  *
  * @par Conditions
- * Argument p_wrapped_key must be one of the following:
- *  - Output data p_wrapped_key from R_RSIP_KDF_ECDHSecretKeyImport().
- *  - Key type of p_wrapped_key is RSIP_KEY_TYPE_HMAC_*.
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
  *
  * @par State transition
  * @parblock
@@ -1564,14 +1591,13 @@ fsp_err_t R_RSIP_KDF_DKMConcatenate (rsip_wrapped_dkm_t * const       p_wrapped_
  *
  * @par Conditions
  * @parblock
+ * Argument @ref rsip_wrapped_key_t::type must be supported by both the function and the device,
+ * and must also be enabled in the configuration. For more details, please refer to
+ * @ref r-rsip-protected-supported-algorithms "Supported Algorithms" and
+ * @ref r-rsip-protected-configuration "Configuration".
+ *
  * Argument p_wrapped_dkm must be input the result of R_RSIP_KDF_SHA_Finish(), R_RSIP_KDF_HMAC_SignFinish()
  * or R_RSIP_KDF_DKMConcatenate().
- * Argument key_type must be one of the following:
- *  - @ref RSIP_KEY_TYPE_AES_128
- *  - @ref RSIP_KEY_TYPE_AES_256
- *  - @ref RSIP_KEY_TYPE_HMAC_SHA256
- *  - @ref RSIP_KEY_TYPE_HMAC_SHA384
- *  - @ref RSIP_KEY_TYPE_HMAC_SHA512
  * @endparblock
  *
  * @par State transition

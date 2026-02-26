@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -740,7 +740,7 @@ typedef struct st_layer3_switch_extended_cfg
 {
     ether_phy_instance_t const * p_ether_phy_instances[BSP_FEATURE_ETHER_NUM_CHANNELS];                             ///< List of pointers to ETHER_PHY instance.
     gptp_instance_t const      * p_gptp_instance;                                                                   ///< Pointer to a gPTP instance.
-    uint32_t  fowarding_target_port_masks[BSP_FEATURE_ETHER_NUM_CHANNELS];                                          ///< List of ports to which incoming frames are forwarded.
+    uint32_t  fowarding_target_port_masks[BSP_FEATURE_ETHER_NUM_CHANNELS + 1];                                      ///< List of ports to which incoming frames are forwarded.
     uint8_t * p_mac_addresses[BSP_FEATURE_ETHER_NUM_CHANNELS];                                                      // [DEPRECATED] MAC address of each port.
     uint32_t  ipv_queue_depth_list[BSP_FEATURE_ETHER_NUM_CHANNELS][BSP_FEATURE_ESWM_ETHA_IPV_QUEUE_NUM];            ///< List of IPV queue depth for each port.
     uint32_t  ipv_queue_preemptable_bitmask[BSP_FEATURE_ETHER_NUM_CHANNELS];                                        ///< Bitmask of IPV queues that contain preemptable frames.

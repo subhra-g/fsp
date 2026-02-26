@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -34,16 +34,16 @@ rsip_ret_t r_rsip_pefi (const uint32_t InData_HashType[], const uint32_t InData_
     WR1_PROG(REG_1458H, 0x00000000U);
 
     WR1_PROG(REG_1600H, 0x3000a800U);
-    WR1_PROG(REG_1600H, 0x00000002U);
+    WR1_PROG(REG_1600H, 0x00000003U);
     WR1_PROG(REG_1600H, 0x00010020U);
     WR1_PROG(REG_1600H, 0x0000b400U);
-    WR1_PROG(REG_1600H, 0x00000001U);
+    WR1_PROG(REG_1600H, 0x00000002U);
     WR1_PROG(REG_1600H, 0x00000080U);
 
-    r_rsip_func100(bswap_32big(0x7b182bb6U),
-                   bswap_32big(0x87c6b37aU),
-                   bswap_32big(0x09758de7U),
-                   bswap_32big(0xd3862c96U));
+    r_rsip_func100(bswap_32big(0x8e6ca25bU),
+                   bswap_32big(0x3c27e3c7U),
+                   bswap_32big(0x4e64c67bU),
+                   bswap_32big(0x2f1c8ad3U));
 
     WR1_PROG(REG_1600H, 0x00007c00U);
     WR1_PROG(REG_143CH, 0x00600000U);
@@ -53,15 +53,22 @@ rsip_ret_t r_rsip_pefi (const uint32_t InData_HashType[], const uint32_t InData_
     {
         WR1_PROG(REG_2004H, 0x00000050U);
 
-        r_rsip_func101(bswap_32big(0x106ca759U), bswap_32big(0x9ca1092bU), bswap_32big(0xd52dd3b7U),
-                       bswap_32big(0xe93fcbe6U));
+        r_rsip_func101(bswap_32big(0xb6ac4c59U), bswap_32big(0xbae18f67U), bswap_32big(0x90109e3aU),
+                       bswap_32big(0x6caee503U));
     }
     else if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000001U)
     {
         WR1_PROG(REG_2004H, 0x000000a0U);
 
-        r_rsip_func101(bswap_32big(0x988a59feU), bswap_32big(0x535def12U), bswap_32big(0x2d53878cU),
-                       bswap_32big(0xe0bdcef2U));
+        r_rsip_func101(bswap_32big(0xc86161ebU), bswap_32big(0x72079603U), bswap_32big(0x915386d6U),
+                       bswap_32big(0x7d9ec47aU));
+    }
+    else if (RD1_MASK(REG_1440H, 0xffffffffU) == 0x00000002U)
+    {
+        WR1_PROG(REG_2004H, 0x000000b0U);
+
+        r_rsip_func101(bswap_32big(0x22aa8823U), bswap_32big(0x92a28bcfU), bswap_32big(0x32c93839U),
+                       bswap_32big(0xaf3b9f17U));
     }
 
     WR1_PROG(REG_1600H, 0x0000b420U);

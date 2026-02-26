@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -201,7 +201,11 @@ typedef enum e_flash_command
  **********************************************************************************************************************/
 static void r_flash_lp_init(flash_lp_instance_ctrl_t * p_ctrl);
 
+#if BSP_FEATURE_FLASH_LP_DF_BLOCK_SIZE
+
 static void r_flash_lp_df_enter_pe_mode(flash_lp_instance_ctrl_t * const p_ctrl);
+
+#endif
 
 #if (FLASH_LP_CFG_DATA_FLASH_PROGRAMMING_ENABLE == 1)
 
@@ -218,7 +222,7 @@ static fsp_err_t r_flash_lp_df_erase(flash_lp_instance_ctrl_t * const p_ctrl,
 
 #endif
 
-static fsp_err_t r_flash_lp_set_fisr(flash_lp_instance_ctrl_t * const p_ctrl);
+static fsp_err_t r_flash_lp_set_fisr(flash_lp_instance_ctrl_t * const p_ctrl) FLASH_PE_PLACE_IN_RAM_SECTION;
 
 static fsp_err_t r_flash_lp_setup(flash_lp_instance_ctrl_t * p_ctrl);
 
@@ -338,11 +342,13 @@ const flash_block_info_t g_code_flash_macro_info =
     .block_size_write       = BSP_FEATURE_FLASH_LP_CF_WRITE_SIZE
 };
 
-static flash_regions_t g_flash_code_region =
+static const flash_regions_t g_flash_code_region =
 {
     .num_regions   = 1,
     .p_block_array = &g_code_flash_macro_info
 };
+
+#if BSP_FEATURE_FLASH_LP_DF_BLOCK_SIZE
 
 const flash_block_info_t g_data_flash_macro_info =
 {
@@ -352,11 +358,21 @@ const flash_block_info_t g_data_flash_macro_info =
     .block_size_write       = BSP_FEATURE_FLASH_LP_DF_WRITE_SIZE
 };
 
-static flash_regions_t g_flash_data_region =
+static const flash_regions_t g_flash_data_region =
 {
     .num_regions   = 1,
     .p_block_array = &g_data_flash_macro_info
 };
+
+#else
+
+static const flash_regions_t g_flash_data_region =
+{
+    .num_regions   = 0,
+    .p_block_array = NULL,
+};
+
+#endif
 
 /***********************************************************************************************************************
  * Functions
@@ -1207,6 +1223,8 @@ static fsp_err_t r_flash_lp_setup (flash_lp_instance_ctrl_t * p_ctrl)
     /* Initialize the flash timeout calculations and transfer global parameters to code and data flash layers. */
     r_flash_lp_init(p_ctrl);
 
+#if BSP_FEATURE_FLASH_LP_DF_BLOCK_SIZE
+
     /* Enable the DataFlash if not already enabled */
     if (1U != R_FACI_LP->DFLCTL)
     {
@@ -1215,6 +1233,7 @@ static fsp_err_t r_flash_lp_setup (flash_lp_instance_ctrl_t * p_ctrl)
         /* Wait for (tDSTOP) before reading from data flash. */
         r_flash_lp_delay_us(FLASH_LP_WAIT_TDSTOP, p_ctrl->system_clock_frequency);
     }
+#endif
 
     return err;
 }
@@ -1905,9 +1924,16 @@ static void r_flash_lp_reset (flash_lp_instance_ctrl_t * const p_ctrl)
     /* If not currently in PE mode then enter P/E mode. */
     if (FLASH_LP_PRV_FENTRYR == 0x0000UL)
     {
+#if BSP_FEATURE_FLASH_LP_DF_BLOCK_SIZE
+
         /* Enter P/E mode so that we can execute some FACI commands. Either Code or Data Flash P/E mode would work
          * but Code Flash P/E mode requires FLASH_LP_CFG_CODE_FLASH_PROGRAMMING_ENABLE ==1, which may not be true */
         r_flash_lp_df_enter_pe_mode(p_ctrl);
+#else
+
+        /* Enter Code Flash P/E mode so that we can execute some FACI commands. */
+        r_flash_lp_cf_enter_pe_mode(p_ctrl, false);
+#endif
     }
 
     /* Reset the flash. */
@@ -2060,6 +2086,8 @@ static void r_flash_lp_delay_us (uint32_t us, uint32_t mhz)
     }
 }
 
+#if BSP_FEATURE_FLASH_LP_DF_BLOCK_SIZE
+
 /*******************************************************************************************************************//**
  * Transition to Data Flash P/E mode.
  * @param[in]  p_ctrl  Pointer to the Flash control block
@@ -2072,7 +2100,7 @@ void r_flash_lp_df_enter_pe_mode (flash_lp_instance_ctrl_t * const p_ctrl)
 
     /* See figure "Procedure for changing from the read mode to the data flash P/E mode" in the Flash Memory section
      * of the relevant hardware manual. */
-#if BSP_FEATURE_FLASH_LP_VERSION == 3
+ #if BSP_FEATURE_FLASH_LP_VERSION == 3
 
     /* If the device is not in high speed mode enable LVPE mode as per the flash documentation. */
     if (R_SYSTEM->OPCCR_b.OPCM == 0U)
@@ -2084,13 +2112,13 @@ void r_flash_lp_df_enter_pe_mode (flash_lp_instance_ctrl_t * const p_ctrl)
         r_flash_lp_write_fpmcr((uint8_t) FLASH_LP_DATAFLASH_PE_MODE | (uint8_t) FLASH_LP_LVPE_MODE);
     }
 
-#elif BSP_FEATURE_FLASH_LP_VERSION == 4
+ #elif BSP_FEATURE_FLASH_LP_VERSION == 4
     r_flash_lp_write_fpmcr(FLASH_LP_DATAFLASH_PE_MODE);
 
     r_flash_lp_delay_us(FLASH_LP_WAIT_TDIS, p_ctrl->system_clock_frequency);
-#endif
+ #endif
 
-#if (FLASH_LP_CFG_DATA_FLASH_PROGRAMMING_ENABLE == 1) && (FLASH_LP_CFG_DATA_FLASH_BGO_SUPPORT_ENABLE == 1)
+ #if (FLASH_LP_CFG_DATA_FLASH_PROGRAMMING_ENABLE == 1) && (FLASH_LP_CFG_DATA_FLASH_BGO_SUPPORT_ENABLE == 1)
 
     /* If BGO mode is enabled and interrupts are being used then enable interrupts. */
     if (p_ctrl->p_cfg->data_flash_bgo == true)
@@ -2098,8 +2126,10 @@ void r_flash_lp_df_enter_pe_mode (flash_lp_instance_ctrl_t * const p_ctrl)
         /* We are supporting Flash Rdy interrupts for Data Flash operations. */
         R_BSP_IrqEnable(p_ctrl->p_cfg->irq);
     }
-#endif
+ #endif
 }
+
+#endif
 
 /*******************************************************************************************************************//**
  * Sets the FPMCR register, used to place the Flash sequencer in Code Flash P/E mode.
@@ -2651,8 +2681,15 @@ static fsp_err_t r_flash_lp_wait_for_ready (flash_lp_instance_ctrl_t * const p_c
  **********************************************************************************************************************/
 fsp_err_t r_flash_lp_set_fisr (flash_lp_instance_ctrl_t * const p_ctrl)
 {
+#if BSP_FEATURE_FLASH_LP_DF_BLOCK_SIZE
+
     /* Enter data flash P/E mode to enable writing to FISR. */
     r_flash_lp_df_enter_pe_mode(p_ctrl);
+#else
+
+    /* Enter code flash P/E mode to enable writing to FISR. */
+    r_flash_lp_cf_enter_pe_mode(p_ctrl, false);
+#endif
 
 #if BSP_FEATURE_FLASH_LP_VERSION == 4
 

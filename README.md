@@ -10,7 +10,7 @@ FSP uses an open software ecosystem and provides flexibility in using your prefe
 
 ### Current Release
 
-[FSP v6.3.1](https://github.com/renesas/fsp/releases/tag/v6.3.1)
+[FSP v6.4.0](https://github.com/renesas/fsp/releases/tag/v6.4.0)
 
 ### Supported RA MCU Kits
 
@@ -22,6 +22,7 @@ FSP uses an open software ecosystem and provides flexibility in using your prefe
 - CK-RA6M5 V2
 - FPB-RA0E1
 - FPB-RA0E2
+- FPB-RA0E3
 - FPB-RA0L1
 - FPB-RA2E1
 - FPB-RA2E2
@@ -60,6 +61,7 @@ FSP uses an open software ecosystem and provides flexibility in using your prefe
 - EK-RA8M1
 - EK-RA8M2
 - EK-RA8P1
+- EK-RA8T2
 - MCK-RA4T1
 - MCK-RA6T2
 - MCK-RA6T3
@@ -130,7 +132,7 @@ When using the zipped version of the packs the zip file should be extracted into
 
 #### For new users that are using FSP with e² studio
 
-1.	Download the FSP with e² studio Installer from the Assets section of the [current release](https://github.com/renesas/fsp/releases/tag/v6.3.1).
+1.	Download the FSP with e² studio Installer from the Assets section of the [current release](https://github.com/renesas/fsp/releases/tag/v6.4.0).
 2.	Run the installer. This will install the e² studio tool, FSP packs, chosen toolchains (GCC and/or LLVM) and other tools required to use this software. No additional installations are required.
 
 #### If using RA Smart Configurator (RASC) with IAR Embedded Workbench or Keil MDK ####

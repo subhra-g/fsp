@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2025 Renesas Electronics Corporation and/or its affiliates
+* Copyright (c) 2020 - 2026 Renesas Electronics Corporation and/or its affiliates
 *
 * SPDX-License-Identifier: BSD-3-Clause
 */
@@ -95,10 +95,7 @@ void r_rsip_kuk_set (const void * p_key_update_key)
     S_INST2 = (uint32_t *) p_key_update_key;
 }
 
-fsp_err_t get_rfc3394_key_wrap_param (rsip_key_type_t key_type,
-                                      uint32_t      * wrapped_key_type,
-                                      uint32_t      * key_index_size,
-                                      uint32_t      * wrapped_key_size)
+fsp_err_t r_rsip_get_rfc3394_key_wrap_param (rsip_key_type_t key_type, uint32_t * wrapped_key_type)
 {
     fsp_err_t err = FSP_ERR_INVALID_ARGUMENT;
 
@@ -107,8 +104,6 @@ fsp_err_t get_rfc3394_key_wrap_param (rsip_key_type_t key_type,
         case RSIP_KEY_TYPE_AES_128:
         {
             wrapped_key_type[0] = BSWAP_32BIG_C(0U);
-            *key_index_size     = r_rsip_byte_to_word_convert(RSIP_BYTE_SIZE_WRAPPED_KEY(RSIP_KEY_TYPE_AES_128));
-            *wrapped_key_size   = r_rsip_byte_to_word_convert(RSIP_BYTE_SIZE_PLAIN_KEY(RSIP_KEY_TYPE_AES_128) + 8);
             err                 = FSP_SUCCESS;
             break;
         }
@@ -116,8 +111,6 @@ fsp_err_t get_rfc3394_key_wrap_param (rsip_key_type_t key_type,
         case RSIP_KEY_TYPE_AES_256:
         {
             wrapped_key_type[0] = BSWAP_32BIG_C(2U);
-            *key_index_size     = r_rsip_byte_to_word_convert(RSIP_BYTE_SIZE_WRAPPED_KEY(RSIP_KEY_TYPE_AES_256));
-            *wrapped_key_size   = r_rsip_byte_to_word_convert(RSIP_BYTE_SIZE_PLAIN_KEY(RSIP_KEY_TYPE_AES_256) + 8);
             err                 = FSP_SUCCESS;
             break;
         }
