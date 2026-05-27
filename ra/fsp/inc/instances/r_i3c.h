@@ -92,13 +92,15 @@ typedef enum e_i3c_clock_data_turnaround
 } i3c_clock_data_turnaround_t;
 
 /** Clock stalling settings. */
+/** DEPRECATED, use scstlctl_b instead. */
 typedef struct s_i3c_clock_stalling
 {
-    uint32_t assigned_address_phase_enable : 1; ///< Enable Clock Stalling during the address phase of the ENTDAA command.
-    uint32_t transition_phase_enable       : 1; ///< Enable Clock Stalling during the transition bit in read transfers.
-    uint32_t parity_phase_enable           : 1; ///< Enable Clock Stalling during the parity bit period in write transfers.
-    uint32_t ack_phase_enable              : 1; ///< Enable Clock Stalling during the ACK/NACK phase.
-    uint16_t clock_stalling_time;               ///< The amount of time to stall the clock in I3C source clock ticks.
+    uint32_t clock_stalling_time           : 16; ///< The amount of time to stall the clock in I3C source clock ticks.
+    uint32_t                               : 12;
+    uint32_t assigned_address_phase_enable : 1;  ///< Enable Clock Stalling during the address phase of the ENTDAA command.
+    uint32_t transition_phase_enable       : 1;  ///< Enable Clock Stalling during the transition bit in read transfers.
+    uint32_t parity_phase_enable           : 1;  ///< Enable Clock Stalling during the parity bit period in write transfers.
+    uint32_t ack_phase_enable              : 1;  ///< Enable Clock Stalling during the ACK/NACK phase.
 } i3c_clock_stalling_t;
 
 /** Bitrate settings for configuring the SCL clock frequency. */
@@ -108,7 +110,21 @@ typedef struct s_i3c_bitrate_settings
     uint32_t extbr;                    ///< The extended bitrate settings.
 
     /** Clock Stalling settings (See Master Clock Stalling in the MIPI I3C Specification v1.0). */
-    i3c_clock_stalling_t clock_stalling;
+    union
+    {
+        uint32_t scstlctl;                               ///< SCL Stalling Control
+        __PACKED_STRUCT
+        {
+            uint32_t clock_stalling_time           : 16; ///< The amount of time to stall the clock in I3C source clock ticks.
+            uint32_t                               : 12;
+            uint32_t assigned_address_phase_enable : 1;  ///< Enable Clock Stalling during the address phase of the ENTDAA command.
+            uint32_t transition_phase_enable       : 1;  ///< Enable Clock Stalling during the transition bit in read transfers.
+            uint32_t parity_phase_enable           : 1;  ///< Enable Clock Stalling during the parity bit period in write transfers.
+            uint32_t ack_phase_enable              : 1;  ///< Enable Clock Stalling during the ACK/NACK phase.
+        } scstlctl_b;                                    ///< SCL Stalling Control bitfield
+
+        i3c_clock_stalling_t clock_stalling;             ///< DEPRECATED, use scstlctl_b instead.
+    };
 } i3c_bitrate_settings_t;
 
 /** Settings for controlling the drivers behavior in response to IBIs. */

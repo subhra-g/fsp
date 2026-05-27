@@ -200,7 +200,7 @@ void usb_hdriver_init (usb_utr_t * ptr, usb_class_t type)
     usb_host_registration(ptr, type);  /* Class Registration */
  #else
   #if defined(USB_CFG_HCDC_USE) || defined(USB_CFG_HHID_USE) || defined(USB_CFG_HMSC_USE) || \
-    defined(USB_CFG_HVND_USE) || defined(USB_CFG_HAUD_USE)
+    defined(USB_CFG_HVND_USE) || defined(USB_CFG_HAUD_USE) || defined(USB_CFG_HUVC_USE)
     usb_class_driver_start(ptr);       /* Init host class driver task. */
     usb_host_registration(ptr, type);  /* Class Registration */
   #endif /* defined(USB_CFG_HCDC_USE)||defined(USB_CFG_HHID_USE)||defined(USB_CFG_HMSC_USE)||defined(USB_CFG_HVND_USE)|| defined(USB_CFG_HAUD_USE) */

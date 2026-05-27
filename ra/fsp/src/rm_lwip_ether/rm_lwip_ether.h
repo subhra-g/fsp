@@ -62,6 +62,9 @@ typedef struct st_rm_lwip_ether_cfg
     /* Priority for input thread. */
     int32_t input_thread_priority;
 
+    /* Pointer to callback function. */
+    void (* p_callback)(ether_callback_args_t *);
+
     void       * p_context;
     void const * p_extend;
 } rm_lwip_ether_cfg_t;

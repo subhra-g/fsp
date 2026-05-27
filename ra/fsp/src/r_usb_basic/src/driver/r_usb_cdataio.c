@@ -230,8 +230,15 @@ void (* g_usb_callback[])(usb_utr_t *, uint16_t, uint16_t) =
 #endif
 
     /* HUVC */
-
+#if defined(USB_CFG_HUVC_USE)
+ #if (BSP_CFG_RTOS == 1)
     USB_NULL, USB_NULL,                /* USB_HUVC (17) */
+ #else                                 /* #if (BSP_CFG_RTOS == 1) */
+    usb_huvc_read_complete, USB_NULL,  /* USB_HUVC (17) */
+ #endif /* #if (BSP_CFG_RTOS == 1) */
+#else
+    USB_NULL, USB_NULL,                /* USB_HUVC (17) */
+#endif
 
     /* HAUD */
 #if defined(USB_CFG_HAUD_USE)

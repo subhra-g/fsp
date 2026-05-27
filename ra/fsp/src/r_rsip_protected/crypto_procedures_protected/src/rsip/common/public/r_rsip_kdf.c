@@ -758,8 +758,11 @@ fsp_err_t R_RSIP_KDF_HMAC_DKMKeyImport (rsip_ctrl_t * const              p_ctrl,
     FSP_ERROR_RETURN(gs_kdf_hmac_byte_length_min[key_type_ext.subtype] <= key_length, FSP_ERR_INVALID_SIZE);
     FSP_ERROR_RETURN(gs_kdf_hmac_byte_length_max[key_type_ext.subtype] >= key_length, FSP_ERR_INVALID_SIZE);
 
-    uint32_t blocks[1] = {bswap_32big((gs_kdf_hmac_byte_length_min[key_type_ext.subtype] == key_length) ? 1 : 2)};
-    uint32_t len[1]    = {bswap_32big(key_length)};
+    uint32_t blocks[1] =
+    {
+        bswap_32big((uint32_t) ((gs_kdf_hmac_byte_length_min[key_type_ext.subtype] == key_length) ? 1U : 2U))
+    };
+    uint32_t len[1] = {bswap_32big(key_length)};
 
     /* Call function */
     rsip_ret_t rsip_ret = p_func((const uint32_t *) p_wrapped_dkm->value,
@@ -1815,21 +1818,21 @@ static rsip_ret_t kdf_sha_update (rsip_ctrl_t * const p_ctrl, const uint8_t * p_
         {
             ret = r_rsip_kdf_sha_init_update(p_handle,
                                              p_message,
-                                             message_length - p_handle->buffered_length1 -
-                                             p_handle->actual_wrapped_msg_length);
+                                             (uint64_t) (message_length - p_handle->buffered_length1 -
+                                                         p_handle->actual_wrapped_msg_length));
             break;
         }
 
         case RSIP_USER_HANDLE_STATE_RESUME:
         {
-            ret = r_rsip_kdf_sha_resume_update(p_handle, p_message, message_length);
+            ret = r_rsip_kdf_sha_resume_update(p_handle, p_message, (uint64_t) message_length);
             break;
         }
 
         case RSIP_USER_HANDLE_STATE_UPDATE:
         default:
         {
-            ret = r_rsip_kdf_sha_update(p_handle, p_message, message_length);
+            ret = r_rsip_kdf_sha_update(p_handle, p_message, (uint64_t) message_length);
         }
     }
 
@@ -2022,20 +2025,21 @@ static rsip_ret_t kdf_hmac_update (rsip_ctrl_t * const p_ctrl, const uint8_t * p
         case RSIP_USER_HANDLE_STATE_INIT:
         {
             ret =
-                r_rsip_kdf_hmac_init_update(p_handle, p_message, message_length - p_handle->actual_wrapped_msg_length);
+                r_rsip_kdf_hmac_init_update(p_handle, p_message,
+                                            (uint64_t) (message_length - p_handle->actual_wrapped_msg_length));
             break;
         }
 
         case RSIP_USER_HANDLE_STATE_RESUME:
         {
-            ret = r_rsip_kdf_hmac_resume_update(p_handle, p_message, message_length);
+            ret = r_rsip_kdf_hmac_resume_update(p_handle, p_message, (uint64_t) message_length);
             break;
         }
 
         case RSIP_USER_HANDLE_STATE_UPDATE:
         default:
         {
-            ret = r_rsip_kdf_hmac_update(p_handle, p_message, message_length);
+            ret = r_rsip_kdf_hmac_update(p_handle, p_message, (uint64_t) message_length);
         }
     }
 

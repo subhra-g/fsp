@@ -15,6 +15,8 @@
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 void r_rsip_p97a (const uint32_t InData_DataA[], uint32_t MAX_CNT)
 {
     uint32_t iLoop = 0U;
@@ -44,8 +46,9 @@ void r_rsip_p97a (const uint32_t InData_DataA[], uint32_t MAX_CNT)
 
     WAIT_STS(REG_1C30H, 0, 1);
 
-    r_rsip_func101(bswap_32big(0x4283dce9U),
-                   bswap_32big(0x1e8a97a7U),
-                   bswap_32big(0x416edff1U),
-                   bswap_32big(0x2b38b1d4U));
+    static const uint32_t Param_p97a_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x4283dce9U), BSWAP_32BIG_C(0x1e8a97a7U), BSWAP_32BIG_C(0x416edff1U), BSWAP_32BIG_C(0x2b38b1d4U),
+    };
+    r_rsip_func101(Param_p97a_func101_001);
 }

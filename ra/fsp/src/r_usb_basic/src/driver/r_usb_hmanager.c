@@ -752,6 +752,13 @@ static uint16_t usb_hstd_enumeration (usb_utr_t * ptr)
                                     driver->devaddr = g_usb_hstd_device_addr[ptr->ip];
                                     g_usb_hstd_enum_seq[ptr->ip]++;
                                 }
+
+   #elif defined(USB_CFG_HUVC_USE)
+                                if (g_usb_hstd_device_drv[ptr->ip][md].ifclass == USB_IFCLS_VID)
+                                {
+                                    driver->devaddr = g_usb_hstd_device_addr[ptr->ip];
+                                    g_usb_hstd_enum_seq[ptr->ip]++;
+                                }
    #endif                              /* defined(USB_CFG_HAUD_USE) */
                             }
   #endif /* (BSP_CFG_RTOS != 0) */

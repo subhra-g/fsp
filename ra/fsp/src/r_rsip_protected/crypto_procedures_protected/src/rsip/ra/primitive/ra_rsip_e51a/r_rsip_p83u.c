@@ -10,36 +10,36 @@
 #include "r_rsip_primitive.h"
 #include "r_rsip_reg.h"
 #include "r_rsip_util.h"
+#include "r_rsip_sub_func.h"
 
 /***********************************************************************************************************************
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 void r_rsip_p83u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_t MAX_CNT)
 {
     uint32_t iLoop = 0U;
 
-    r_rsip_func100(bswap_32big(0x980dd63bU),
-                   bswap_32big(0xe9852166U),
-                   bswap_32big(0xeb5354caU),
-                   bswap_32big(0x50f39f3dU));
-    WR1_PROG(REG_1444H, 0x000003c1U);
-    WR1_PROG(REG_182CH, 0x40020030U);
-    WR1_PROG(REG_1824H, 0x07008d05U);
-    WAIT_STS(REG_1444H, 31, 1);
+    static const uint32_t Param_p83u_func100_001[] =
+    {
+        BSWAP_32BIG_C(0x980dd63bU), BSWAP_32BIG_C(0xe9852166U), BSWAP_32BIG_C(0xeb5354caU), BSWAP_32BIG_C(0x50f39f3dU),
+    };
+    r_rsip_func100(Param_p83u_func100_001);
+    r_rsip_func_sub019(0x000003c1U, 0x40020030U, 0x07008d05U);
     WR4_ADDR(REG_1420H, &InData_Text[0]);
     WR1_PROG(REG_1408H, 0x00001012U);
     WAIT_STS(REG_1408H, 30, 1);
     RD4_ADDR(REG_1420H, &OutData_Text[0]);
 
-    r_rsip_func100(bswap_32big(0xe5d11834U),
-                   bswap_32big(0x2e120a1dU),
-                   bswap_32big(0xaf566faeU),
-                   bswap_32big(0x9cf9361aU));
+    static const uint32_t Param_p83u_func100_002[] =
+    {
+        BSWAP_32BIG_C(0xe5d11834U), BSWAP_32BIG_C(0x2e120a1dU), BSWAP_32BIG_C(0xaf566faeU), BSWAP_32BIG_C(0x9cf9361aU),
+    };
+    r_rsip_func100(Param_p83u_func100_002);
 
-    WR1_PROG(REG_1444H, 0x00020061U);
-    WR1_PROG(REG_182CH, 0x40028030U);
-    WR1_PROG(REG_1824H, 0x07008d06U);
+    r_rsip_func_sub028(0x00020061U, 0x40028030U, 0x07008d06U);
     WR1_PROG(REG_1408H, 0x000c1000U);
 
     if (MAX_CNT >= 8)
@@ -61,14 +61,12 @@ void r_rsip_p83u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_
 
     r_rsip_func202();
 
-    WR1_PROG(REG_1444H, 0x000000a1U);
-    WR1_PROG(REG_182CH, 0x00028000U);
-    WR1_PROG(REG_1824H, 0x08008004U);
-    WAIT_STS(REG_1444H, 31, 1);
+    r_rsip_func_sub019(0x000000a1U, 0x00028000U, 0x08008004U);
     WR1_PROG(REG_1420H, bswap_32big(0x00000000U));
 
-    r_rsip_func101(bswap_32big(0xce840c6eU),
-                   bswap_32big(0x45fed9a6U),
-                   bswap_32big(0x0c7c1a5dU),
-                   bswap_32big(0x9d165ed6U));
+    static const uint32_t Param_p83u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0xce840c6eU), BSWAP_32BIG_C(0x45fed9a6U), BSWAP_32BIG_C(0x0c7c1a5dU), BSWAP_32BIG_C(0x9d165ed6U),
+    };
+    r_rsip_func101(Param_p83u_func101_001);
 }

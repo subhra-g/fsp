@@ -82,6 +82,10 @@ static const uint32_t gs_hmac_hash_type[RSIP_PRV_KEY_SUBTYPE_HMAC_NUM] =
     [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA512]     = BSWAP_32BIG_C(6U),
     [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA512_224] = BSWAP_32BIG_C(3U),
     [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA512_256] = BSWAP_32BIG_C(4U),
+    [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA3_224]   = BSWAP_32BIG_C(0U),
+    [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA3_256]   = BSWAP_32BIG_C(1U),
+    [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA3_384]   = BSWAP_32BIG_C(2U),
+    [RSIP_PRV_KEY_SUBTYPE_HMAC_SHA3_512]   = BSWAP_32BIG_C(3U),
 };
 
 static const uint32_t gs_hmac_cmd[] =
@@ -850,11 +854,13 @@ void overwrite_internal_state_sha (rsip_sha_handle_t * p_handle)
 {
     if (hash_type_is_sha3(p_handle->type))
     {
-        overwrite_internal_state_sha3(p_handle->internal_state, p_handle->buffered_length);
+        overwrite_internal_state_sha3(p_handle->internal_state, (uint64_t) p_handle->buffered_length);
     }
     else
     {
-        overwrite_internal_state_sha1sha2(p_handle->internal_state, p_handle->buffered_length, p_handle->total_length);
+        overwrite_internal_state_sha1sha2(p_handle->internal_state,
+                                          (uint64_t) p_handle->buffered_length,
+                                          (uint64_t) p_handle->total_length);
     }
 }
 
@@ -862,22 +868,28 @@ void overwrite_internal_state_hmac (rsip_hmac_handle_t * p_handle)
 {
     if (hmac_type_is_sha3(r_rsip_key_type_parse(p_handle->wrapped_key.type)))
     {
-        overwrite_internal_state_sha3(p_handle->internal_state, p_handle->buffered_length);
+        overwrite_internal_state_sha3(p_handle->internal_state, (uint64_t) p_handle->buffered_length);
     }
     else
     {
-        overwrite_internal_state_sha1sha2(p_handle->internal_state, p_handle->buffered_length, p_handle->total_length);
+        overwrite_internal_state_sha1sha2(p_handle->internal_state,
+                                          (uint64_t) p_handle->buffered_length,
+                                          (uint64_t) p_handle->total_length);
     }
 }
 
 void overwrite_internal_state_kdf_sha (rsip_kdf_sha_handle_t * p_handle)
 {
-    overwrite_internal_state_sha1sha2(p_handle->internal_state, p_handle->buffered_length2, p_handle->total_length);
+    overwrite_internal_state_sha1sha2(p_handle->internal_state,
+                                      (uint64_t) p_handle->buffered_length2,
+                                      (uint64_t) p_handle->total_length);
 }
 
 void overwrite_internal_state_kdf_hmac (rsip_kdf_hmac_handle_t * p_handle)
 {
-    overwrite_internal_state_sha1sha2(p_handle->internal_state, p_handle->buffered_length, p_handle->total_length);
+    overwrite_internal_state_sha1sha2(p_handle->internal_state,
+                                      (uint64_t) p_handle->buffered_length,
+                                      (uint64_t) p_handle->total_length);
 }
 
 RSIP_PRV_STATIC_INLINE const rsip_func_subset_sha_t * get_hash_func (rsip_hash_type_t hash_type)

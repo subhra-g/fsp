@@ -82,6 +82,8 @@ void usb_hstd_pddetint_process (usb_utr_t * ptr)
     } while (((buf[0] & USB_PDDETSTS) != (buf[1] & USB_PDDETSTS)) ||
              ((buf[1] & USB_PDDETSTS) != (buf[2] & USB_PDDETSTS)));
 
+    hw_usb_hset_enb_pddetinte(ptr);
+
     if (USB_PDDETSTS == (buf[0] & USB_PDDETSTS)) /* VDPSRC Detect */
     {
         if (USB_VDMSRCE != (buf[0] & USB_VDMSRCE))

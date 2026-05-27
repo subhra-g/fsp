@@ -268,6 +268,14 @@ typedef enum e_layer3_switch_magic_packet_detection
     LAYER3_SWITCH_MAGIC_PACKET_DETECTION_DISABLE = 0U, ///< Disable magic packet detection.
 } layer3_switch_magic_packet_detection_t;
 
+/** MAC addresses used to search the MAC table for forwarding. */
+typedef enum e_layer3_switch_mac_address_search
+{
+    LAYER3_SWITCH_MAC_ADDRESS_SEARCH_DESTINATION            = 1U, ///< Use the destination MAC address only.
+    LAYER3_SWITCH_MAC_ADDRESS_SEARCH_SOURCE                 = 2U, ///< Use the source MAC address only.
+    LAYER3_SWITCH_MAC_ADDRESS_SEARCH_SOURCE_AND_DESTINATION = 3U, ///< Use both destination and source MAC addresses.
+} layer3_switch_mac_address_search_t;
+
 /** VLAN detection mode. */
 typedef enum e_layer3_switch_vlan_mode
 {
@@ -685,24 +693,25 @@ typedef struct st_layer3_switch_table_entry
 typedef struct st_layer3_switch_forwarding_port_cfg
 {
     /* MAC table configuration. */
-    bool mac_table_enable;                               ///< Enable MAC table and forwarding feature.
-    bool mac_reject_unknown;                             ///< Reject frame with unknown MAC address.
-    bool mac_hardware_learning_enable;                   ///< Enable hardware learning and migration.
+    bool mac_table_enable;                                 ///< Enable MAC table and forwarding feature.
+    layer3_switch_mac_address_search_t mac_address_search; ///< Select which MAC address or addresses are used to search the MAC table for forwarding.
+    bool mac_reject_unknown;                               ///< Reject frame with unknown MAC address.
+    bool mac_hardware_learning_enable;                     ///< Enable hardware learning and migration.
 
     /* VLAN table configuration. */
-    bool vlan_table_enable;                              ///< Enable VLAN table and forwarding feature.
-    bool vlan_reject_unknown;                            ///< Reject frame with unknown VLAN ID.
-    layer3_switch_vlan_ingress_mode_t vlan_ingress_mode; ///< Select Tag-based VLAN or Port-based VLAN for incoming frame.
-    layer3_switch_vlan_egress_mode_t  vlan_egress_mode;  ///< Tagging/untagging mode for outgoing frame.
-    layer3_switch_frame_vlan_tag_t    vlan_s_tag;        ///< S-TAG of this port. When egress mode is hardware SC-TAG, add this to outgoing frame.
-    layer3_switch_frame_vlan_tag_t    vlan_c_tag;        ///< C-TAG of this port. When egress mode is hardware C-TAG, add this to outgoing frame.
+    bool vlan_table_enable;                                ///< Enable VLAN table and forwarding feature.
+    bool vlan_reject_unknown;                              ///< Reject frame with unknown VLAN ID.
+    layer3_switch_vlan_ingress_mode_t vlan_ingress_mode;   ///< Select Tag-based VLAN or Port-based VLAN for incoming frame.
+    layer3_switch_vlan_egress_mode_t  vlan_egress_mode;    ///< Tagging/untagging mode for outgoing frame.
+    layer3_switch_frame_vlan_tag_t    vlan_s_tag;          ///< S-TAG of this port. When egress mode is hardware SC-TAG, add this to outgoing frame.
+    layer3_switch_frame_vlan_tag_t    vlan_c_tag;          ///< C-TAG of this port. When egress mode is hardware C-TAG, add this to outgoing frame.
 
     /* Layer3 table configuration. */
-    bool layer3_table_enable;                            ///< Enable Layer3 table and forwarding feature.
-    bool layer3_reject_unknown;                          ///< Reject frame that not found in Layer3 table.
-    bool layer3_ipv4_filter_enable;                      ///< Enable IPv4 stream filter.
-    bool layer3_ipv6_filter_enable;                      ///< Enable IPv6 stream filter.
-    bool layer3_l2_filter_enable;                        ///< Enable L2 stream filter.
+    bool layer3_table_enable;                              ///< Enable Layer3 table and forwarding feature.
+    bool layer3_reject_unknown;                            ///< Reject frame that not found in Layer3 table.
+    bool layer3_ipv4_filter_enable;                        ///< Enable IPv4 stream filter.
+    bool layer3_ipv6_filter_enable;                        ///< Enable IPv6 stream filter.
+    bool layer3_l2_filter_enable;                          ///< Enable L2 stream filter.
 } layer3_switch_forwarding_port_cfg_t;
 
 /** Forwarding table containing MAC/VLAN/Layer3 forwarding entries. */
@@ -790,6 +799,8 @@ typedef struct st_layer3_switch_instance_ctrl
     /* Frame preemption features. */
     bool frame_preemption_available[BSP_FEATURE_ETHER_NUM_CHANNELS];                                               ///< Status of the frame preemption verification.
 
+    ether_switch_link_status_bitmaps_t link_status_bitmaps;                                                        ///< Current Link status.
+
     void (* p_callback)(ether_switch_callback_args_t * p_args);                                                    ///< Callback provided when an ISR occurs.
     ether_switch_callback_args_t * p_callback_memory;                                                              ///< Pointer to optional callback argument memory
     void * p_context;                                                                                              ///< Pointer to context to be passed into callback function
@@ -819,6 +830,12 @@ typedef struct st_layer3_switch_tas_cfg
     uint32_t cycle_time;                           ///< TAS cycle time [nsec].
     layer3_switch_tas_gate_cfg_t gate_cfg_list[8]; ///< List of TAS gate configurations.
 } layer3_switch_tas_cfg_t;
+
+/** Target port bitmaps. */
+typedef struct st_layer3_switch_target_port_bitmaps
+{
+    uint32_t ports[((BSP_FEATURE_ETHER_NUM_CHANNELS - 1) / 32) + 1]; ///< List of target ports bitmap.
+} layer3_switch_target_port_bitmaps_t;
 
 /**********************************************************************************************************************
  * Exported global variables
@@ -876,6 +893,10 @@ fsp_err_t R_LAYER3_SWITCH_EnableTAS(ether_switch_ctrl_t * const p_ctrl, uint8_t 
 
 fsp_err_t R_LAYER3_SWITCH_PsfpClearErrorStatus(ether_switch_ctrl_t * const               p_ctrl,
                                                layer3_switch_psfp_error_status_bitmask_t bitmasks);
+
+fsp_err_t R_LAYER3_SWITCH_LinkStatusCheck(ether_switch_ctrl_t * const           p_ctrl,
+                                          layer3_switch_target_port_bitmaps_t * p_port_bitmaps,
+                                          ether_switch_link_status_bitmaps_t  * p_link_status_bitmaps);
 
 /*******************************************************************************************************************//**
  * @} (end addtogroup LAYER3_SWITCH)

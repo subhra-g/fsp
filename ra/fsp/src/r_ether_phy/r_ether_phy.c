@@ -363,8 +363,9 @@ fsp_err_t R_ETHER_PHY_LinkPartnerAbilityGet (ether_phy_ctrl_t * const p_ctrl,
 {
     fsp_err_t err = FSP_SUCCESS;
     ether_phy_instance_ctrl_t * p_instance_ctrl = (ether_phy_instance_ctrl_t *) p_ctrl;
-    uint32_t reg               = 0;
-    uint32_t line_speed_duplex = ETHER_PHY_LINK_SPEED_NO_LINK;
+    uint32_t reg = 0;
+    uint32_t basic_mode_control_register = 0;
+    uint32_t line_speed_duplex           = ETHER_PHY_LINK_SPEED_NO_LINK;
 
 #if (ETHER_PHY_CFG_PARAM_CHECKING_ENABLE)
     FSP_ASSERT(p_instance_ctrl);
@@ -394,47 +395,82 @@ fsp_err_t R_ETHER_PHY_LinkPartnerAbilityGet (ether_phy_ctrl_t * const p_ctrl,
         (*p_local_pause) |= 1;
     }
 
-    /* When the auto-negotiation isn't completed, return error */
-    ETHER_PHY_ERROR_RETURN(ETHER_PHY_STATUS_AN_COMPLETE == (reg & ETHER_PHY_STATUS_AN_COMPLETE),
-                           FSP_ERR_ETHER_PHY_NOT_READY);
-
-    /* Get the link partner response */
-    R_ETHER_PHY_Read(p_instance_ctrl, ETHER_PHY_REG_AN_LINK_PARTNER, &reg);
-
-    /* Establish partner pause capability */
-    if (ETHER_PHY_AN_LINK_PARTNER_PAUSE == (reg & ETHER_PHY_AN_LINK_PARTNER_PAUSE))
+    R_ETHER_PHY_Read(p_instance_ctrl, ETHER_PHY_REG_CONTROL, &basic_mode_control_register);
+    if (ETHER_PHY_CONTROL_AN_ENABLE == (basic_mode_control_register & ETHER_PHY_CONTROL_AN_ENABLE))
     {
-        (*p_partner_pause) = (1 << 1);
+        /* When the auto-negotiation isn't completed, return error */
+        ETHER_PHY_ERROR_RETURN(ETHER_PHY_STATUS_AN_COMPLETE == (reg & ETHER_PHY_STATUS_AN_COMPLETE),
+                               FSP_ERR_ETHER_PHY_NOT_READY);
+
+        /* Get the link partner response */
+        R_ETHER_PHY_Read(p_instance_ctrl, ETHER_PHY_REG_AN_LINK_PARTNER, &reg);
+
+        /* Establish partner pause capability */
+        if (ETHER_PHY_AN_LINK_PARTNER_PAUSE == (reg & ETHER_PHY_AN_LINK_PARTNER_PAUSE))
+        {
+            (*p_partner_pause) = (1 << 1);
+        }
+
+        if (ETHER_PHY_AN_LINK_PARTNER_ASM_DIR == (reg & ETHER_PHY_AN_LINK_PARTNER_ASM_DIR))
+        {
+            (*p_partner_pause) |= 1;
+        }
+
+        /* Establish the line speed and the duplex */
+        if ((ETHER_PHY_AN_LINK_PARTNER_10H == (reg & ETHER_PHY_AN_LINK_PARTNER_10H)) &&
+            ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_10H))
+        {
+            line_speed_duplex = ETHER_PHY_LINK_SPEED_10H;
+        }
+
+        if ((ETHER_PHY_AN_LINK_PARTNER_10F == (reg & ETHER_PHY_AN_LINK_PARTNER_10F)) &&
+            ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_10F))
+        {
+            line_speed_duplex = ETHER_PHY_LINK_SPEED_10F;
+        }
+
+        if ((ETHER_PHY_AN_LINK_PARTNER_100H == (reg & ETHER_PHY_AN_LINK_PARTNER_100H)) &&
+            ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_100H))
+        {
+            line_speed_duplex = ETHER_PHY_LINK_SPEED_100H;
+        }
+
+        if ((ETHER_PHY_AN_LINK_PARTNER_100F == (reg & ETHER_PHY_AN_LINK_PARTNER_100F)) &&
+            ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_100F))
+        {
+            line_speed_duplex = ETHER_PHY_LINK_SPEED_100F;
+        }
     }
-
-    if (ETHER_PHY_AN_LINK_PARTNER_ASM_DIR == (reg & ETHER_PHY_AN_LINK_PARTNER_ASM_DIR))
+    else
     {
-        (*p_partner_pause) |= 1;
-    }
+        /* Establish the line speed and the duplex */
+        if (!(basic_mode_control_register & ETHER_PHY_CONTROL_100_MBPS) &&
+            !(basic_mode_control_register & ETHER_PHY_CONTROL_FULL_DUPLEX) &&
+            ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_10H))
+        {
+            line_speed_duplex = ETHER_PHY_LINK_SPEED_10H;
+        }
 
-    /* Establish the line speed and the duplex */
-    if ((ETHER_PHY_AN_LINK_PARTNER_10H == (reg & ETHER_PHY_AN_LINK_PARTNER_10H)) &&
-        ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_10H))
-    {
-        line_speed_duplex = ETHER_PHY_LINK_SPEED_10H;
-    }
+        if (!(basic_mode_control_register & ETHER_PHY_CONTROL_100_MBPS) &&
+            (basic_mode_control_register & ETHER_PHY_CONTROL_FULL_DUPLEX) &&
+            ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_10F))
+        {
+            line_speed_duplex = ETHER_PHY_LINK_SPEED_10F;
+        }
 
-    if ((ETHER_PHY_AN_LINK_PARTNER_10F == (reg & ETHER_PHY_AN_LINK_PARTNER_10F)) &&
-        ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_10F))
-    {
-        line_speed_duplex = ETHER_PHY_LINK_SPEED_10F;
-    }
+        if ((basic_mode_control_register & ETHER_PHY_CONTROL_100_MBPS) &&
+            !(basic_mode_control_register & ETHER_PHY_CONTROL_FULL_DUPLEX) &&
+            ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_100H))
+        {
+            line_speed_duplex = ETHER_PHY_LINK_SPEED_100H;
+        }
 
-    if ((ETHER_PHY_AN_LINK_PARTNER_100H == (reg & ETHER_PHY_AN_LINK_PARTNER_100H)) &&
-        ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_100H))
-    {
-        line_speed_duplex = ETHER_PHY_LINK_SPEED_100H;
-    }
-
-    if ((ETHER_PHY_AN_LINK_PARTNER_100F == (reg & ETHER_PHY_AN_LINK_PARTNER_100F)) &&
-        ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_100F))
-    {
-        line_speed_duplex = ETHER_PHY_LINK_SPEED_100F;
+        if ((basic_mode_control_register & ETHER_PHY_CONTROL_100_MBPS) &&
+            (basic_mode_control_register & ETHER_PHY_CONTROL_FULL_DUPLEX) &&
+            ether_phy_targets_is_support_link_partner_ability(p_instance_ctrl, ETHER_PHY_LINK_SPEED_100F))
+        {
+            line_speed_duplex = ETHER_PHY_LINK_SPEED_100F;
+        }
     }
 
     if (ETHER_PHY_LINK_SPEED_NO_LINK == line_speed_duplex)

@@ -1601,7 +1601,7 @@ static fsp_err_t xts_finish_primitive (rsip_func_subset_aes_xts_t * p_func,
 {
     uint32_t output_length_bit[1] =
     {
-        bswap_32big(r_rsip_byte_to_bit_convert_lower(input_length))
+        bswap_32big(r_rsip_byte_to_bit_convert_lower((uint64_t) input_length))
     };
 
     /* Call function (cast to match the argument type with the primitive function) */
@@ -1961,10 +1961,10 @@ static fsp_err_t gcm_finish (rsip_ctrl_t * const p_ctrl,
     }
 
     /* Set parameters */
-    aad_bit_size[0]  = bswap_32big(r_rsip_byte_to_bit_convert_upper(p_handle->total_aad_length));
-    aad_bit_size[1]  = bswap_32big(r_rsip_byte_to_bit_convert_lower(p_handle->total_aad_length));
-    data_bit_size[0] = bswap_32big((r_rsip_byte_to_bit_convert_upper(p_handle->total_length)));
-    data_bit_size[1] = bswap_32big(r_rsip_byte_to_bit_convert_lower(p_handle->total_length));
+    aad_bit_size[0]  = bswap_32big(r_rsip_byte_to_bit_convert_upper((uint64_t) p_handle->total_aad_length));
+    aad_bit_size[1]  = bswap_32big(r_rsip_byte_to_bit_convert_lower((uint64_t) p_handle->total_aad_length));
+    data_bit_size[0] = bswap_32big((r_rsip_byte_to_bit_convert_upper((uint64_t) p_handle->total_length)));
+    data_bit_size[1] = bswap_32big(r_rsip_byte_to_bit_convert_lower((uint64_t) p_handle->total_length));
     *p_output_length = p_handle->buffered_length;
 
     /* Call function (cast to match the argument type with the primitive function) */
@@ -2071,10 +2071,10 @@ static fsp_err_t gcm_verify (rsip_ctrl_t * const   p_ctrl,
     memcpy(tag_tmp, p_tag, tag_length);
 
     /* Set parameters */
-    aad_bit_size[0]   = bswap_32big(r_rsip_byte_to_bit_convert_upper(p_handle->total_aad_length));
-    aad_bit_size[1]   = bswap_32big(r_rsip_byte_to_bit_convert_lower(p_handle->total_aad_length));
-    data_bit_size[0]  = bswap_32big(r_rsip_byte_to_bit_convert_upper(p_handle->total_length));
-    data_bit_size[1]  = bswap_32big(r_rsip_byte_to_bit_convert_lower(p_handle->total_length));
+    aad_bit_size[0]   = bswap_32big(r_rsip_byte_to_bit_convert_upper((uint64_t) p_handle->total_aad_length));
+    aad_bit_size[1]   = bswap_32big(r_rsip_byte_to_bit_convert_lower((uint64_t) p_handle->total_aad_length));
+    data_bit_size[0]  = bswap_32big(r_rsip_byte_to_bit_convert_upper((uint64_t) p_handle->total_length));
+    data_bit_size[1]  = bswap_32big(r_rsip_byte_to_bit_convert_lower((uint64_t) p_handle->total_length));
     tag_length_tmp[0] = bswap_32big(tag_length);
     *p_output_length  = p_handle->buffered_length;
 
@@ -2231,8 +2231,8 @@ static fsp_err_t gcm_iv_prepare (const rsip_func_subset_aes_cipher_t * p_func_ae
                 /* Calculate ivec bit length */
                 ivec_bit_len[0] = 0U;
                 ivec_bit_len[1] = 0U;
-                ivec_bit_len[2] = bswap_32big(r_rsip_byte_to_bit_convert_upper(initial_vector_length));
-                ivec_bit_len[3] = bswap_32big(r_rsip_byte_to_bit_convert_lower(initial_vector_length));
+                ivec_bit_len[2] = bswap_32big(r_rsip_byte_to_bit_convert_upper((uint64_t) initial_vector_length));
+                ivec_bit_len[3] = bswap_32big(r_rsip_byte_to_bit_convert_lower((uint64_t) initial_vector_length));
 
                 /* Call function (cast to match the argument type with the primitive function) */
                 rsip_ret = gp_func_ghash_compute(hash_subkey,
@@ -2838,7 +2838,7 @@ static void ccm_format (const uint8_t * nonce,
         formatted_length_tmp++;
         formatted_data[formatted_length_tmp] = a_len;
         formatted_length_tmp++;
-        memcpy(formatted_data + formatted_length_tmp, adata, a_len);
+        memcpy(formatted_data + formatted_length_tmp, adata, (size_t) a_len);
         formatted_length_tmp += a_len;
         if (0 != (formatted_length_tmp % RSIP_PRV_BYTE_SIZE_AES_BLOCK))
         {

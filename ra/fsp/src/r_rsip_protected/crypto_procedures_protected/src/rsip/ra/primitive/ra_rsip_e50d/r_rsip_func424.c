@@ -10,10 +10,13 @@
 #include "r_rsip_primitive.h"
 #include "r_rsip_reg.h"
 #include "r_rsip_util.h"
+#include "r_rsip_sub_func.h"
 
 /***********************************************************************************************************************
  * Functions
  **********************************************************************************************************************/
+
+RSIP_PRV_PRIMITIVE_FUNC
 
 void r_rsip_func424 (void)
 {
@@ -23,16 +26,8 @@ void r_rsip_func424 (void)
 
     for (iLoop = 0U; iLoop < 4; iLoop++)
     {
-        WR1_PROG(REG_1600H, 0x00003840U);
-        WR1_PROG(REG_1600H, 0x00003861U);
-
-        WR1_PROG(REG_1600H, 0x38000843U);
-        WR1_PROG(REG_1600H, 0x2000b7e0U);
-        WR1_PROG(REG_1600H, 0x1ae211e9U);
-
-        WR1_PROG(REG_1600H, 0x0000a400U);
-        WR1_PROG(REG_1600H, 0x00000004U);
-        WR1_PROG(REG_1600H, 0x0000a420U);
+        r_rsip_func_sub021(0x00003840U, 0x00003861U, 0x38000843U, 0x2000b7e0U);
+        r_rsip_func_sub021(0x1ae211e9U, 0x0000a400U, 0x00000004U, 0x0000a420U);
         WR1_PROG(REG_1600H, 0x00000004U);
     }
 

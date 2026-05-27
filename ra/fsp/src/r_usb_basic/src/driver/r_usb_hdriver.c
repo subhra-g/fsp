@@ -2921,6 +2921,15 @@ void usb_host_registration (usb_utr_t * ptr, usb_class_t type)
         usb_haud_registration(ptr);
   #endif                                    /* defined(USB_CFG_HAUD_USE) */
     }
+
+  #if (USB_CFG_MULTIPORT == USB_CFG_ENABLE) /* USB_CFG_MULTIPORT == USB_CFG_ENABLE */
+    if (USB_CLASS_HUVC == type)
+  #endif                                    /* USB_CFG_MULTIPORT == USB_CFG_ENABLE */
+    {
+  #if defined(USB_CFG_HUVC_USE)
+        usb_huvc_registration(ptr);
+  #endif                                    /* defined(USB_CFG_HUVC_USE) */
+    }
  #endif /* BSP_CFG_RTOS == 1 */
 }
 

@@ -78,10 +78,11 @@ rsip_ret_t r_rsip_p73u (const uint32_t InData_Msg[], uint32_t MAX_CNT)
     WR1_PROG(REG_1444H, 0x00000000U);
     WAIT_STS(REG_2030H, 8U, 0U);
     WR1_PROG(REG_143CH, 0x00001600U);
-    r_rsip_func101(bswap_32big(0x80c0ee56U),
-                   bswap_32big(0xc2fa20dcU),
-                   bswap_32big(0x8bb2b171U),
-                   bswap_32big(0xecb4fa8dU));
+    static const uint32_t Param_p73u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x80c0ee56U), BSWAP_32BIG_C(0xc2fa20dcU), BSWAP_32BIG_C(0x8bb2b171U), BSWAP_32BIG_C(0xecb4fa8dU),
+    };
+    r_rsip_func101(Param_p73u_func101_001);
 
     return RSIP_RET_PASS;
 }

@@ -377,6 +377,8 @@ void rm_motor_inner_speed_get (motor_pm_foc_instance_ctrl_t * const p_ctrl,
 void rm_motor_inner_cyclic (motor_hal_driver_callback_args_t * p_args)
 {
     float    f_ref[3]    = {0.0F};
+    float    f4_sin_el   = 0.0F;
+    float    f4_cos_el   = 0.0F;
     uint32_t error_flags = MOTOR_PM_FOC_ERROR_NONE;
 
     motor_hal_driver_current_dataset_t temp_drv_crnt_get;
@@ -452,10 +454,13 @@ void rm_motor_inner_cyclic (motor_hal_driver_callback_args_t * p_args)
                             break;     // Exit early on error
                         }
 
+                        /* Pre-compute sin/cos for UVW->dq transformation */
+                        rm_motor_transform_sincos(p_instance_ctrl->signals.angle_el, &f4_sin_el, &f4_cos_el);
+
                         /* Coordinate transformation (UVW->dq) */
-                        rm_motor_transform_uvw_dq_abs((p_instance_ctrl->signals.angle_el),
-                                                      &(p_instance_ctrl->signals.to_pos_speed.i_u),
-                                                      &(p_instance_ctrl->p_to_outer_copy->i_d));
+                        rm_motor_transform_uvw_dq_abs_trigo(f4_sin_el, f4_cos_el,
+                                                            &(p_instance_ctrl->signals.to_pos_speed.i_u),
+                                                            &(p_instance_ctrl->p_to_outer_copy->i_d));
 
                         /* Angle & speed process */
                         motor_inner_angle_cyclic(p_instance_ctrl);
@@ -523,6 +528,8 @@ static void motor_inner_phase_voltage_get (motor_pm_foc_instance_ctrl_t    * p_c
 {
     float f4_iuvw_ref[3]   = {0.0F};
     float f4_angle_comp_el = 0.0F;
+    float f4_sin_comp      = 0.0F;
+    float f4_cos_comp      = 0.0F;
 
     motor_pm_foc_extended_cfg_t * p_extended_cfg =
         (motor_pm_foc_extended_cfg_t *) p_ctrl->p_cfg->p_extend;
@@ -557,12 +564,16 @@ static void motor_inner_phase_voltage_get (motor_pm_foc_instance_ctrl_t    * p_c
         f4_angle_comp_el = p_inner_instance_ctrl->signals.angle_el;
     }
 
+    /* Pre-compute sin/cos once for both dq->uvw transformations */
+    rm_motor_transform_sincos(f4_angle_comp_el, &f4_sin_comp, &f4_cos_comp);
+
     /* Coordinate transformation (dq->uvw) */
-    rm_motor_transform_dq_uvw_abs(f4_angle_comp_el, &(p_inner_instance_ctrl->p_to_outer_copy->v_d_ref),
-                                  &(p_inner_instance_ctrl->signals.v_u_ref));
+    rm_motor_transform_dq_uvw_abs_trigo(f4_sin_comp, f4_cos_comp, &(p_inner_instance_ctrl->p_to_outer_copy->v_d_ref),
+                                        &(p_inner_instance_ctrl->signals.v_u_ref));
 
     /* Voltage error compensation */
-    rm_motor_transform_dq_uvw_abs(f4_angle_comp_el, &(p_inner_instance_ctrl->p_from_outer->i_d_ref), &(f4_iuvw_ref[0]));
+    rm_motor_transform_dq_uvw_abs_trigo(f4_sin_comp, f4_cos_comp, &(p_inner_instance_ctrl->p_from_outer->i_d_ref),
+                                        &(f4_iuvw_ref[0]));
 
     rm_motor_volt_error_comp_main(&(p_inner_instance_ctrl->signals.vcomp_ctrl),
                                   &(p_inner_instance_ctrl->signals.v_u_ref),

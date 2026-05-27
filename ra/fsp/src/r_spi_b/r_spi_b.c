@@ -755,6 +755,12 @@ static void r_spi_b_start_transfer (spi_b_instance_ctrl_t * p_ctrl)
         /* Must call transmit to kick off transfer when transmitting from rxi ISR. */
         r_spi_b_transmit(p_ctrl);      ///< First data immediately copied into the SPI shift register.
 
+ #if BSP_CFG_DCACHE_ENABLED
+
+        /* External wait to avoid early return. */
+        FSP_HARDWARE_REGISTER_WAIT(p_ctrl->p_regs->SPSR_b.SPTEF, 1U);
+ #endif
+
         /* Second transmit significantly improves slave mode performance. */
         r_spi_b_transmit(p_ctrl);      ///< Second data copied into the SPI transmit buffer.
 
@@ -863,6 +869,11 @@ static fsp_err_t r_spi_b_write_read_common (spi_ctrl_t * const    p_api_ctrl,
         transfer_instance_t * p_transfer_rx = (transfer_instance_t *) p_ctrl->p_cfg->p_transfer_rx;
         transfer_info_t     * p_info        = p_transfer_rx->p_cfg->p_info;
 
+ #if BSP_CFG_DCACHE_ENABLED
+        p_info->transfer_settings_word = SPI_B_DTC_RX_TRANSFER_SETTINGS;
+        p_info->p_src = (void *) &(SPI_B_REG(p_ctrl->p_cfg->channel)->SPDR);
+ #endif
+
         /* Configure the receive DMA instance. */
         p_info->transfer_settings_word_b.size = size;
         p_info->length = (uint16_t) length;
@@ -887,6 +898,11 @@ static fsp_err_t r_spi_b_write_read_common (spi_ctrl_t * const    p_api_ctrl,
 
         transfer_instance_t * p_transfer_tx = (transfer_instance_t *) p_ctrl->p_cfg->p_transfer_tx;
         transfer_info_t     * p_info        = p_transfer_tx->p_cfg->p_info;
+
+ #if BSP_CFG_DCACHE_ENABLED
+        p_info->transfer_settings_word = SPI_B_DTC_TX_TRANSFER_SETTINGS;
+        p_info->p_dest                 = (void *) &(SPI_B_REG(p_ctrl->p_cfg->channel)->SPDR);
+ #endif
 
         /* Configure the transmit DMA instance. */
         p_info->transfer_settings_word_b.size = size;
@@ -1004,6 +1020,11 @@ static void r_spi_b_transmit (spi_b_instance_ctrl_t * p_ctrl)
     {
         return;
     }
+
+    /* Writing a value to the SPDR register is enabled only while the SPTEF flag = 1.
+     * If a value is written to the SPDR register while the SPTEF flag = 0, transmit buffer data is not updated.
+     * (See "SPI Status Register (SPCR)" description in the relevant hardware manual). */
+    FSP_HARDWARE_REGISTER_WAIT(p_ctrl->p_regs->SPSR_b.SPTEF, 1U);
 
     if (0 == p_ctrl->p_tx_data)
     {

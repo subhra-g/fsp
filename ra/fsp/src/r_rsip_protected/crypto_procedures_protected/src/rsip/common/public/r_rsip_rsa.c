@@ -1886,19 +1886,19 @@ static fsp_err_t emsa_pss_encode (rsip_ctrl_t * const    p_ctrl,
     uint32_t slen_max = emlen - hlen - 2;
     switch (salt_length)
     {
-        case RSIP_RSA_SALT_LENGTH_AUTO:
+        case (uint32_t) RSIP_RSA_SALT_LENGTH_AUTO:
         {
             slen = (slen_max >= hlen) ? hlen : slen_max;
             break;
         }
 
-        case RSIP_RSA_SALT_LENGTH_HASH:
+        case (uint32_t) RSIP_RSA_SALT_LENGTH_HASH:
         {
             slen = hlen;
             break;
         }
 
-        case RSIP_RSA_SALT_LENGTH_MAX:
+        case (uint32_t) RSIP_RSA_SALT_LENGTH_MAX:
         {
             slen = slen_max;
             break;
@@ -1999,19 +1999,19 @@ static fsp_err_t emsa_pss_verify (rsip_ctrl_t * const    p_ctrl,
     uint32_t slen_max = emlen - hlen - 2;
     switch (salt_length)
     {
-        case RSIP_RSA_SALT_LENGTH_AUTO:
+        case (uint32_t) RSIP_RSA_SALT_LENGTH_AUTO:
         {
             salt_auto_detection = true;
             break;
         }
 
-        case RSIP_RSA_SALT_LENGTH_HASH:
+        case (uint32_t) RSIP_RSA_SALT_LENGTH_HASH:
         {
             slen = hlen;
             break;
         }
 
-        case RSIP_RSA_SALT_LENGTH_MAX:
+        case (uint32_t) RSIP_RSA_SALT_LENGTH_MAX:
         {
             slen = slen_max;
             break;
@@ -2331,7 +2331,7 @@ static uint32_t secure_memcmp (const void * buf1, const void * buf2, uint32_t nu
         tmp |= p_buf1[i] ^ p_buf2[i];
     }
 
-    return tmp > 0;
+    return (uint32_t) (tmp > 0);
 }
 
 /*******************************************************************************************************************//**

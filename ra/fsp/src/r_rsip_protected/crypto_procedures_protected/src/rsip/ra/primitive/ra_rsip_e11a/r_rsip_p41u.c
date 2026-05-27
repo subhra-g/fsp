@@ -33,8 +33,9 @@ void r_rsip_p41u (const uint32_t InData_Text[], uint32_t MAX_CNT)
 
     r_rsip_func205();
 
-    r_rsip_func101(bswap_32big(0x9b448c7eU),
-                   bswap_32big(0x05e2e955U),
-                   bswap_32big(0xbcdd8f50U),
-                   bswap_32big(0x41f2b166U));
+    static const uint32_t Param_p41u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x9b448c7eU), BSWAP_32BIG_C(0x05e2e955U), BSWAP_32BIG_C(0xbcdd8f50U), BSWAP_32BIG_C(0x41f2b166U),
+    };
+    r_rsip_func101(Param_p41u_func101_001);
 }

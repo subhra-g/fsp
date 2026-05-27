@@ -19,10 +19,11 @@ RSIP_PRV_PRIMITIVE_FUNC
 
 rsip_ret_t r_rsip_p50f (void)
 {
-    r_rsip_func102(bswap_32big(0x2db60c1fU),
-                   bswap_32big(0x603a43eaU),
-                   bswap_32big(0xf3eb645eU),
-                   bswap_32big(0x37329bc2U));
+    static const uint32_t Param_p50f_func102_001[] =
+    {
+        BSWAP_32BIG_C(0x2db60c1fU), BSWAP_32BIG_C(0x603a43eaU), BSWAP_32BIG_C(0xf3eb645eU), BSWAP_32BIG_C(0x37329bc2U),
+    };
+    r_rsip_func102(Param_p50f_func102_001);
     WR1_PROG(REG_006CH, 0x00000040U);
     WAIT_STS(REG_0020H, 12, 0);
 

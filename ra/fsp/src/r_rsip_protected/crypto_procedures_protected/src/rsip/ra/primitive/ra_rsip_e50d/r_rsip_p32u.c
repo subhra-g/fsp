@@ -10,23 +10,25 @@
 #include "r_rsip_primitive.h"
 #include "r_rsip_reg.h"
 #include "r_rsip_util.h"
+#include "r_rsip_sub_func.h"
 
 /***********************************************************************************************************************
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 void r_rsip_p32u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_t MAX_CNT)
 {
     uint32_t iLoop = 0U;
 
-    r_rsip_func100(bswap_32big(0x82e17accU),
-                   bswap_32big(0x0ac22052U),
-                   bswap_32big(0x3fbbfbbaU),
-                   bswap_32big(0xcd39b6e3U));
+    static const uint32_t Param_p32u_func100_001[] =
+    {
+        BSWAP_32BIG_C(0x82e17accU), BSWAP_32BIG_C(0x0ac22052U), BSWAP_32BIG_C(0x3fbbfbbaU), BSWAP_32BIG_C(0xcd39b6e3U),
+    };
+    r_rsip_func100(Param_p32u_func100_001);
 
-    WR1_PROG(REG_1444H, 0x00020061U);
-    WR1_PROG(REG_182CH, 0x00018020U);
-    WR1_PROG(REG_1824H, 0x07008d06U);
+    r_rsip_func_sub025(0x00020061U, 0x00018020U, 0x07008d06U);
     WR1_PROG(REG_1408H, 0x000c1000U);
 
     WAIT_STS(REG_1444H, 31, 1);
@@ -46,8 +48,9 @@ void r_rsip_p32u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_
 
     r_rsip_func215();
 
-    r_rsip_func101(bswap_32big(0x3e87a72eU),
-                   bswap_32big(0x0c8d27edU),
-                   bswap_32big(0x84a3c38eU),
-                   bswap_32big(0x753b1d60U));
+    static const uint32_t Param_p32u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x3e87a72eU), BSWAP_32BIG_C(0x0c8d27edU), BSWAP_32BIG_C(0x84a3c38eU), BSWAP_32BIG_C(0x753b1d60U),
+    };
+    r_rsip_func101(Param_p32u_func101_001);
 }

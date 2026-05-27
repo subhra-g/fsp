@@ -10,31 +10,19 @@
 #include "r_rsip_primitive.h"
 #include "r_rsip_reg.h"
 #include "r_rsip_util.h"
+#include "r_rsip_sub_func.h"
 
 /***********************************************************************************************************************
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 void r_rsip_func074 (void)
 {
-    WR1_PROG(REG_1600H, 0x30003340U);
-    WR1_PROG(REG_1600H, 0x00050020U);
-    WR1_PROG(REG_1600H, 0x0000b7c0U);
-    WR1_PROG(REG_1600H, 0x00000023U);
-    WR1_PROG(REG_1600H, 0x00030040U);
-    WR1_PROG(REG_1600H, 0x0000b7c0U);
-    WR1_PROG(REG_1600H, 0x0000001dU);
-    WR1_PROG(REG_1600H, 0x00070040U);
-    WR1_PROG(REG_1600H, 0x30003380U);
-    WR1_PROG(REG_1600H, 0x00070020U);
-    WR1_PROG(REG_1600H, 0x0000b7c0U);
-    WR1_PROG(REG_1600H, 0x00000017U);
-    WR1_PROG(REG_1600H, 0x00030040U);
-    WR1_PROG(REG_1600H, 0x0000b7c0U);
-    WR1_PROG(REG_1600H, 0x00000015U);
-    WR1_PROG(REG_1600H, 0x00050040U);
-    WR1_PROG(REG_1600H, 0x0000b7c0U);
-    WR1_PROG(REG_1600H, 0x00000013U);
-    WR1_PROG(REG_1600H, 0x00000080U);
-    WR1_PROG(REG_1600H, 0x00000080U);
+    r_rsip_func_sub021(0x30003340U, 0x00050020U, 0x0000b7c0U, 0x00000023U);
+    r_rsip_func_sub021(0x00030040U, 0x0000b7c0U, 0x0000001dU, 0x00070040U);
+    r_rsip_func_sub021(0x30003380U, 0x00070020U, 0x0000b7c0U, 0x00000017U);
+    r_rsip_func_sub021(0x00030040U, 0x0000b7c0U, 0x00000015U, 0x00050040U);
+    r_rsip_func_sub021(0x0000b7c0U, 0x00000013U, 0x00000080U, 0x00000080U);
 }

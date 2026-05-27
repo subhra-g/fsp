@@ -10,39 +10,25 @@
 #include "r_rsip_primitive.h"
 #include "r_rsip_reg.h"
 #include "r_rsip_util.h"
+#include "r_rsip_sub_func.h"
 
 /***********************************************************************************************************************
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 void r_rsip_func408 (void)
 {
-    WR1_PROG(REG_1600H, 0x0000b4a0U);
-    WR1_PROG(REG_1600H, 0x0000000cU);
-
-    WR1_PROG(REG_1404H, 0x10000000U);
+    r_rsip_func_sub034(0x0000b4a0U, 0x0000000cU, 0x10000000U);
 
     WR1_PROG(REG_1608H, 0x81910005U);
-    WR1_PROG(REG_1400H, 0x00c90045U);
-    WAIT_STS(REG_1404H, 30, 0);
-    WR1_PROG(REG_143CH, 0x00001800U);
+    r_rsip_func_sub001(0x00c90045U);
 
-    WR1_PROG(REG_1600H, 0x000008a5U);
+    r_rsip_func_sub044(0x000008a5U, 0x10000000U, 0x80940005U);
+    r_rsip_func_sub001(0x10030009U);
+    r_rsip_func_sub001(0x13430109U);
 
-    WR1_PROG(REG_1404H, 0x10000000U);
-
-    WR1_PROG(REG_1608H, 0x80940005U);
-    WR1_PROG(REG_1400H, 0x10030009U);
-    WAIT_STS(REG_1404H, 30, 0);
-    WR1_PROG(REG_143CH, 0x00001800U);
-    WR1_PROG(REG_1400H, 0x13430109U);
-    WAIT_STS(REG_1404H, 30, 0);
-    WR1_PROG(REG_143CH, 0x00001800U);
-
-    WR1_PROG(REG_1400H, 0x13400039U);
-    WAIT_STS(REG_1404H, 30, 0);
-    WR1_PROG(REG_143CH, 0x00001800U);
-    WR1_PROG(REG_1400H, 0x10000009U);
-    WAIT_STS(REG_1404H, 30, 0);
-    WR1_PROG(REG_143CH, 0x00001800U);
+    r_rsip_func_sub001(0x13400039U);
+    r_rsip_func_sub001(0x10000009U);
 }

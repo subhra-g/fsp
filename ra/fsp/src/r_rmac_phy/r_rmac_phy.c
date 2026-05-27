@@ -905,9 +905,9 @@ static void rmac_phy_targets_initialize (rmac_phy_instance_ctrl_t * p_instance_c
             if (NULL != p_instance_ctrl->p_ether_phy_cfg->p_extend)
             {
                 rmac_phy_extended_cfg_t const * p_callback = p_instance_ctrl->p_ether_phy_cfg->p_extend;
-                if (NULL != p_callback->p_port_custom_init)
+                if (NULL != p_callback->p_target_init)
                 {
-                    p_callback->p_port_custom_init(p_instance_ctrl);
+                    p_callback->p_target_init(p_instance_ctrl);
                 }
             }
 
@@ -1000,9 +1000,9 @@ static bool rmac_phy_targets_is_support_link_partner_ability (rmac_phy_instance_
             if (NULL != p_instance_ctrl->p_ether_phy_cfg->p_extend)
             {
                 rmac_phy_extended_cfg_t const * p_callback = p_instance_ctrl->p_ether_phy_cfg->p_extend;
-                if (NULL != p_callback->p_port_custom_link_partner_ability_get)
+                if (NULL != p_callback->p_target_link_partner_ability_get)
                 {
-                    result = p_callback->p_port_custom_link_partner_ability_get(p_instance_ctrl, line_speed_duplex);
+                    result = p_callback->p_target_link_partner_ability_get(p_instance_ctrl, line_speed_duplex);
                 }
             }
 

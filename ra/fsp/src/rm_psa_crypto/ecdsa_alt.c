@@ -14,6 +14,7 @@
 
  #include "mbedtls/ecdsa.h"
  #include "mbedtls/asn1write.h"
+ #include "bignum_internal.h"
 
  #include <string.h>
  #include <stdbool.h>

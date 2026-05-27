@@ -804,6 +804,11 @@ static fsp_err_t r_sci_b_spi_write_read_common (sci_b_spi_instance_ctrl_t * cons
         transfer_instance_t const * p_transfer = p_ctrl->p_cfg->p_transfer_tx;
         p_transfer->p_cfg->p_info->length = (uint16_t) length;
 
+ #if BSP_CFG_DCACHE_ENABLED
+        p_transfer->p_cfg->p_info->transfer_settings_word = SCI_B_SPI_PRV_DMA_TX_TRANSFER_SETTINGS;
+        p_transfer->p_cfg->p_info->p_dest                 = (void *) &p_ctrl->p_reg->TDR;
+ #endif
+
         if (NULL == p_src)
         {
             /* If the source is NULL transmit using a dummy value using FIXED mode. */
@@ -828,6 +833,11 @@ static fsp_err_t r_sci_b_spi_write_read_common (sci_b_spi_instance_ctrl_t * cons
         /* Configure the rx transfer instance. */
         p_ctrl->rx_count = length;
         transfer_instance_t const * p_transfer = p_ctrl->p_cfg->p_transfer_rx;
+
+ #if BSP_CFG_DCACHE_ENABLED
+        p_transfer->p_cfg->p_info->transfer_settings_word = SCI_B_SPI_PRV_DMA_RX_TRANSFER_SETTINGS;
+        p_transfer->p_cfg->p_info->p_src = (void *) &p_ctrl->p_reg->RDR;
+ #endif
 
         /* Enable the transfer instance. */
         fsp_err_t err = p_transfer->p_api->reset(p_transfer->p_ctrl, NULL, p_dest, (uint16_t) length);

@@ -162,7 +162,8 @@ static void r_sci_b_uart_synchronization_delay_cfg(sci_b_uart_instance_ctrl_t * 
 static fsp_err_t r_sci_b_uart_transfer_configure(sci_b_uart_instance_ctrl_t * const p_ctrl,
                                                  transfer_instance_t const        * p_transfer,
                                                  uint32_t                         * p_transfer_reg,
-                                                 uint32_t                           address);
+                                                 transfer_info_t                  * p_info,
+                                                 uint32_t                           sci_buffer_address);
 
 static fsp_err_t r_sci_b_uart_transfer_open(sci_b_uart_instance_ctrl_t * const p_ctrl, uart_cfg_t const * const p_cfg);
 
@@ -1144,8 +1145,11 @@ static fsp_err_t r_sci_b_read_write_param_check (sci_b_uart_instance_ctrl_t cons
 /*******************************************************************************************************************//**
  * Subroutine to apply common UART transfer settings.
  *
- * @param[in]  p_cfg              Pointer to UART specific configuration structure
+ * @param[in]  p_ctrl             Pointer to UART specific control structure
  * @param[in]  p_transfer         Pointer to transfer instance to configure
+ * @param[in]  p_transfer_reg     Pointer to transfer register
+ * @param[in]  p_info             Pointer to transfer info buffer
+ * @param[in]  sci_buffer_address Pointer to sci buffer address
  *
  * @retval     FSP_SUCCESS        UART transfer drivers successfully configured
  * @retval     FSP_ERR_ASSERTION  Invalid pointer
@@ -1153,17 +1157,19 @@ static fsp_err_t r_sci_b_read_write_param_check (sci_b_uart_instance_ctrl_t cons
 static fsp_err_t r_sci_b_uart_transfer_configure (sci_b_uart_instance_ctrl_t * const p_ctrl,
                                                   transfer_instance_t const        * p_transfer,
                                                   uint32_t                         * p_transfer_reg,
+                                                  transfer_info_t                  * p_info,
                                                   uint32_t                           sci_buffer_address)
 {
     /* Configure the transfer instance, if enabled. */
  #if (SCI_B_UART_CFG_PARAM_CHECKING_ENABLE)
+    FSP_ASSERT(NULL != p_info);
     FSP_ASSERT(NULL != p_transfer->p_api);
     FSP_ASSERT(NULL != p_transfer->p_cfg);
     FSP_ASSERT(NULL != p_transfer->p_cfg->p_info);
     FSP_ASSERT(NULL != p_transfer->p_cfg->p_extend);
+ #else
+    FSP_PARAMETER_NOT_USED(p_transfer);
  #endif
-
-    transfer_info_t * p_info = p_transfer->p_cfg->p_info;
 
     p_info->transfer_settings_word_b.size = TRANSFER_SIZE_1_BYTE;
 
@@ -1174,9 +1180,6 @@ static fsp_err_t r_sci_b_uart_transfer_configure (sci_b_uart_instance_ctrl_t * c
 
     /* Casting for compatibility with 7 or 8 bit mode. */
     *p_transfer_reg = sci_buffer_address;
-
-    fsp_err_t err = p_transfer->p_api->open(p_transfer->p_ctrl, p_transfer->p_cfg);
-    FSP_ERROR_RETURN(FSP_SUCCESS == err, err);
 
     return FSP_SUCCESS;
 }
@@ -1207,12 +1210,19 @@ static fsp_err_t r_sci_b_uart_transfer_open (sci_b_uart_instance_ctrl_t * const 
     /* If a transfer instance is used for reception, apply UART specific settings and open the transfer instance. */
     if (NULL != p_cfg->p_transfer_rx)
     {
-        transfer_info_t * p_info = p_cfg->p_transfer_rx->p_cfg->p_info;
+        transfer_instance_t const * p_transfer = p_cfg->p_transfer_rx;
+        transfer_info_t           * p_info     = p_transfer->p_cfg->p_info;
+
+        err = p_transfer->p_api->open(p_transfer->p_ctrl, p_transfer->p_cfg);
+        FSP_ERROR_RETURN(FSP_SUCCESS == err, err);
 
         p_info->transfer_settings_word = SCI_B_UART_DTC_RX_TRANSFER_SETTINGS;
 
         err =
-            r_sci_b_uart_transfer_configure(p_ctrl, p_cfg->p_transfer_rx, (uint32_t *) &p_info->p_src,
+            r_sci_b_uart_transfer_configure(p_ctrl,
+                                            p_cfg->p_transfer_rx,
+                                            (uint32_t *) &p_info->p_src,
+                                            p_info,
                                             (uint32_t) &(p_ctrl->p_reg->RDR));
         FSP_ERROR_RETURN(FSP_SUCCESS == err, err);
     }
@@ -1222,14 +1232,10 @@ static fsp_err_t r_sci_b_uart_transfer_open (sci_b_uart_instance_ctrl_t * const 
     /* If a transfer instance is used for transmission, apply UART specific settings and open the transfer instance. */
     if (NULL != p_cfg->p_transfer_tx)
     {
-        transfer_info_t * p_info = p_cfg->p_transfer_tx->p_cfg->p_info;
+        transfer_instance_t const * p_transfer = p_cfg->p_transfer_tx;
+        transfer_info_t           * p_info     = p_transfer->p_cfg->p_info;
 
-        p_info->transfer_settings_word = SCI_B_UART_DTC_TX_TRANSFER_SETTINGS;
-
-        err = r_sci_b_uart_transfer_configure(p_ctrl,
-                                              p_cfg->p_transfer_tx,
-                                              (uint32_t *) &p_info->p_dest,
-                                              (uint32_t) &p_ctrl->p_reg->TDR);
+        err = p_transfer->p_api->open(p_transfer->p_ctrl, p_transfer->p_cfg);
 
   #if (SCI_B_UART_CFG_RX_ENABLE)
         if ((err != FSP_SUCCESS) && (NULL != p_cfg->p_transfer_rx))
@@ -1237,6 +1243,13 @@ static fsp_err_t r_sci_b_uart_transfer_open (sci_b_uart_instance_ctrl_t * const 
             p_cfg->p_transfer_rx->p_api->close(p_cfg->p_transfer_rx->p_ctrl);
         }
   #endif
+        FSP_ERROR_RETURN(FSP_SUCCESS == err, err);
+
+        p_info->transfer_settings_word = SCI_B_UART_DTC_TX_TRANSFER_SETTINGS;
+
+        err =
+            r_sci_b_uart_transfer_configure(p_ctrl, p_cfg->p_transfer_tx, (uint32_t *) &p_info->p_dest, p_info,
+                                            (uint32_t) &p_ctrl->p_reg->TDR);
         FSP_ERROR_RETURN(FSP_SUCCESS == err, err);
     }
  #endif

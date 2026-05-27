@@ -26,8 +26,8 @@
 
 #define TOUCH_SLIDER_ELEMENTS_MIN             (3)
 #define TOUCH_SLIDER_ELEMENTS_MAX             (10)
-#define TOUCH_WHEEL_ELEMENTS_SMALL            (4)
-#define TOUCH_WHEEL_ELEMENTS_LARGE            (8)
+#define TOUCH_WHEEL_ELEMENTS_MIN              (3)
+#define TOUCH_WHEEL_ELEMENTS_MAX              (8)
 #define TOUCH_SLIDER_RESOLUTION               (100)
 #define TOUCH_WHEEL_RESOLUTION                (360)
 #define TOUCH_DECIMAL_POINT_PRECISION         (100)
@@ -276,13 +276,15 @@
  #define TOUCH_TUNING_ICOG_100            (0)                     // ICOG = 100%
  #define TOUCH_TUNING_ICOG_66             (1)                     // ICOG = 66%
  #define TOUCH_TUNING_RICOA_RECOMMEND     (0xFF)                  // ICO input current
- #if (BSP_CFG_MCU_PART_SERIES == 2) || (BSP_CFG_MCU_PART_SERIES == 4)
-  #define TOUCH_TUNING_ICOG_RECOMMEND     (TOUCH_TUNING_ICOG_66)  // Recommended setting value
- #endif
- #if (BSP_CFG_MCU_PART_SERIES == 6)
-  #define TOUCH_TUNING_ICOG_RECOMMEND     (TOUCH_TUNING_ICOG_100) // Recommended setting value
- #endif
 
+ #if (BSP_FEATURE_CTSU_VERSION == 1)
+  #if (BSP_FEATURE_CTSU_CORRECTION_TYPE == 1)
+   #define TOUCH_TUNING_ICOG_RECOMMEND    (TOUCH_TUNING_ICOG_66)  // Recommended setting value
+  #endif
+  #if (BSP_FEATURE_CTSU_CORRECTION_TYPE == 2)
+   #define TOUCH_TUNING_ICOG_RECOMMEND    (TOUCH_TUNING_ICOG_100) // Recommended setting value
+  #endif
+ #endif
 #endif
 
 #if (CTSU_CFG_NUM_MUTUAL_ELEMENTS != 0)
@@ -521,10 +523,10 @@ touch_instance_ctrl_t * gp_touch_isr_context;
  * Example:
  * @snippet rm_touch_example.c RM_TOUCH_Open
  *
- * @retval FSP_SUCCESS              TOUCH successfully configured.
- * @retval FSP_ERR_ASSERTION        Null pointer, or one or more configuration options is invalid.
- * @retval FSP_ERR_ALREADY_OPEN     Module is already open.  This module can only be opened once.
- * @retval FSP_ERR_INVALID_ARGUMENT Configuration parameter error.
+ * @retval FSP_SUCCESS                     TOUCH successfully configured.
+ * @retval FSP_ERR_ASSERTION               Null pointer, or one or more configuration options is invalid.
+ * @retval FSP_ERR_ALREADY_OPEN            Module is already open.  This module can only be opened once.
+ * @retval FSP_ERR_INVALID_ARGUMENT        Configuration parameter error.
  **********************************************************************************************************************/
 fsp_err_t RM_TOUCH_Open (touch_ctrl_t * const p_ctrl, touch_cfg_t const * const p_cfg)
 {
@@ -655,8 +657,8 @@ fsp_err_t RM_TOUCH_Open (touch_ctrl_t * const p_ctrl, touch_cfg_t const * const 
 
         for (id = 0; id < p_cfg->num_wheels; id++)
         {
-            if ((TOUCH_WHEEL_ELEMENTS_LARGE != p_cfg->p_wheels[id].num_elements) &&
-                (TOUCH_WHEEL_ELEMENTS_SMALL != p_cfg->p_wheels[id].num_elements))
+            if ((TOUCH_WHEEL_ELEMENTS_MIN > p_cfg->p_wheels[id].num_elements) ||
+                (TOUCH_WHEEL_ELEMENTS_MAX < p_cfg->p_wheels[id].num_elements))
             {
                 err = FSP_ERR_INVALID_ARGUMENT;
             }
@@ -825,11 +827,11 @@ fsp_err_t RM_TOUCH_Open (touch_ctrl_t * const p_ctrl, touch_cfg_t const * const 
  * If a different control block scan should be run, check the scan is complete before executing.
  * Implements @ref touch_api_t::scanStart.
  *
- * @retval FSP_SUCCESS              Successfully started.
- * @retval FSP_ERR_ASSERTION        Null pointer passed as a parameter.
- * @retval FSP_ERR_NOT_OPEN         Module is not open.
- * @retval FSP_ERR_CTSU_SCANNING    Scanning this instance or other.
- * @retval FSP_ERR_CTSU_NOT_GET_DATA    The previous data has not been retrieved by DataGet.
+ * @retval FSP_SUCCESS                      Successfully started.
+ * @retval FSP_ERR_ASSERTION                Null pointer passed as a parameter.
+ * @retval FSP_ERR_NOT_OPEN                 Module is not open.
+ * @retval FSP_ERR_CTSU_SCANNING            Scanning this instance or other.
+ * @retval FSP_ERR_CTSU_NOT_GET_DATA        The previous data has not been retrieved by DataGet.
  **********************************************************************************************************************/
 fsp_err_t RM_TOUCH_ScanStart (touch_ctrl_t * const p_ctrl)
 {
@@ -854,18 +856,18 @@ fsp_err_t RM_TOUCH_ScanStart (touch_ctrl_t * const p_ctrl)
  * Also, this function gets the current position of where slider or wheel is being pressed.
  * If initial offset tuning is enabled, The first several calls are used to tuning for the sensors.
  * Implements @ref touch_api_t::dataGet.
- * @note FSP v4.0.0 or later,
+ * @note
  * - The value of 'Secondary - Primary' is modified from uint16_t to int16_t.
  * When the value of 'Secondary - Primary' is larger than 32767 and less than -32767, this API return FSP_ERR_INVALID_DATA.
  * - An upper limit is set for the value of Secondary.
  * When the value of Secondary is larger than 45000, this API return FSP_ERR_INVALID_DATA.
  *
- * @retval FSP_SUCCESS              Successfully data decoded.
- * @retval FSP_ERR_ASSERTION        Null pointer passed as a parameter.
- * @retval FSP_ERR_NOT_OPEN         Module is not open.
- * @retval FSP_ERR_INVALID_DATA     Accuracy of data is not guaranteed.
- * @retval FSP_ERR_CTSU_SCANNING    Scanning this instance.
- * @retval FSP_ERR_CTSU_INCOMPLETE_TUNING      Incomplete initial offset tuning.
+ * @retval FSP_SUCCESS                           Successfully data decoded.
+ * @retval FSP_ERR_ASSERTION                     Null pointer passed as a parameter.
+ * @retval FSP_ERR_NOT_OPEN                      Module is not open.
+ * @retval FSP_ERR_INVALID_DATA                  Accuracy of data is not guaranteed.
+ * @retval FSP_ERR_CTSU_SCANNING                 Scanning this instance.
+ * @retval FSP_ERR_CTSU_INCOMPLETE_TUNING        Incomplete initial offset tuning.
  **********************************************************************************************************************/
 fsp_err_t RM_TOUCH_DataGet (touch_ctrl_t * const p_ctrl,
                             uint64_t           * p_button_status,
@@ -887,7 +889,7 @@ fsp_err_t RM_TOUCH_DataGet (touch_ctrl_t * const p_ctrl,
 #if (TOUCH_CFG_NUM_WHEELS != 0)
     const touch_wheel_cfg_t * p_wheel;
     uint8_t  wheel_id;
-    uint16_t wheel_data[TOUCH_WHEEL_ELEMENTS_LARGE];
+    uint16_t wheel_data[TOUCH_WHEEL_ELEMENTS_MAX];
 #endif
 #if ((TOUCH_CFG_NUM_SLIDERS != 0) || (TOUCH_CFG_NUM_WHEELS != 0))
     uint8_t element_id;
@@ -999,8 +1001,8 @@ fsp_err_t RM_TOUCH_DataGet (touch_ctrl_t * const p_ctrl,
         /* Monitor Data Notification */
         g_touch_monitor_buf[index++] = TOUCH_UART_HEADER;
         g_touch_monitor_buf[index++] = TOUCH_UART_RESPONSE_MONITOR;
-        g_touch_monitor_buf[index++] = 0; /* Temporarily input the size */
-        g_touch_monitor_buf[index++] = 0; /* Temporarily input the size */
+        g_touch_monitor_buf[index++] = 0; // Temporarily input the size
+        g_touch_monitor_buf[index++] = 0; // Temporarily input the size
     }
 
     if (!g_touch_uart_transmit_flag &&
@@ -1214,17 +1216,17 @@ fsp_err_t RM_TOUCH_DataGet (touch_ctrl_t * const p_ctrl,
 /*******************************************************************************************************************//**
  * @brief This function gets the current position of pad is being pressed.
  * Implements @ref touch_api_t::padDataGet , g_touch_on_ctsu
- * @note FSP v4.0.0 or later,
+ * @note
  * - The value of 'Secondary - Primary' is modified from uint16_t to int16_t.
  * When the value of 'Secondary - Primary' is larger than 32767 and less than -32767, this API return FSP_ERR_INVALID_DATA.
  * - An upper limit is set for the value of Secondary.
  * When the value of Secondary is larger than 45000, this API return FSP_ERR_INVALID_DATA.
  *
- * @retval FSP_SUCCESS              Successfully data decoded.
- * @retval FSP_ERR_ASSERTION        Null pointer.
- * @retval FSP_ERR_NOT_OPEN         Module is not open.
- * @retval FSP_ERR_INVALID_DATA     Accuracy of data is not guaranteed.
- * @retval FSP_ERR_CTSU_SCANNING    Scanning this instance.
+ * @retval FSP_SUCCESS                  Successfully data decoded.
+ * @retval FSP_ERR_ASSERTION            Null pointer.
+ * @retval FSP_ERR_NOT_OPEN             Module is not open.
+ * @retval FSP_ERR_INVALID_DATA         Accuracy of data is not guaranteed.
+ * @retval FSP_ERR_CTSU_SCANNING        Scanning this instance.
  **********************************************************************************************************************/
 fsp_err_t RM_TOUCH_PadDataGet (touch_ctrl_t * const p_ctrl,
                                uint16_t           * p_pad_rx_coordinate,
@@ -1244,7 +1246,7 @@ fsp_err_t RM_TOUCH_PadDataGet (touch_ctrl_t * const p_ctrl,
     int32_t  tmp_diff;
     uint16_t element_num;
     int32_t  drift_diff;
-    uint8_t  max_touch;                /* number of max touch */
+    uint8_t  max_touch;                // number of max touch
  #if (TOUCH_CFG_MONITOR_ENABLE)
     uint16_t index = 0;
  #endif
@@ -1417,8 +1419,8 @@ fsp_err_t RM_TOUCH_PadDataGet (touch_ctrl_t * const p_ctrl,
         /* Monitor Data Notification */
         g_touch_monitor_buf[index++] = TOUCH_UART_HEADER;
         g_touch_monitor_buf[index++] = TOUCH_UART_RESPONSE_MONITOR2;
-        g_touch_monitor_buf[index++] = 0; /* Temporarily input the size */
-        g_touch_monitor_buf[index++] = 0; /* Temporarily input the size */
+        g_touch_monitor_buf[index++] = 0; // Temporarily input the size
+        g_touch_monitor_buf[index++] = 0; // Temporarily input the size
     }
 
     if (!g_touch_uart_transmit_flag &&
@@ -1459,10 +1461,10 @@ fsp_err_t RM_TOUCH_PadDataGet (touch_ctrl_t * const p_ctrl,
             g_touch_monitor_buf[index++] = (uint8_t) (tmp_value >> 8);
         }
 
-        g_touch_monitor_buf[index++] = 0x03;                                              /* id of Pad     */
-        g_touch_monitor_buf[index++] = 0x01;                                              /* number of Pad */
+        g_touch_monitor_buf[index++] = 0x03;                                              // id of Pad
+        g_touch_monitor_buf[index++] = 0x01;                                              // number of Pad
 
-        g_touch_monitor_buf[index++] = (uint8_t) (*(p_instance_ctrl->pinfo.p_num_touch)); /* number of touch    */
+        g_touch_monitor_buf[index++] = (uint8_t) (*(p_instance_ctrl->pinfo.p_num_touch)); // number of touch
         for (i = 0; i < TOUCH_PAD_MONITOR_TOUCH_NUM_MAX; i++)
         {
             if (i <= max_touch)
@@ -1545,9 +1547,9 @@ fsp_err_t RM_TOUCH_ScanStop (touch_ctrl_t * const p_ctrl)
  * Updates the user callback and has option of providing memory for callback structure.
  * Implements touch_api_t::callbackSet
  *
- * @retval  FSP_SUCCESS                  Callback updated successfully.
- * @retval  FSP_ERR_ASSERTION            A required pointer is NULL.
- * @retval  FSP_ERR_NOT_OPEN             The control block has not been opened.
+ * @retval FSP_SUCCESS              Callback updated successfully.
+ * @retval FSP_ERR_ASSERTION        A required pointer is NULL.
+ * @retval FSP_ERR_NOT_OPEN         The control block has not been opened.
  **********************************************************************************************************************/
 fsp_err_t RM_TOUCH_CallbackSet (touch_ctrl_t * const          p_api_ctrl,
                                 void (                      * p_callback)(touch_callback_args_t *),
@@ -2036,7 +2038,8 @@ void touch_button_self_decode (touch_button_info_t * p_binfo, uint16_t value, to
     /* threshold_sub_hys < scan value = Touch */
     if (threshold < value)
     {
-        (*(p_binfo->p_off_count + button_id * majority_mode_num + jmm_id)) = 0; /* non_touch count reset */
+        (*(p_binfo->p_off_count + button_id * majority_mode_num + jmm_id)) = 0; // non_touch count reset
+
         /* positive noise filter */
         if (p_binfo->on_freq <= (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)))
         {
@@ -2048,7 +2051,7 @@ void touch_button_self_decode (touch_button_info_t * p_binfo, uint16_t value, to
                 if (p_binfo->cancel_freq <=
                     (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)))
                 {
-                    (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)) = 0; /* touch count reset */
+                    (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)) = 0; // touch count reset
                     p_button_mm_info->mm_result[jmm_id] = 0;
                     *(p_binfo->p_reference + button_id * majority_mode_num + jmm_id) = value;
                 }
@@ -2065,7 +2068,8 @@ void touch_button_self_decode (touch_button_info_t * p_binfo, uint16_t value, to
     }
     else if (threshold_sub_hys > value)
     {
-        (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)) = 0; /* touch count reset */
+        (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)) = 0; // touch count reset
+
         /* negative noise filter */
         if (p_binfo->off_freq <= (*(p_binfo->p_off_count + button_id * majority_mode_num + jmm_id)))
         {
@@ -2194,7 +2198,8 @@ void touch_button_mutual_decode (touch_button_info_t * p_binfo, int16_t value, t
     /* threshold_add_hys > scan value = Touch */
     if (threshold > value)
     {
-        (*(p_binfo->p_off_count + button_id * majority_mode_num + jmm_id)) = 0; /* non_touch count reset */
+        (*(p_binfo->p_off_count + button_id * majority_mode_num + jmm_id)) = 0; // non_touch count reset
+
         /* positive noise filter */
         if (p_binfo->on_freq <= (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)))
         {
@@ -2206,7 +2211,7 @@ void touch_button_mutual_decode (touch_button_info_t * p_binfo, int16_t value, t
                 if (p_binfo->cancel_freq <=
                     (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)))
                 {
-                    (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)) = 0; /* touch count reset */
+                    (*(p_binfo->p_on_count + button_id * majority_mode_num + jmm_id)) = 0; // touch count reset
                     p_button_mm_info->mm_result[jmm_id] = 0;
                     *(p_binfo->p_reference + button_id * majority_mode_num + jmm_id) = (uint16_t) value;
                 }
@@ -2254,7 +2259,7 @@ void touch_button_mutual_decode (touch_button_info_t * p_binfo, int16_t value, t
   #if (CTSU_CFG_MAJORITY_MODE & CTSU_JUDGEMENT_MAJORITY_MODE)
     if (p_button_mm_info->majority_mode == 1)
     {
-        /*Create result of Software JMM*/
+        /* Create result of Software JMM */
         if (id_in_elem <= jmm_id)
         {
             for (majority_mode_elems = 0; majority_mode_elems < majority_mode_num; majority_mode_elems++)
@@ -2280,7 +2285,7 @@ void touch_button_mutual_decode (touch_button_info_t * p_binfo, int16_t value, t
     else
   #endif
     {
-        /*Create result of Software VMM */
+        /* Create result of Software VMM */
         if (1 == p_button_mm_info->mm_result[jmm_id])
         {
             /* ===== touch ON result ===== */
@@ -2451,7 +2456,8 @@ void touch_slider_decode (touch_slider_info_t * p_sinfo, uint16_t * slider_data,
     uint16_t resol_plus;
     uint16_t dsum;
 
-    if (num_elements < 3)
+    /* This is a workaround for the build warning. Already checked in RM_TOUCH_Open(). */
+    if (num_elements < TOUCH_SLIDER_ELEMENTS_MIN)
     {
         return;
     }
@@ -2498,7 +2504,9 @@ void touch_slider_decode (touch_slider_info_t * p_sinfo, uint16_t * slider_data,
         }
 
         /* x : y = d1 : d2 */
-        d3 = (uint16_t) (TOUCH_DECIMAL_POINT_PRECISION + ((d2 * TOUCH_DECIMAL_POINT_PRECISION) / d1));
+        d3 =
+            (uint16_t) (TOUCH_DECIMAL_POINT_PRECISION +
+                        (uint32_t) ((uint32_t) (d2 * TOUCH_DECIMAL_POINT_PRECISION) / d1));
 
         slider_rpos = (uint16_t) (((TOUCH_DECIMAL_POINT_PRECISION * TOUCH_SLIDER_RESOLUTION) / d3) +
                                   (TOUCH_SLIDER_RESOLUTION * max_data_num));
@@ -2530,13 +2538,10 @@ void touch_slider_decode (touch_slider_info_t * p_sinfo, uint16_t * slider_data,
             else
             {
                 slider_rpos = (uint16_t) (slider_rpos - (TOUCH_SLIDER_RESOLUTION / 2));
+                slider_rpos = (uint16_t) ((slider_rpos * 2) / num_elements);
                 if (0 == slider_rpos)
                 {
                     slider_rpos = 1;
-                }
-                else
-                {
-                    slider_rpos = (uint16_t) ((slider_rpos * 2) / num_elements);
                 }
             }
         }
@@ -2577,7 +2582,8 @@ void touch_wheel_decode (touch_wheel_info_t * p_winfo, uint16_t * wheel_data, ui
     uint16_t dsum;
     uint16_t unit;
 
-    if (num_elements < 3)
+    /* This is a workaround for the build warning. Already checked in RM_TOUCH_Open(). */
+    if (num_elements < TOUCH_WHEEL_ELEMENTS_MIN)
     {
         return;
     }
@@ -2622,7 +2628,9 @@ void touch_wheel_decode (touch_wheel_info_t * p_winfo, uint16_t * wheel_data, ui
     /* Constant decision for operation of angle of wheel    */
     if (dsum > *(p_winfo->p_threshold + wheel_id))
     {
-        d3 = (uint16_t) (TOUCH_DECIMAL_POINT_PRECISION + ((d2 * TOUCH_DECIMAL_POINT_PRECISION) / d1));
+        d3 =
+            (uint16_t) (TOUCH_DECIMAL_POINT_PRECISION +
+                        (uint32_t) ((uint32_t) (d2 * TOUCH_DECIMAL_POINT_PRECISION) / d1));
 
         unit       = (uint16_t) (TOUCH_WHEEL_RESOLUTION / num_elements);
         wheel_rpos = (uint16_t) (((unit * TOUCH_DECIMAL_POINT_PRECISION) / d3) + (unit * max_data_num));
@@ -2633,7 +2641,7 @@ void touch_wheel_decode (touch_wheel_info_t * p_winfo, uint16_t * wheel_data, ui
         {
             wheel_rpos = TOUCH_WHEEL_RESOLUTION;
         }
-        else if ((TOUCH_WHEEL_RESOLUTION + 1) < wheel_rpos)
+        else if (TOUCH_WHEEL_RESOLUTION < wheel_rpos)
         {
             wheel_rpos = 1;
         }
@@ -2780,13 +2788,13 @@ void touch_pad_decode (touch_pad_info_t * p_pinfo, uint8_t num_x, uint8_t num_y,
             if (tmp_heat == 0)
             {
                 /* When dividing by zero, set the calculation result to zero */
-                tmp_x1 = 0;                                      /* x parameter1 */
-                tmp_y1 = 0;                                      /* y parameter1 */
+                tmp_x1 = 0;                                      // x parameter1
+                tmp_y1 = 0;                                      // y parameter1
             }
             else
             {
-                tmp_x1 = (heat_map[8] * heat_map[5]) / tmp_heat; /* x parameter1 */
-                tmp_y1 = (heat_map[8] * heat_map[7]) / tmp_heat; /* y parameter1 */
+                tmp_x1 = (heat_map[8] * heat_map[5]) / tmp_heat; // x parameter1
+                tmp_y1 = (heat_map[8] * heat_map[7]) / tmp_heat; // y parameter1
             }
 
             /* Calculate right + up value. (x2/y4) */
@@ -2794,13 +2802,13 @@ void touch_pad_decode (touch_pad_info_t * p_pinfo, uint8_t num_x, uint8_t num_y,
             if (tmp_heat == 0)
             {
                 /* When dividing by zero, set the calculation result to zero */
-                tmp_x2 = 0;                                      /* x parameter2 */
-                tmp_y4 = 0;                                      /* y parameter4 */
+                tmp_x2 = 0;                                      // x parameter2
+                tmp_y4 = 0;                                      // y parameter4
             }
             else
             {
-                tmp_x2 = (heat_map[2] * heat_map[5]) / tmp_heat; /* x parameter2 */
-                tmp_y4 = (heat_map[2] * heat_map[1]) / tmp_heat; /* y parameter4 */
+                tmp_x2 = (heat_map[2] * heat_map[5]) / tmp_heat; // x parameter2
+                tmp_y4 = (heat_map[2] * heat_map[1]) / tmp_heat; // y parameter4
             }
 
             /* Calculate left + up value. (x3/y3) */
@@ -2808,13 +2816,13 @@ void touch_pad_decode (touch_pad_info_t * p_pinfo, uint8_t num_x, uint8_t num_y,
             if (tmp_heat == 0)
             {
                 /* When dividing by zero, set the calculation result to zero */
-                tmp_x3 = 0;                                      /* x parameter3 */
-                tmp_y3 = 0;                                      /* y parameter3 */
+                tmp_x3 = 0;                                      // x parameter3
+                tmp_y3 = 0;                                      // y parameter3
             }
             else
             {
-                tmp_x3 = (heat_map[0] * heat_map[3]) / tmp_heat; /* x parameter3 */
-                tmp_y3 = (heat_map[0] * heat_map[1]) / tmp_heat; /* y parameter3 */
+                tmp_x3 = (heat_map[0] * heat_map[3]) / tmp_heat; // x parameter3
+                tmp_y3 = (heat_map[0] * heat_map[1]) / tmp_heat; // y parameter3
             }
 
             /* Calculate left + down value. (x4/y2) */
@@ -2822,13 +2830,13 @@ void touch_pad_decode (touch_pad_info_t * p_pinfo, uint8_t num_x, uint8_t num_y,
             if (tmp_heat == 0)
             {
                 /* When dividing by zero, set the calculation result to zero */
-                tmp_x4 = 0;                                      /* x parameter4 */
-                tmp_y2 = 0;                                      /* y parameter2 */
+                tmp_x4 = 0;                                      // x parameter4
+                tmp_y2 = 0;                                      // y parameter2
             }
             else
             {
-                tmp_x4 = (heat_map[6] * heat_map[3]) / tmp_heat; /* x parameter4 */
-                tmp_y2 = (heat_map[6] * heat_map[7]) / tmp_heat; /* y parameter2 */
+                tmp_x4 = (heat_map[6] * heat_map[3]) / tmp_heat; // x parameter4
+                tmp_y2 = (heat_map[6] * heat_map[7]) / tmp_heat; // y parameter2
             }
 
             if (heat_map[4] == 0)
@@ -3254,7 +3262,8 @@ void touch_uart_callback (uart_callback_args_t * p_args)
                         case TOUCH_UART_WRITE_CTSUSNUM:
                         {
   #if (BSP_FEATURE_CTSU_VERSION == 2)
-                            *p_ctsusnum &= (~((uint32_t) TOUCH_UART_CTSUSNUM_MASK << TOUCH_UART_CTSUSNUM_SHIFT));
+                            *p_ctsusnum &=
+                                (~((uint32_t) TOUCH_UART_CTSUSNUM_MASK << TOUCH_UART_CTSUSNUM_SHIFT));
                             *p_ctsusnum |= ((uint32_t) write_data << TOUCH_UART_CTSUSNUM_SHIFT);
   #endif
   #if (BSP_FEATURE_CTSU_VERSION == 1)
@@ -3267,7 +3276,8 @@ void touch_uart_callback (uart_callback_args_t * p_args)
                         case TOUCH_UART_WRITE_CTSUSDPA:
                         {
   #if (BSP_FEATURE_CTSU_VERSION == 2)
-                            *p_ctsusdpa &= (~((uint32_t) TOUCH_UART_CTSUSDPA_MASK << TOUCH_UART_CTSUSDPA_SHIFT));
+                            *p_ctsusdpa &=
+                                (~((uint32_t) TOUCH_UART_CTSUSDPA_MASK << TOUCH_UART_CTSUSDPA_SHIFT));
                             *p_ctsusdpa |= ((uint32_t) write_data << TOUCH_UART_CTSUSDPA_SHIFT);
   #endif
   #if (BSP_FEATURE_CTSU_VERSION == 1)
@@ -4531,12 +4541,11 @@ void touch_tuning_scan_register_setting (touch_instance_ctrl_t * const p_instanc
     p_ctsu_instance_ctrl->ctsucr2  = (uint8_t) (g_touch_tuning_qe_atune & 0x02);
     p_ctsu_instance_ctrl->ctsucr2 |= (uint8_t) ((g_touch_tuning_md & 0x04) >> 2);
     p_ctsu_instance_ctrl->ctsucr2 |= (uint8_t) (g_touch_tuning_qe_posel << 4);
-
-  #if (CTSU_CFG_MULTIPLE_ELECTRODE_CONNECTION_ENABLE == 1)
+ #endif
+ #if (CTSU_CFG_MULTIPLE_ELECTRODE_CONNECTION_ENABLE == 1)
     p_ctsu_instance_ctrl->tsod          = g_touch_tuning_qe_tsod;
     p_ctsu_instance_ctrl->mec_ts        = g_touch_tuning_qe_mec_ts;
     p_ctsu_instance_ctrl->mec_shield_ts = g_touch_tuning_qe_mec_shield_ts;
-  #endif
  #endif
 
  #if (BSP_FEATURE_CTSU_VERSION == 2)
@@ -4602,13 +4611,11 @@ void touch_tuning_ts_setup (touch_instance_ctrl_t * const p_instance_ctrl)
         touch_tuning_count_element(element_maska, &p_ctsu_instance_ctrl->num_elements);
         touch_tuning_count_element(element_maskb, &p_ctsu_instance_ctrl->num_elements);
 
- #if (BSP_FEATURE_CTSU_VERSION == 2)
-  #if (CTSU_CFG_MULTIPLE_ELECTRODE_CONNECTION_ENABLE == 1)
+ #if (CTSU_CFG_MULTIPLE_ELECTRODE_CONNECTION_ENABLE == 1)
         if (1 == g_touch_tuning_qe_tsod)
         {
             p_ctsu_instance_ctrl->num_elements = 1;
         }
-  #endif
  #endif
     }
     else if (TOUCH_TUNING_SCAN_MUTUAL == g_touch_tuning_scan_mode)

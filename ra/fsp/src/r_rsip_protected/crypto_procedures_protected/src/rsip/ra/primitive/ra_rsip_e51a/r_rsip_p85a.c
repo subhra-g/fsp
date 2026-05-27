@@ -10,18 +10,19 @@
 #include "r_rsip_primitive.h"
 #include "r_rsip_reg.h"
 #include "r_rsip_util.h"
+#include "r_rsip_sub_func.h"
 
 /***********************************************************************************************************************
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 void r_rsip_p85a (const uint32_t InData_DataA[], uint32_t MAX_CNT)
 {
     uint32_t iLoop = 0U;
 
-    WR1_PROG(REG_1444H, 0x00020061U);
-    WR1_PROG(REG_182CH, 0x00018000U);
-    WR1_PROG(REG_1824H, 0x0a008006U);
+    r_rsip_func_sub028(0x00020061U, 0x00018000U, 0x0a008006U);
 
     for (iLoop = 0U; iLoop < MAX_CNT; )
     {
@@ -34,8 +35,9 @@ void r_rsip_p85a (const uint32_t InData_DataA[], uint32_t MAX_CNT)
 
     r_rsip_func216();
 
-    r_rsip_func101(bswap_32big(0x70e58445U),
-                   bswap_32big(0xeba06533U),
-                   bswap_32big(0x5e5b2aefU),
-                   bswap_32big(0x24f38be9U));
+    static const uint32_t Param_p85a_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x70e58445U), BSWAP_32BIG_C(0xeba06533U), BSWAP_32BIG_C(0x5e5b2aefU), BSWAP_32BIG_C(0x24f38be9U),
+    };
+    r_rsip_func101(Param_p85a_func101_001);
 }

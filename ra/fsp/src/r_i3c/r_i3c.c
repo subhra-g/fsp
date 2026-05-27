@@ -401,18 +401,8 @@ fsp_err_t R_I3C_Enable (i3c_ctrl_t * const p_api_ctrl)
     /* Write settings to the IBI Notify Control Register. */
     p_ctrl->p_reg->IBINCTL = ibinctl;
 
-    /* Calculate the value of the SCL Clock Stalling Control Register. */
-    uint32_t scstlctl = (uint32_t) (p_extend->bitrate_settings.clock_stalling.assigned_address_phase_enable <<
-                                    R_I3C0_SCSTLCTL_AAPE_Pos);
-    scstlctl |= (uint32_t) (p_extend->bitrate_settings.clock_stalling.transition_phase_enable <<
-                            R_I3C0_SCSTLCTL_TRAPE_Pos);
-    scstlctl |= (uint32_t) (p_extend->bitrate_settings.clock_stalling.parity_phase_enable << R_I3C0_SCSTLCTL_PARPE_Pos);
-    scstlctl |= (uint32_t) (p_extend->bitrate_settings.clock_stalling.ack_phase_enable << R_I3C0_SCSTLCTL_ACKPE_Pos);
-    scstlctl |=
-        (uint32_t) (p_extend->bitrate_settings.clock_stalling.clock_stalling_time << R_I3C0_SCSTLCTL_STLCYC_Pos);
-
     /* Write clock stalling settings to the SCL CLock Stalling Control Register. */
-    p_ctrl->p_reg->SCSTLCTL = scstlctl;
+    p_ctrl->p_reg->SCSTLCTL = p_extend->bitrate_settings.scstlctl;
 
     /* Write Bus Condition Detection Registers. */
     p_ctrl->p_reg->BFRECDT = p_extend->bus_free_detection_time;

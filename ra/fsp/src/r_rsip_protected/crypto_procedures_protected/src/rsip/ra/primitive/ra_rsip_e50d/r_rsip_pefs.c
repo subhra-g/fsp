@@ -15,6 +15,8 @@
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 rsip_ret_t r_rsip_pefs (uint32_t OutData_State[])
 {
     uint32_t iLoop = 0U;
@@ -29,10 +31,11 @@ rsip_ret_t r_rsip_pefs (uint32_t OutData_State[])
     RD1_ADDR(REG_2014H, &OutData_State[18]);
     RD1_ADDR(REG_2010H, &OutData_State[19]);
 
-    r_rsip_func102(bswap_32big(0x08a1d13cU),
-                   bswap_32big(0x003aace3U),
-                   bswap_32big(0x216f09ddU),
-                   bswap_32big(0x8ebb6116U));
+    static const uint32_t Param_pefs_func102_001[] =
+    {
+        BSWAP_32BIG_C(0x08a1d13cU), BSWAP_32BIG_C(0x003aace3U), BSWAP_32BIG_C(0x216f09ddU), BSWAP_32BIG_C(0x8ebb6116U),
+    };
+    r_rsip_func102(Param_pefs_func102_001);
     WR1_PROG(REG_14BCH, 0x00000040U);
     WAIT_STS(REG_142CH, 12, 0);
 

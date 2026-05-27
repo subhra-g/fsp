@@ -60,6 +60,53 @@ FSP_HEADER
   #endif
  #endif
 #endif
+#if (BSP_FEATURE_CTSU_VERSION == 2)
+ #if (CTSU_CFG_DIAG_SUPPORT_ENABLE == 1)
+
+/* LDO output voltage diagnosis macro */
+  #define CTSU_DIAG_INTERNAL_VOLT_TOL_PCT                        (6)  // Internal reference voltage tolerance [%]
+  #define CTSU_DIAG_TSCAP_VOLT_TOL_MAX_PCT                       (5)  // Maximum voltage tolerance for TSCAP [%]
+  #define CTSU_DIAG_TSCAP_VOLT_TOL_MIN_PCT                       (6)  // Minimum voltage tolerance for TSCAP [%]
+
+  #if (CTSU_CFG_LOW_VOLTAGE_MODE == 0)
+   #define CTSU_DIAG_ADC_OFFSET_ERR_12B                          (8)  // ADC offset error (ADC 12-bit) (NM mode)
+  #else
+   #define CTSU_DIAG_ADC_OFFSET_ERR_12B                          (11) // ADC offset error (ADC 12-bit) (LV mode)
+  #endif
+
+  #define CTSU_DIAG_ADC_ABS_ACC_ERR_12B                          (13) // ADC absolute accuracy error (ADC 12-bit) (NM/LV mode)
+
+  #define CTSU_DIAG_OUTPUT_VOLTAGE_SELF_TEST_MARGIN_PCT          (5)  // Self test margin for output voltage diagnosis [%]
+
+/* Load resistance diagnosis macro */
+  #define CTSU_DIAG_LOAD_RESISTANCE_SPEC_MARGIN_PCT              (23) // Margin to specification for load resistance diagnosis [%]
+  #define CTSU_DIAG_LOAD_RESISTANCE_SELF_TEST_MARGIN_PCT         (5)  // Self test margin for load resistance diagnosis [%]
+  #define CTSU_DIAG_IDLE_CURRENT_SPEC_MARGIN_PCT                 (23) // Margin to specification for idle current diagnosis [%]
+  #define CTSU_DIAG_IDLE_CURRENT_SELF_TEST_MARGIN_PCT            (25) // Self test margin for idle current diagnosis [%]
+
+/* Current source diagnosis macro */
+  #define CTSU_DIAG_UPPER_CURRENT_SOURCE_SPEC_MARGIN_PCT         (12) // Margin to specification for upper current source diagnosis [%]
+
+  #if (CTSU_CFG_LOW_VOLTAGE_MODE == 0)
+   #define CTSU_DIAG_LOWER_CURRENT_SOURCE_SPEC_MARGIN_PCT        (37) // Margin to specification for lower current source diagnosis [%]
+  #else
+   #define CTSU_DIAG_LOWER_CURRENT_SOURCE_SPEC_MARGIN_PCT        (40) // Margin to specification for lower current source diagnosis [%]
+  #endif
+
+  #define CTSU_DIAG_UPPER_CURRENT_SOURCE_SELF_TEST_MARGIN_PCT    (5)  // Self test margin for upper current source diagnosis [%]
+  #define CTSU_DIAG_LOWER_CURRENT_SOURCE_SELF_TEST_MARGIN_PCT    (5)  // Self test margin for lower current source diagnosis [%]
+
+/* SENSCLK gain macro */
+  #define CTSU_DIAG_SENSCLK_GAIN_SELF_TEST_MARGIN_PCT            (5)  // Self test margin for sensclk gain diagnosis [%]
+
+/* SUCLK gain macro */
+  #define CTSU_DIAG_SUCLK_GAIN_SELF_TEST_MARGIN_PCT              (5)  // Self test margin for suclk gain diagnosis [%]
+
+/* SUCLK clock recovery macro */
+  #define CTSU_DIAG_CLOCK_RECOVERY_SELF_TEST_MARGIN_PCT          (5)  // Self test margin for clock recovery diagnosis [%]
+
+ #endif
+#endif
 
 /***********************************************************************************************************************
  * Typedef definitions
@@ -123,8 +170,10 @@ typedef enum e_ctsu_diagnosis_state
     CTSU_DIAG_SUCLK,                   ///< Diagnosis of SUCLK running.
     CTSU_DIAG_CLOCK_RECOVERY,          ///< Diagnosis of clock recovery running.
     CTSU_DIAG_CFC,                     ///< Diagnosis of CFC running.
-    CTSU_DIAG_COMPLETE                 ///< Diagnosis complete.
+    CTSU_DIAG_COMPLETE,                ///< Diagnosis complete.
+    CTSU_DIAG_ADC_ERROR                ///< Diagnosis ADC open error.
 } ctsu_diagnosis_state_t;
+
  #endif
 #endif
 
@@ -259,23 +308,14 @@ typedef struct st_ctsu_diag_info
 /** Correction information */
 typedef struct st_ctsu_diag_info
 {
-    volatile ctsu_diagnosis_state_t state;                                                      ///< Diagnosis state
-    ctsu_ctsuwr_t ctsuwr;                                                                       ///< Correction scan parameter
-    uint8_t       lvmode;                                                                       ///< Diagnosis lv mode flag
-    uint8_t       loop_count;                                                                   ///< Diagnosis loop counter
-    uint32_t      ctsuscnt[3];                                                                  ///< Diagnosis raw data (suclk count value & sens count value)
-    uint32_t      error_registance[CTSU_RANGE_NUM];                                             ///< Diagnosis error regista
-    uint16_t      output_voltage_cnt[CTSU_RANGE_NUM * 2];                                       ///< Diagnosis load resistance count value
-    uint16_t      icomp0_value;                                                                 ///< Diagnosis icomp0 register value in over voltage test
-    uint16_t      icomp1_value;                                                                 ///< Diagnosis icomp1 register value in over current test
-    uint16_t      load_resistance[CTSU_RANGE_NUM];                                              ///< Diagnosis load resistance count value
-    uint16_t      current_source[CTSU_DIAG_HIGH_CURRENT_SOURCE + CTSU_DIAG_LOW_CURRENT_SOURCE]; ///< Diagnosis current source count value
-    uint16_t      sensclk_cnt[CTSU_CORRECTION_POINT_NUM];                                       ///< Diagnosis sensclk count value
-    uint16_t      suclk_cnt[CTSU_CORRECTION_POINT_NUM];                                         ///< Diagnosis suclk count value
-    uint16_t      suclk_count_clk_recv[3];                                                      ///< Diagnosis clock recovery suclk count value
-    uint16_t      cfc_cnt[CTSU_CORRCFC_POINT_NUM];                                              ///< Diagnosis cfc count value
-    uint32_t      chaca;                                                                        ///< Diagnosis CHACA
-    uint32_t      chacb;                                                                        ///< Diagnosis CHACB
+    volatile ctsu_diagnosis_state_t state; ///< Diagnosis state
+    fsp_err_t test_result;                 ///< Diagnosis test result
+    uint8_t   test_count;                  ///< Diagnosis test counter
+    uint8_t   measurement_count;           ///< Diagnosis measurement counter
+    uint32_t  measurement_sum;             ///< Diagnosis measurement sum
+    uint16_t  load_resistance;             ///< Diagnosis load resistance count value
+    uint16_t  average_data_pre;            ///< Diagnosis previous avrage data
+    uint8_t   onetime_exec_flag;           ///< Diagnosis one-time flag
 } ctsu_diag_info_t;
  #endif
 #endif
@@ -305,15 +345,15 @@ typedef struct st_ctsu_instance_ctrl
     uint16_t               * p_self_mfc;           ///< Pointer to Self multi frequency correction data. g_ctsu_self_mfc[] is set by Open API.
     ctsu_data_t            * p_self_data;          ///< Pointer to Self moving average data. g_ctsu_self_data[] is set by Open API.
     ctsu_mutual_buf_t      * p_mutual_raw;         ///< Pointer to Mutual raw data. g_ctsu_mutual_raw[] is set by Open API.
-    uint16_t               * p_mutual_pri_corr;    ///< Pointer to Mutual primary correction data. g_ctsu_self_corr[] is set by Open API.
-    uint16_t               * p_mutual_snd_corr;    ///< Pointer to Mutual secondary correction data. g_ctsu_self_corr[] is set by Open API.
+    uint16_t               * p_mutual_pri_corr;    ///< Pointer to Mutual primary correction data. g_ctsu_mutual_pri_corr[] is set by Open API.
+    uint16_t               * p_mutual_snd_corr;    ///< Pointer to Mutual secondary correction data. g_ctsu_mutual_snd_corr[] is set by Open API.
     uint16_t               * p_mutual_pri_mfc;     ///< Pointer to Mutual primary multi frequency correction data. g_ctsu_pri_mutual_mfc[] is set by Open API.
-    uint16_t               * p_mutual_snd_mfc;     ///< Pointer to Mutual primary multi frequency correction data. g_ctsu_pri_mutual_mfc[] is set by Open API.
+    uint16_t               * p_mutual_snd_mfc;     ///< Pointer to Mutual secondary multi frequency correction data. g_ctsu_snd_mutual_mfc[] is set by Open API.
     ctsu_data_t            * p_mutual_pri_data;    ///< Pointer to Mutual primary moving average data. g_ctsu_mutual_pri_data[] is set by Open API.
     ctsu_data_t            * p_mutual_snd_data;    ///< Pointer to Mutual secondary moving average data. g_ctsu_mutual_snd_data[] is set by Open API.
     ctsu_correction_info_t * p_correction_info;    ///< Pointer to correction info
     ctsu_txvsel_t            txvsel;               ///< CTSU Transmission Power Supply Select
-    ctsu_txvsel2_t           txvsel2;              ///< CTSU Transmission Power Supply Select 2 (CTSU2 Only)
+    ctsu_txvsel2_t           txvsel2;              ///< CTSU Transmission Power Supply Select 2 (CTSU2)
     uint8_t                  ctsuchac0;            ///< TS00-TS07 enable mask
     uint8_t                  ctsuchac1;            ///< TS08-TS15 enable mask
     uint8_t                  ctsuchac2;            ///< TS16-TS23 enable mask

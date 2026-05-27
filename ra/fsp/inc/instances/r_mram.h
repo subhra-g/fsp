@@ -72,7 +72,7 @@ fsp_err_t R_MRAM_Open(flash_ctrl_t * const p_api_ctrl, flash_cfg_t const * const
 fsp_err_t R_MRAM_Write(flash_ctrl_t * const p_api_ctrl,
                        uint32_t const       src_address,
                        uint32_t             mram_address,
-                       uint32_t const       num_bytes) PLACE_IN_RAM_SECTION;
+                       uint32_t const       num_bytes);
 
 fsp_err_t R_MRAM_Erase(flash_ctrl_t * const p_api_ctrl, uint32_t const address, uint32_t const num_blocks);
 

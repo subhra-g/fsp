@@ -168,7 +168,7 @@ fsp_err_t RM_MOTOR_HAL_DRIVER_Open (motor_hal_driver_ctrl_t * const p_ctrl, moto
             p_instance_ctrl->gtioca_low_cfg = MOTOR_HAL_DRIVER_IO_PORT_CFG_HIGH;
         }
 
-        if (p_u_phase_gpt_extend->gtiocb.stop_level == GPT_PIN_LEVEL_HIGH)
+        if (p_u_phase_gpt_extend->gtiocb.stop_level == GPT_PIN_LEVEL_LOW)
         {
             p_instance_ctrl->gtiocb_low_cfg = MOTOR_HAL_DRIVER_IO_PORT_CFG_LOW;
         }
@@ -1545,7 +1545,7 @@ static void rm_motor_hal_driver_shared_cyclic (adc_callback_args_t * p_args)
                             temp_args_t = *p_args;
 
                             /* Set motor_hal_driver instance */
-                            temp_args_t.p_context = p_instance->p_context[i];
+                            temp_args_t.p_context = (void *) p_instance->p_context[i];
                             rm_motor_hal_driver_cyclic(&temp_args_t);
                         }
                     }

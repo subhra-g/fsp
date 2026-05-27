@@ -10,10 +10,13 @@
 #include "r_rsip_primitive.h"
 #include "r_rsip_reg.h"
 #include "r_rsip_util.h"
+#include "r_rsip_sub_func.h"
 
 /***********************************************************************************************************************
  * Functions
  **********************************************************************************************************************/
+
+RSIP_PRV_PRIMITIVE_FUNC
 
 rsip_ret_t r_rsip_p0e (void)
 {
@@ -25,26 +28,23 @@ rsip_ret_t r_rsip_p0e (void)
     WR1_PROG(REG_1B00H, 0x000e0001U);
     WR1_PROG(REG_144CH, 0x00000000U);
 
-    r_rsip_func100(bswap_32big(0x3f546405U),
-                   bswap_32big(0x64da2a5aU),
-                   bswap_32big(0xfa00eed4U),
-                   bswap_32big(0xdf669c15U));
+    static const uint32_t Param_p0e_func100_001[] =
+    {
+        BSWAP_32BIG_C(0x3f546405U), BSWAP_32BIG_C(0x64da2a5aU), BSWAP_32BIG_C(0xfa00eed4U), BSWAP_32BIG_C(0xdf669c15U),
+    };
+    r_rsip_func100(Param_p0e_func100_001);
     WR1_PROG(REG_1438H, 0x400000c0U);
 
-    WR1_PROG(REG_1600H, 0x0000b7e0U);
-    WR1_PROG(REG_1600H, 0x000000a8U);
-
-    WR1_PROG(REG_1608H, 0x8181001fU);
-    WR1_PROG(REG_1400H, 0x02090005U);
-    WAIT_STS(REG_1404H, 30, 0);
-    WR1_PROG(REG_143CH, 0x00001800U);
+    r_rsip_func_sub023(0x0000b7e0U, 0x000000a8U, 0x8181001fU);
+    r_rsip_func_sub001(0x02090005U);
 
     WR1_PROG(REG_1B08H, 0x00000202U);
 
-    r_rsip_func102(bswap_32big(0xbd061a08U),
-                   bswap_32big(0xa06898b4U),
-                   bswap_32big(0x52c08ccbU),
-                   bswap_32big(0x2a4d4c67U));
+    static const uint32_t Param_p0e_func102_001[] =
+    {
+        BSWAP_32BIG_C(0xbd061a08U), BSWAP_32BIG_C(0xa06898b4U), BSWAP_32BIG_C(0x52c08ccbU), BSWAP_32BIG_C(0x2a4d4c67U),
+    };
+    r_rsip_func102(Param_p0e_func102_001);
     WR1_PROG(REG_14BCH, 0x00000040U);
     WAIT_STS(REG_142CH, 12, 0);
 

@@ -170,8 +170,8 @@ typedef struct st_motor_pm_foc_outer_instance_ctrl
     /* pointers to shared data */
     const motor_shared_inner_to_outer_foc_t * p_from_inner;                                 ///< Pointer to Input data structure
     motor_shared_outer_to_inner_foc_t       * p_to_inner[MOTOR_PM_FOC_SHARED_BUFFER_COUNT]; ///< Pointer to Output data structure -- two pointers to manage inner loop interrupting outer loop
-    motor_shared_outer_to_inner_foc_t       * p_to_outer_active;                            ///< Active output pointer
-    motor_shared_outer_to_inner_foc_t       * p_to_outer_copy;                              ///< Buffered pointer
+    motor_shared_outer_to_inner_foc_t       * p_to_inner_active;                            ///< Active output pointer
+    motor_shared_outer_to_inner_foc_t       * p_to_inner_copy;                              ///< Buffered pointer
 } motor_pm_foc_outer_instance_ctrl_t;
 
 /** Motor inner control instance control block */

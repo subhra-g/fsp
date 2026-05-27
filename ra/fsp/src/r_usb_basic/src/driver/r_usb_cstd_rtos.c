@@ -236,7 +236,8 @@ usb_rtos_err_t usb_rtos_configuration (usb_cfg_t const * const p_cfg)
     if (USB_MODE_HOST == p_cfg->usb_mode)
     {
   #if (USB_NUM_USBIP == 2)
-        if (!(g_usb_rtos_is_create[0] || g_usb_rtos_is_create[1]))
+        if (!(g_usb_rtos_is_create[0] || g_usb_rtos_is_create[1]) ||
+            (USB_MODE_PERI == g_usb_usbmode[!(p_cfg->module_number)]))
   #endif
         {
   #if ((USB_CFG_MODE & USB_CFG_HOST) == USB_CFG_HOST)
@@ -741,7 +742,8 @@ usb_rtos_err_t usb_rtos_configuration (usb_cfg_t const * const p_cfg)
   #endif                               /* !defined (USB_CFG_OTG_USE)*/
     {
   #if (USB_NUM_USBIP == 2)
-        if (!(g_usb_rtos_is_create[0] || g_usb_rtos_is_create[1]))
+        if (!(g_usb_rtos_is_create[0] || g_usb_rtos_is_create[1]) ||
+            (USB_MODE_PERI == g_usb_usbmode[!(p_cfg->module_number)]))
   #endif
         {
   #if ((USB_CFG_MODE & USB_CFG_HOST) == USB_CFG_HOST)
@@ -1085,7 +1087,7 @@ usb_rtos_err_t usb_rtos_delete (uint8_t module_number)
     if (USB_MODE_HOST == g_usb_usbmode[module_number])
     {
   #if (USB_NUM_USBIP == 2)
-        if (!(g_usb_rtos_is_create[0] || g_usb_rtos_is_create[1]))
+        if (!(g_usb_rtos_is_create[0] || g_usb_rtos_is_create[1]) || (USB_MODE_PERI == g_usb_usbmode[!module_number]))
   #endif
         {
   #if ((USB_CFG_MODE & USB_CFG_HOST) == USB_CFG_HOST)
@@ -1286,7 +1288,7 @@ usb_rtos_err_t usb_rtos_delete (uint8_t module_number)
   #endif                               /* !defined (USB_CFG_OTG_USE)*/
     {
   #if (USB_NUM_USBIP == 2)
-        if (!(g_usb_rtos_is_create[0] || g_usb_rtos_is_create[1]))
+        if (!(g_usb_rtos_is_create[0] || g_usb_rtos_is_create[1]) || (USB_MODE_PERI == g_usb_usbmode[!module_number]))
   #endif
         {
   #if ((USB_CFG_MODE & USB_CFG_HOST) == USB_CFG_HOST)

@@ -21,10 +21,11 @@ void r_rsip_p98u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_
 {
     uint32_t iLoop = 0U;
 
-    r_rsip_func100(bswap_32big(0xeed40833U),
-                   bswap_32big(0xa8e47e1bU),
-                   bswap_32big(0x8fa1d104U),
-                   bswap_32big(0x0b88d00dU));
+    static const uint32_t Param_p98u_func100_001[] =
+    {
+        BSWAP_32BIG_C(0xeed40833U), BSWAP_32BIG_C(0xa8e47e1bU), BSWAP_32BIG_C(0x8fa1d104U), BSWAP_32BIG_C(0x0b88d00dU),
+    };
+    r_rsip_func100(Param_p98u_func100_001);
     WR1_PROG(REG_0014H, 0x00020061U);
 
     WR1_PROG(REG_00D0H, 0xf7000d06U);
@@ -46,8 +47,9 @@ void r_rsip_p98u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_
 
     r_rsip_func206();
 
-    r_rsip_func101(bswap_32big(0x99c26d66U),
-                   bswap_32big(0x4eccfe09U),
-                   bswap_32big(0xf08e8e6fU),
-                   bswap_32big(0xe9d81f52U));
+    static const uint32_t Param_p98u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x99c26d66U), BSWAP_32BIG_C(0x4eccfe09U), BSWAP_32BIG_C(0xf08e8e6fU), BSWAP_32BIG_C(0xe9d81f52U),
+    };
+    r_rsip_func101(Param_p98u_func101_001);
 }

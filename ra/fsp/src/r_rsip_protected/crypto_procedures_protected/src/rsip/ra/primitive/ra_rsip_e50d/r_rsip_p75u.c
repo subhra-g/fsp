@@ -15,6 +15,8 @@
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 rsip_ret_t r_rsip_p75u (const uint32_t InData_Msg[], uint32_t MAX_CNT)
 {
     uint32_t iLoop = 0U;
@@ -36,10 +38,11 @@ rsip_ret_t r_rsip_p75u (const uint32_t InData_Msg[], uint32_t MAX_CNT)
     WAIT_STS(REG_2030H, 8, 0);
     WR1_PROG(REG_143CH, 0x00001600U);
 
-    r_rsip_func101(bswap_32big(0x255d49a9U),
-                   bswap_32big(0xbbbf843fU),
-                   bswap_32big(0xd81296bfU),
-                   bswap_32big(0x827440e9U));
+    static const uint32_t Param_p75u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x255d49a9U), BSWAP_32BIG_C(0xbbbf843fU), BSWAP_32BIG_C(0xd81296bfU), BSWAP_32BIG_C(0x827440e9U),
+    };
+    r_rsip_func101(Param_p75u_func101_001);
 
     return RSIP_RET_PASS;
 }

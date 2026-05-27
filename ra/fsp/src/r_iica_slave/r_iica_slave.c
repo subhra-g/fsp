@@ -344,7 +344,11 @@ static void r_iica_open_hw_slave (iica_slave_instance_ctrl_t * const p_ctrl)
                        (uint8_t) R_IICA0_IICCTL01_SMC_Msk);
     }
 
+#if IICA_SLAVE_CFG_ALL_ADDR_MATCH_ENABLE
+    IICA_REG->IICCTL01 = iicctl01 | R_IICA0_IICCTL01_SVADIS_Msk;
+#else
     IICA_REG->IICCTL01 = iicctl01;
+#endif
 
     /* IICCTL00 Register Settings:
      * 1. ACKE = 1：Enable acknowledgment. During the 9th clock period, the SDAA0 line is set to low level.
@@ -410,7 +414,7 @@ static void r_iica_txrxi_slave (iica_slave_instance_ctrl_t * p_ctrl)
 
     if (iics0_val & R_IICA0_IICS0_STD_Msk)
     {
-#if IICA_SLAVE_CFG_ADDR_MODE_GENERAL_CALL_ENABLE
+#if IICA_SLAVE_CFG_ADDR_MODE_GENERAL_CALL_ENABLE || IICA_SLAVE_CFG_ALL_ADDR_MATCH_ENABLE
         if ((iics0_val & R_IICA0_IICS0_EXC_Msk) && (IICA_REG->IICA0 == 0))
         {
             r_iica_slave_call_callback(p_ctrl, I2C_SLAVE_EVENT_GENERAL_CALL);
@@ -427,7 +431,6 @@ static void r_iica_txrxi_slave (iica_slave_instance_ctrl_t * p_ctrl)
             p_ctrl->communication_dir = iics0_val & R_IICA0_IICS0_TRC_Msk;
             if (0U == p_ctrl->communication_dir)
             {
-                /* Avoid enter callback again after detection of extension code */
 #if IICA_SLAVE_CFG_ADDR_MODE_10_BIT_ENABLE
                 if (p_ctrl->addr_mode == I2C_SLAVE_ADDR_MODE_10BIT)
                 {
@@ -436,7 +439,11 @@ static void r_iica_txrxi_slave (iica_slave_instance_ctrl_t * p_ctrl)
                 else
 #endif
                 {
-                    r_iica_slave_call_callback(p_ctrl, I2C_SLAVE_EVENT_RX_REQUEST);
+                    /* Avoid enter callback again after detection of extension code */
+                    if ((iics0_val & IICA_SLAVE_IICS0_EXC_ACKD_MASK) != IICA_SLAVE_IICS0_EXC_ACKD_MASK)
+                    {
+                        r_iica_slave_call_callback(p_ctrl, I2C_SLAVE_EVENT_RX_REQUEST);
+                    }
                 }
 
                 p_ctrl->communication_mode = 1U;
@@ -455,7 +462,7 @@ static void r_iica_txrxi_slave (iica_slave_instance_ctrl_t * p_ctrl)
 #endif
 
             /* Avoid enter callback again after detection of extension code */
-            if (!((iics0_val & IICA_SLAVE_IICS0_EXC_ACKD_MASK) == IICA_SLAVE_IICS0_EXC_ACKD_MASK))
+            if ((iics0_val & IICA_SLAVE_IICS0_EXC_ACKD_MASK) != IICA_SLAVE_IICS0_EXC_ACKD_MASK)
             {
                 r_iica_slave_call_callback(p_ctrl, I2C_SLAVE_EVENT_TX_REQUEST);
                 p_ctrl->communication_mode = 1U;
@@ -473,7 +480,7 @@ static void r_iica_txrxi_slave (iica_slave_instance_ctrl_t * p_ctrl)
     {
         if (p_ctrl->communication_dir && !(iics0_val & R_IICA0_IICS0_ACKD_Msk))
         {
-            // Release clock stretch and enable interrupt when generate a stop condition
+            /* Release clock stretch and enable interrupt when generate a stop condition */
             IICA_REG->IICCTL00 |= IICA_SLAVE_IICCTL00_SPIE_WREL_MASK;
 
             return;
@@ -484,15 +491,17 @@ static void r_iica_txrxi_slave (iica_slave_instance_ctrl_t * p_ctrl)
         {
             if (!p_ctrl->tenbitaddr_matched)
             {
-                if (IICA_REG->IICA0 == (uint8_t) (p_ctrl->p_cfg->slave))
-                {
-                    p_ctrl->tenbitaddr_matched = true;
-                    IICA_REG->IICCTL00_b.WREL  = 1;
-                }
-                else
+ #if !IICA_SLAVE_CFG_ALL_ADDR_MATCH_ENABLE
+                if (IICA_REG->IICA0 != (uint8_t) (p_ctrl->p_cfg->slave))
                 {
                     p_ctrl->communication_mode = 0U;
                     IICA_REG->IICCTL00_b.LREL  = 1;
+                }
+                else
+ #endif
+                {
+                    p_ctrl->tenbitaddr_matched = true;
+                    IICA_REG->IICCTL00_b.WREL  = 1;
                 }
 
                 return;

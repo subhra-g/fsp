@@ -50,7 +50,7 @@ psa_status_t vendor_bitlength_to_raw_bitlength (psa_key_type_t type, size_t vend
  *
  * \return The key size in bits, calculated from the key data.
  */
-static psa_key_bits_t calculate_key_bits_vendor (const psa_key_slot_t * slot)
+static psa_key_bits_t calculate_transparent_key_bits_vendor (const psa_key_slot_t * slot)
 {
     size_t bits = 0;                   /* return 0 on an empty slot */
 
@@ -66,6 +66,10 @@ static psa_key_bits_t calculate_key_bits_vendor (const psa_key_slot_t * slot)
     }
 #endif                                 /* defined(MBEDTLS_RSA_C) */
 #if defined(MBEDTLS_ECP_C)
+    else if (PSA_KEY_TYPE_IS_ECC_KEY_PAIR_WRAPPED(slot->attr.type))
+    {
+        bits = slot->attr.bits;
+    }
     else if (PSA_KEY_TYPE_IS_ECC(slot->attr.type))
     {
         bits = PSA_BYTES_TO_BITS(slot->key.bytes);
@@ -397,7 +401,7 @@ psa_status_t psa_import_key_into_slot_vendor (const psa_key_attributes_t * attri
             /* Write the actual key size to the slot.
              * psa_start_key_creation() wrote the size declared by the
              * caller, which may be 0 (meaning unspecified) or wrong. */
-            slot->attr.bits = calculate_key_bits_vendor(slot);
+            slot->attr.bits = calculate_transparent_key_bits_vendor(slot);
 
             if (true == write_to_persistent_memory)
             {

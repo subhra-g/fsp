@@ -17,7 +17,7 @@
  ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
- * @brief Perform absolute coordinate transformation from UVW 3-phase system to dq-axis.
+ * DEPRECATED Perform absolute coordinate transformation from UVW 3-phase system to dq-axis.
  *
  * This function transforms the UVW-phase quantities to the dq-axis values using the provided rotor angle.
  *
@@ -52,7 +52,7 @@ void rm_motor_transform_uvw_dq_abs (const float f_angle, const float * f_uvw, fl
 }                                      /* End of function rm_motor_transform_uvw_dq_abs */
 
 /***********************************************************************************************************************
- * @brief Perform absolute coordinate transformation from dq-axis to UVW 3-phase system.
+ * DEPRECATED Perform absolute coordinate transformation from dq-axis to UVW 3-phase system.
  *
  * This function transforms the dq-axis quantities to the three-phase UVW values using the provided rotor angle.
  *
@@ -146,3 +146,25 @@ void rm_motor_transform_dq_uvw_abs_trigo (const float f_sin, const float f_cos, 
     f4_output_q = (f4_sin_div_sqrt3 - f_cos) * f4_input_q;
     f_uvw[2]    = (f4_output_d + f4_output_q) * (1.0F / MOTOR_FUNDLIB_SQRT_2);
 }                                      /* End of function rm_motor_transform_dq_uvw_abs_trigo */
+
+/***********************************************************************************************************************
+ * @brief Compute sine and cosine of a given angle.
+ *
+ * This function computes the sine and cosine of the provided angle using hardware TFU
+ * acceleration if available, or standard math library functions otherwise.
+ * The computed values can be reused across multiple coordinate transformations
+ * to avoid redundant trigonometric calculations.
+ *
+ * @param[in]  f_angle  Angle in radians.
+ * @param[out] p_sin    Pointer to output variable where sine value will be stored.
+ * @param[out] p_cos    Pointer to output variable where cosine value will be stored.
+ **********************************************************************************************************************/
+void rm_motor_transform_sincos (const float f_angle, float * p_sin, float * p_cos)
+{
+#if BSP_FEATURE_TFU_SUPPORTED
+    sincosf(f_angle, p_sin, p_cos);
+#else
+    *p_sin = sinf(f_angle);
+    *p_cos = cosf(f_angle);
+#endif
+}

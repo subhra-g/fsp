@@ -342,6 +342,7 @@ fsp_err_t RM_MOTOR_SENSOR_BEMF_AngleSpeedCalc (motor_sensor_ctrl_t * const      
 {
     float     angle_el_temp;
     float     f4_temp0;
+    float     sign_eq;
     fsp_err_t err = FSP_SUCCESS;
     motor_sensor_bemf_instance_ctrl_t      * p_instance_ctrl   = (motor_sensor_bemf_instance_ctrl_t *) p_ctrl;
     motor_shared_inner_to_outer_foc_t      * p_from_inner_data = (motor_shared_inner_to_outer_foc_t *) p_input_inner;
@@ -385,11 +386,14 @@ fsp_err_t RM_MOTOR_SENSOR_BEMF_AngleSpeedCalc (motor_sensor_ctrl_t * const      
                                                                 p_instance_ctrl->signals.speed_el,
                                                                 p_from_inner_data->i_d);
 
-        /* Calculate phase error */
-        p_instance_ctrl->signals.angle_err_el =
-            atan2f(p_instance_ctrl->signals.e_d / p_instance_ctrl->signals.e_q, 1.0F);
+        /* Get the sign of e_q */
+        sign_eq = (p_instance_ctrl->signals.e_q >= 0.0F) ? 1.0F : -1.0F;
 
-        /* Prevent phase error becoming NAN when eq is 0 */
+        /* Calculate phase error Zero-division prevention */
+        p_instance_ctrl->signals.angle_err_el =
+            sign_eq * atan2f(p_instance_ctrl->signals.e_d, fabsf(p_instance_ctrl->signals.e_q));
+
+        /* Prevent phase error becoming NAN when ed&eq  is 0 */
         if (isnan(p_instance_ctrl->signals.angle_err_el))
         {
             p_instance_ctrl->signals.angle_err_el = 0.0F;
@@ -655,13 +659,13 @@ static float rm_motor_sensor_bemf_set_iq_ref (motor_sensor_ctrl_t * p_ctrl)
             {
                 temp_flag =
                     (p_instance_ctrl->signals.angle_err_el <=
-                     (p_extended_cfg->ol_param.f4_switch_phase_err_rad) * MOTOR_FUNDLIB_RAD_TRANS);
+                     p_extended_cfg->ol_param.f4_switch_phase_err_rad);
             }
             else if (0.0F > p_instance_ctrl->signals.speed_el_lpf)
             {
                 temp_flag =
                     (p_instance_ctrl->signals.angle_err_el >=
-                     -(p_extended_cfg->ol_param.f4_switch_phase_err_rad) * MOTOR_FUNDLIB_RAD_TRANS);
+                     -p_extended_cfg->ol_param.f4_switch_phase_err_rad);
             }
             else
             {
@@ -818,6 +822,11 @@ static void rm_motor_sensor_ol_dbg_mode (motor_sensor_ctrl_t * p_ctrl, motor_sen
     float idq[2];
     float vdq[2];
     float angle_el_temp;
+    float f4_sin_force = 0.0F;
+    float f4_cos_force = 0.0F;
+    float f4_sin_pll   = 0.0F;
+    float f4_cos_pll   = 0.0F;
+    float sign_eq;
 
     // go back to abc and recalculate the dq with the PLL angle (only if speed is higher than the PLL start threshold)
 
@@ -829,17 +838,23 @@ static void rm_motor_sensor_ol_dbg_mode (motor_sensor_ctrl_t * p_ctrl, motor_sen
             p_instance_ctrl->signals.ol_adjust_ctrl.pll_engage_status = MOTOR_FUNDLIB_FLAG_SET;
         }
 
-        // Apply inverse Park Clarke with the force angle - currents
-        rm_motor_transform_dq_uvw_abs(p_instance_ctrl->signals.angle_el, &(p_from_inner_data->i_d), &temp_uvw[0]);
+        /* Pre-compute sin/cos for force angle (used twice for dq->uvw) */
+        rm_motor_transform_sincos(p_instance_ctrl->signals.angle_el, &f4_sin_force, &f4_cos_force);
 
-        // Apply Clarke Park  with the PLL angle
-        rm_motor_transform_uvw_dq_abs(p_instance_ctrl->signals.ol_adjust_ctrl.angle_el_pll, &temp_uvw[0], &idq[0]);
+        /* Pre-compute sin/cos for PLL angle (used twice for uvw->dq) */
+        rm_motor_transform_sincos(p_instance_ctrl->signals.ol_adjust_ctrl.angle_el_pll, &f4_sin_pll, &f4_cos_pll);
+
+        // Apply inverse Park Clarke with the force angle - currents
+        rm_motor_transform_dq_uvw_abs_trigo(f4_sin_force, f4_cos_force, &(p_from_inner_data->i_d), &temp_uvw[0]);
+
+        // Apply Clarke Park with the PLL angle
+        rm_motor_transform_uvw_dq_abs_trigo(f4_sin_pll, f4_cos_pll, &temp_uvw[0], &idq[0]);
 
         // Apply inverse Park Clarke with the force angle - voltages
-        rm_motor_transform_dq_uvw_abs(p_instance_ctrl->signals.angle_el, &(p_from_inner_data->v_d_ref), &temp_uvw[0]);
+        rm_motor_transform_dq_uvw_abs_trigo(f4_sin_force, f4_cos_force, &(p_from_inner_data->v_d_ref), &temp_uvw[0]);
 
-        // Apply Clarke Park  with the PLL angle
-        rm_motor_transform_uvw_dq_abs(p_instance_ctrl->signals.ol_adjust_ctrl.angle_el_pll, &temp_uvw[0], &vdq[0]);
+        // Apply Clarke Park with the PLL angle
+        rm_motor_transform_uvw_dq_abs_trigo(f4_sin_pll, f4_cos_pll, &temp_uvw[0], &vdq[0]);
 
         // execute Observer and PLL
 
@@ -863,12 +878,15 @@ static void rm_motor_sensor_ol_dbg_mode (motor_sensor_ctrl_t * p_ctrl, motor_sen
                                      p_instance_ctrl->signals.ol_adjust_ctrl.speed_el_pll,
                                      idq[0]);
 
-        /* Calculate phase error */
-        p_instance_ctrl->signals.ol_adjust_ctrl.angle_err_el = atan2f(
-            p_instance_ctrl->signals.ol_adjust_ctrl.e_d / p_instance_ctrl->signals.ol_adjust_ctrl.e_q,
-            1.0F);
+        /* Get the sign of e_q */
+        sign_eq = (p_instance_ctrl->signals.ol_adjust_ctrl.e_q >= 0.0F) ? 1.0F : -1.0F;
 
-        /* Prevent phase error becoming NAN when eq is 0 */
+        /* Calculate phase error Zero-division prevention */
+        p_instance_ctrl->signals.ol_adjust_ctrl.angle_err_el = sign_eq * atan2f(
+            p_instance_ctrl->signals.ol_adjust_ctrl.e_d,
+            fabsf(p_instance_ctrl->signals.ol_adjust_ctrl.e_q));
+
+        /* Prevent phase error becoming NAN when ed&eq is 0 */
         if (isnan(p_instance_ctrl->signals.ol_adjust_ctrl.angle_err_el))
         {
             p_instance_ctrl->signals.ol_adjust_ctrl.angle_err_el = 0.0F;

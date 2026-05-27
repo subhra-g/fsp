@@ -154,9 +154,9 @@ static fsp_err_t mram_reset(mram_instance_ctrl_t * p_ctrl);
 
 static fsp_err_t mram_stop(mram_instance_ctrl_t * p_ctrl);
 
-static fsp_err_t mram_erase_blocks(uint32_t address, uint32_t num_blocks) PLACE_IN_RAM_SECTION;
+static fsp_err_t mram_erase_blocks(uint32_t address, uint32_t num_blocks);
 
-static fsp_err_t mram_write_data(uint32_t src_address, uint32_t mram_address, uint32_t num_bytes) PLACE_IN_RAM_SECTION;
+static fsp_err_t mram_write_data(uint32_t src_address, uint32_t mram_address, uint32_t num_bytes);
 
 static void mram_program_control(uint32_t address, bool enable);
 

@@ -5,7 +5,7 @@
  *
  * @file     ./out/R7FA0E107.h
  * @brief    CMSIS HeaderFile
- * @version  1.00.00
+ * @version  1.20.00
  */
 
 /** @addtogroup Renesas Electronics Corporation
@@ -2619,7 +2619,7 @@ typedef struct                         /*!< (@ 0x400A3000) R_IICA0 Structure    
                                         *   = 1)                                                                      */
             __IM uint8_t CLD : 1;      /*!< [5..5] Detection of SCLA0 pin level (valid only when IICCTL00.IICE
                                         *   = 1)                                                                      */
-            __IOM uint8_t SVADIS : 1;  /*!< [6..6] Control of address match wakeup                                    */
+            __IOM uint8_t SVADIS : 1;  /*!< [6..6] Address Match Disabling Flag                                       */
             __IOM uint8_t WUP    : 1;  /*!< [7..7] IICCTL00.STT clear flag                                            */
         } IICCTL01_b;
     };

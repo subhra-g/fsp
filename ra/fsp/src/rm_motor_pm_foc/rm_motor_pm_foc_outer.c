@@ -83,9 +83,9 @@ void rm_motor_outer_init (motor_pm_foc_instance_ctrl_t * const p_ctrl)
     p_outer_instance_ctrl->p_to_inner[1] = &(p_extended_cfg->p_shared_data->shared_outer_to_inner_B);
 
     // assigning active pointer
-    p_outer_instance_ctrl->p_to_outer_active = p_outer_instance_ctrl->p_to_inner[0];
+    p_outer_instance_ctrl->p_to_inner_active = p_outer_instance_ctrl->p_to_inner[0];
     p_extended_cfg->p_shared_data->pp_shared_outer_to_inner_active =
-        (void **) &(p_outer_instance_ctrl->p_to_outer_active);
+        (void **) &(p_outer_instance_ctrl->p_to_inner_active);
 
     // Identify the active slot for position and speed measurement/estimation
     if (p_extended_cfg->data.sensor_slot == MOTOR_INNER_SLOT_1_ENABLE)
@@ -159,7 +159,7 @@ void rm_motor_outer_init (motor_pm_foc_instance_ctrl_t * const p_ctrl)
     motor_outer_reset_shared_data(p_outer_instance_ctrl->p_to_inner[0]);
     motor_outer_reset_shared_data(p_outer_instance_ctrl->p_to_inner[1]);
 
-    p_outer_instance_ctrl->p_to_outer_copy = p_outer_instance_ctrl->p_to_inner[1];
+    p_outer_instance_ctrl->p_to_inner_copy = p_outer_instance_ctrl->p_to_inner[1];
 
     /* clear outer error flag */
     p_outer_instance_ctrl->signals.error_info = MOTOR_PM_FOC_ERROR_NONE;
@@ -317,7 +317,7 @@ void motor_outer_speed_control (void * p_ctrl, void * p_cfg)
         p_instance_ctrl->signals.speed_mech_que_ref = motor_outer_set_speed_ref(p_ctrl);
         if (u1_control_mode != MOTOR_CTRLMODE_ID_UP_REF)
         {
-            p_instance_ctrl->p_to_outer_copy->pos_speed_input_data.speed_mech_ref_ctrl =
+            p_instance_ctrl->p_to_inner_copy->pos_speed_input_data.speed_mech_ref_ctrl =
                 p_instance_ctrl->signals.speed_mech_que_ref;
         }
 
@@ -325,8 +325,8 @@ void motor_outer_speed_control (void * p_ctrl, void * p_cfg)
     }
 
     // Function Pointer Table supporting Position/Speed/MTPA/Fluxweaken
-    p_instance_ctrl->p_to_outer_copy->i_d_ref = f4_idq_ref[0];
-    p_instance_ctrl->p_to_outer_copy->i_q_ref = f4_idq_ref[1];
+    p_instance_ctrl->p_to_inner_copy->i_d_ref = f4_idq_ref[0];
+    p_instance_ctrl->p_to_inner_copy->i_q_ref = f4_idq_ref[1];
 
     if (MOTOR_CTRLMODE_DEFAULT == p_instance_ctrl->signals.inner_mode_data.mode_outer)
     {
@@ -337,11 +337,11 @@ void motor_outer_speed_control (void * p_ctrl, void * p_cfg)
         p_extended_cfg->outerfunc_table.mtpa_ctrl(p_instance_ctrl, p_extended_cfg);
     }
 
-    p_instance_ctrl->p_to_outer_copy->pos_speed_input_data.speed_pi_status_flag = MOTOR_FUNDLIB_FLAG_CLEAR;
+    p_instance_ctrl->p_to_inner_copy->pos_speed_input_data.speed_pi_status_flag = MOTOR_FUNDLIB_FLAG_CLEAR;
 
     if (MOTOR_CTRLMODE_DEFAULT == u1_control_mode)
     {
-        p_instance_ctrl->p_to_outer_copy->pos_speed_input_data.speed_pi_status_flag = MOTOR_FUNDLIB_FLAG_SET;
+        p_instance_ctrl->p_to_inner_copy->pos_speed_input_data.speed_pi_status_flag = MOTOR_FUNDLIB_FLAG_SET;
     }
 }                                      /* End of function motor_outer_speed_control */
 
@@ -477,15 +477,15 @@ void rm_motor_outer_cyclic (timer_callback_args_t * p_args)
         p_extended_cfg->outerfunc_table.control_mode_ctrl(p_instance->p_ctrl, p_extended_cfg);
 
         // swap the outer to inner shared data pointer
-        if (p_instance_ctrl->p_to_outer_active == p_instance_ctrl->p_to_inner[0])
+        if (p_instance_ctrl->p_to_inner_active == p_instance_ctrl->p_to_inner[0])
         {
-            p_instance_ctrl->p_to_outer_active = p_instance_ctrl->p_to_inner[1]; // need to be atomic instruction
-            p_instance_ctrl->p_to_outer_copy   = p_instance_ctrl->p_to_inner[0];
+            p_instance_ctrl->p_to_inner_active = p_instance_ctrl->p_to_inner[1]; // need to be atomic instruction
+            p_instance_ctrl->p_to_inner_copy   = p_instance_ctrl->p_to_inner[0];
         }
         else
         {
-            p_instance_ctrl->p_to_outer_active = p_instance_ctrl->p_to_inner[0]; // need to be atomic instruction
-            p_instance_ctrl->p_to_outer_copy   = p_instance_ctrl->p_to_inner[1];
+            p_instance_ctrl->p_to_inner_active = p_instance_ctrl->p_to_inner[0]; // need to be atomic instruction
+            p_instance_ctrl->p_to_inner_copy   = p_instance_ctrl->p_to_inner[1];
         }
     }
 
@@ -599,7 +599,6 @@ static void motor_outer_set_i_ref (motor_pm_foc_instance_ctrl_t * p_ctrl, float 
     float f4_id_ref_buff = 0.0F;
     float f4_iq_ref_buff = 0.0F;
 
-    motor_pm_foc_extended_cfg_t        * p_extended_cfg  = (motor_pm_foc_extended_cfg_t *) p_ctrl->p_cfg->p_extend;
     motor_pm_foc_outer_instance_ctrl_t * p_instance_ctrl = p_ctrl->p_outer_instance_ctrl;
 
     uint8_t u1_control_mode = p_instance_ctrl->signals.inner_mode_data.mode_outer;
@@ -611,10 +610,6 @@ static void motor_outer_set_i_ref (motor_pm_foc_instance_ctrl_t * p_ctrl, float 
         {
             /* Speed PI control */
             f4_iq_ref_buff = motor_outer_speed_pi(p_instance_ctrl, p_instance_ctrl->signals.speed_mech_lpf);
-
-            /* Iq reference limit */
-            f4_iq_ref_buff = rm_motor_fundlib_limitfabs(f4_iq_ref_buff,
-                                                        p_extended_cfg->data.iq_limit * MOTOR_FUNDLIB_SQRT_3);
 
             /* MTPA control */
             /* Fluxweak control */

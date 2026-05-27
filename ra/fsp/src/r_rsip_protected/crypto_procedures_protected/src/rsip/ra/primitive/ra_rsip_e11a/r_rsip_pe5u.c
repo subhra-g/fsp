@@ -37,10 +37,11 @@ rsip_ret_t r_rsip_pe5u (const uint32_t InData_Msg[], uint32_t MAX_CNT)
 
     WR1_PROG(REG_0040H, 0x00001600U);
 
-    r_rsip_func101(bswap_32big(0x2f258725U),
-                   bswap_32big(0x9602b550U),
-                   bswap_32big(0xd185a194U),
-                   bswap_32big(0x34dac589U));
+    static const uint32_t Param_pe5u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x2f258725U), BSWAP_32BIG_C(0x9602b550U), BSWAP_32BIG_C(0xd185a194U), BSWAP_32BIG_C(0x34dac589U),
+    };
+    r_rsip_func101(Param_pe5u_func101_001);
 
     return RSIP_RET_PASS;
 }

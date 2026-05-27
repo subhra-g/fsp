@@ -78,7 +78,7 @@ void motor_outer_fnctbl_spdobsrv_ctrl (void * p_ctrl, void * p_cfg)
 
     p_instance_ctrl->signals.speed_mech_lpf = rm_motor_spdobserver(&p_instance_ctrl->signals.speed_observer_ctrl,
                                                                    p_extended_cfg->pm_motor_parameter,
-                                                                   p_instance_ctrl->p_to_outer_copy->i_q_ref,
+                                                                   p_instance_ctrl->p_to_inner_copy->i_q_ref,
                                                                    p_instance_ctrl->signals.speed_mech);
 }
 
@@ -151,7 +151,7 @@ void motor_outer_fnctbl_extobsrv_ctrl (void * p_ctrl, void * p_cfg)
     /* Calculate torque */
     f4_torque_nm =
         ((float) p_extended_cfg->pm_motor_parameter->u2_mtr_pp * p_extended_cfg->pm_motor_parameter->f4_mtr_m) *
-        p_instance_ctrl->p_to_outer_copy->i_q_ref;
+        p_instance_ctrl->p_to_inner_copy->i_q_ref;
 
     /* Extended observer */
     rm_motor_extobserver_start(&p_instance_ctrl->signals.extobserver_ctrl,
@@ -190,11 +190,18 @@ void motor_outer_fnctbl_mtpa_ctrl (void * p_ctrl, void * p_cfg)
     float    f4_idq_ref[2];
     float    f4_idq_ref_temp[2];
 
+    if (p_extended_cfg->pm_motor_parameter->f4_mtr_lq <= p_extended_cfg->pm_motor_parameter->f4_mtr_ld)
+    {
+
+        /* MTPA is not effective for non-salient PMSM, just return the original references */
+        return;
+    }
+
     /* Initialize reference arrays with current id/iq references */
-    f4_idq_ref[0]      = p_instance_ctrl->p_to_outer_copy->i_d_ref;
-    f4_idq_ref[1]      = p_instance_ctrl->p_to_outer_copy->i_q_ref;
-    f4_idq_ref_temp[0] = p_instance_ctrl->p_to_outer_copy->i_d_ref;
-    f4_idq_ref_temp[1] = p_instance_ctrl->p_to_outer_copy->i_q_ref;
+    f4_idq_ref[0]      = p_instance_ctrl->p_to_inner_copy->i_d_ref;
+    f4_idq_ref[1]      = p_instance_ctrl->p_to_inner_copy->i_q_ref;
+    f4_idq_ref_temp[0] = p_instance_ctrl->p_to_inner_copy->i_d_ref;
+    f4_idq_ref_temp[1] = p_instance_ctrl->p_to_inner_copy->i_q_ref;
 
     /* Run MTPA algorithm to adjust dq-axis references */
     rm_motor_mtpa_run(p_extended_cfg->pm_motor_parameter, &(f4_idq_ref_temp[0]), &(f4_idq_ref_temp[1]));
@@ -205,7 +212,8 @@ void motor_outer_fnctbl_mtpa_ctrl (void * p_ctrl, void * p_cfg)
     {
         /* Select between MTPA and flux weakening control */
         rm_motor_mtpa_wekn_judge(p_extended_cfg->pm_motor_parameter,
-                                 p_instance_ctrl->signals.speed_mech_lpf,
+                                 p_instance_ctrl->signals.speed_mech_lpf *
+                                 (float) (p_extended_cfg->pm_motor_parameter->u2_mtr_pp),
                                  p_instance_ctrl->signals.flux_weakening_ctrl.f4_va_max,
                                  f4_idq_ref_temp[0],
                                  f4_idq_ref[0],
@@ -225,8 +233,8 @@ void motor_outer_fnctbl_mtpa_ctrl (void * p_ctrl, void * p_cfg)
     }
 
     /* Update current references in the control instance */
-    p_instance_ctrl->p_to_outer_copy->i_d_ref = f4_idq_ref[0];
-    p_instance_ctrl->p_to_outer_copy->i_q_ref = f4_idq_ref[1];
+    p_instance_ctrl->p_to_inner_copy->i_d_ref = f4_idq_ref[0];
+    p_instance_ctrl->p_to_inner_copy->i_q_ref = f4_idq_ref[1];
 }
 
 /*******************************************************************************************************************//**
@@ -258,8 +266,8 @@ void motor_outer_fnctbl_fw_ctrl (void * p_ctrl, void * p_cfg)
                              p_instance_ctrl->signals.speed_mech_lpf,
                              p_instance_ctrl->p_from_inner->i_d,
                              p_instance_ctrl->p_from_inner->i_q,
-                             &(p_instance_ctrl->p_to_outer_copy->i_d_ref),
-                             &(p_instance_ctrl->p_to_outer_copy->i_q_ref));
+                             &(p_instance_ctrl->p_to_inner_copy->i_d_ref),
+                             &(p_instance_ctrl->p_to_inner_copy->i_q_ref));
     }
     else
     {

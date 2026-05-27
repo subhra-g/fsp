@@ -144,7 +144,7 @@ typedef struct st_rsip_func_subset_aes_cipher
     rsip_func_aes_cipher_init_t p_init_cbc_dec_wrapped_iv;
     rsip_func_aes_cipher_init_t p_init_ctr;
     void (* p_update)(const uint32_t * InData_Text, uint32_t * OutData_Text, uint32_t MAX_CNT);
-    rsip_ret_t (* p_final)();
+    rsip_ret_t (* p_final)(void);
 } rsip_func_subset_aes_cipher_t;
 
 /* AES-XTS */
@@ -161,7 +161,7 @@ typedef struct st_rsip_func_subset_aes_gcm
     rsip_func_aes_gcm_init_t p_init;
     rsip_func_aes_gcm_init_t p_init_wrapped_iv;
     void (* p_updateAad)(const uint32_t * InData_DataA, uint32_t MAX_CNT);
-    void (* p_updateTransition)();
+    void (* p_updateTransition)(void);
     void (* p_update)(const uint32_t * InData_Text, uint32_t * OutData_Text, uint32_t MAX_CNT);
     rsip_ret_t (* p_encryptFinal)(const uint32_t * InData_Text, const uint32_t * InData_DataALen,
                                   const uint32_t * InData_TextLen, uint32_t * OutData_Text, uint32_t * OutData_DataT);
@@ -215,7 +215,7 @@ typedef struct st_rsip_func_subset_chacha20_poly1305
     rsip_func_chacha_poly_init_t p_init_enc;
     rsip_func_chacha_poly_init_t p_init_dec;
     void (* p_updateAad)(const uint32_t * InData_DataA, uint32_t MAX_CNT);
-    void (* p_updateTransition)();
+    void (* p_updateTransition)(void);
     void (* p_update)(const uint32_t * InData_Text, uint32_t * OutData_Text, uint32_t MAX_CNT);
     rsip_ret_t (* p_final)(const uint32_t * InData_Text, const uint32_t * InData_DataT, uint32_t * OutData_Text,
                            uint32_t * OutData_DataT, uint32_t MAX_CNT);

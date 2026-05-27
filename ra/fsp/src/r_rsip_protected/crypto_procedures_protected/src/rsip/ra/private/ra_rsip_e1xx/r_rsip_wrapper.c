@@ -101,6 +101,9 @@ typedef enum e_cmd
     CMD_KDF_HASH_TYPE_SHA384 = 1,
     CMD_KDF_HASH_TYPE_SHA512 = 2,
 
+    CMD_KDF_DATAGEN_OUTDATA_TYPE_ENCMSG   = 0,
+    CMD_KDF_DATAGEN_OUTDATA_TYPE_KEYINDEX = 1,
+
     CMD_KDF_OUTDATA_TYPE_AES128      = 0,
     CMD_KDF_OUTDATA_TYPE_AES256      = 1,
     CMD_KDF_OUTDATA_TYPE_IV_AES      = 2,
@@ -384,6 +387,34 @@ rsip_ret_t r_rsip_wrapper_p6f_hmacsha256 (const uint32_t InData_IV[],
     INST_DATA_SIZE = RSIP_OEM_KEY_SIZE_HMAC_SHA256_KEY_INST_DATA_WORD;
 
     return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_aes128 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_AES128)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_aes256 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_AES256)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_hmacsha224 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA224)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_hmacsha256 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA256)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
 }
 
 rsip_ret_t r_rsip_wrapper_p8f_aes128 (const uint32_t InData_KeyIndex[],
@@ -807,14 +838,14 @@ rsip_ret_t r_rsip_wrapper_pe1_brainpoolp256r1 (const uint32_t InData_HashType[],
                       OutData_KeyIndex);
 }
 
-rsip_ret_t r_rsip_wrapper_pe3_sha256 (const uint32_t InData_EncSecret[], uint32_t OutData_EncMsg[])
+rsip_ret_t r_rsip_wrapper_pe3_sha256_encmsg (const uint32_t InData_EncSecret[], uint32_t OutData_EncMsg[])
 {
-    return r_rsip_pe3(InData_EncSecret, OutData_EncMsg);
+    return r_rsip_pe3(InData_EncSecret, &gs_cmd[CMD_KDF_DATAGEN_OUTDATA_TYPE_ENCMSG], OutData_EncMsg, NULL);
 }
 
-rsip_ret_t r_rsip_wrapper_pe4_sha256 (const uint32_t InData_EncSecret[], uint32_t OutData_KeyIndex[])
+rsip_ret_t r_rsip_wrapper_pe3_sha256_enckey (const uint32_t InData_EncSecret[], uint32_t OutData_KeyIndex[])
 {
-    return r_rsip_pe4(InData_EncSecret, OutData_KeyIndex);
+    return r_rsip_pe3(InData_EncSecret, &gs_cmd[CMD_KDF_DATAGEN_OUTDATA_TYPE_KEYINDEX], NULL, OutData_KeyIndex);
 }
 
 rsip_ret_t r_rsip_wrapper_pe6_sha256 (const uint32_t InData_KDFInfo[],
@@ -882,6 +913,62 @@ rsip_ret_t r_rsip_wrapper_pe7_sha256_iv_aes (const uint32_t InData_KDFInfo[],
                       NULL,
                       NULL,
                       OutData_EncIV);
+}
+
+rsip_ret_t r_rsip_wrapper_pda_aes128gcm (const uint32_t InData_KeyIndex[],
+                                         const uint32_t InData_IV[],
+                                         const uint32_t InData_DataA[],
+                                         const uint32_t InData_DataALen[],
+                                         const uint32_t InData_EncAPDU[],
+                                         const uint32_t InData_EncAPDULen[],
+                                         const uint32_t InData_DataT[],
+                                         const uint32_t InData_DataTLen[],
+                                         uint32_t       OutData_Data1[],
+                                         uint32_t       OutData_KeyIndex[],
+                                         uint32_t       OutData_Data2[],
+                                         uint32_t       MAX_CNT)
+{
+    return r_rsip_pda(InData_KeyIndex,
+                      &gs_cmd[CMD_AES_IV_TYPE_PLAIN],
+                      InData_IV,
+                      InData_DataA,
+                      InData_DataALen,
+                      InData_EncAPDU,
+                      InData_EncAPDULen,
+                      InData_DataT,
+                      InData_DataTLen,
+                      OutData_Data1,
+                      OutData_KeyIndex,
+                      OutData_Data2,
+                      MAX_CNT);
+}
+
+rsip_ret_t r_rsip_wrapper_pdb_aes256gcm (const uint32_t InData_KeyIndex[],
+                                         const uint32_t InData_IV[],
+                                         const uint32_t InData_DataA[],
+                                         const uint32_t InData_DataALen[],
+                                         const uint32_t InData_EncAPDU[],
+                                         const uint32_t InData_EncAPDULen[],
+                                         const uint32_t InData_DataT[],
+                                         const uint32_t InData_DataTLen[],
+                                         uint32_t       OutData_Data1[],
+                                         uint32_t       OutData_KeyIndex[],
+                                         uint32_t       OutData_Data2[],
+                                         uint32_t       MAX_CNT)
+{
+    return r_rsip_pdb(InData_KeyIndex,
+                      &gs_cmd[CMD_AES_IV_TYPE_PLAIN],
+                      InData_IV,
+                      InData_DataA,
+                      InData_DataALen,
+                      InData_EncAPDU,
+                      InData_EncAPDULen,
+                      InData_DataT,
+                      InData_DataTLen,
+                      OutData_Data1,
+                      OutData_KeyIndex,
+                      OutData_Data2,
+                      MAX_CNT);
 }
 
 /***********************************************************************************************************************

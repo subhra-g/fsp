@@ -16,6 +16,11 @@
 
 /* UNCRUSTIFY-OFF */
 
+/* Ensure that SIG_SETMASK is defined when -std=c99 is used. */
+#if !defined(_GNU_SOURCE)
+#define _GNU_SOURCE
+#endif
+
 #if defined(__clang__) &&  (__clang_major__ >= 4)
 
 /* Ideally, we would simply use MBEDTLS_ARCH_IS_ARMV8_A in the following #if,
@@ -27,15 +32,18 @@
 #endif
 
 #if defined(MBEDTLS_SHA256_ARCH_IS_ARMV8_A) && !defined(__ARM_FEATURE_CRYPTO)
-/* TODO: Re-consider above after https://reviews.llvm.org/D131064 merged.
- *
+/*
  * The intrinsic declaration are guarded by predefined ACLE macros in clang:
  * these are normally only enabled by the -march option on the command line.
  * By defining the macros ourselves we gain access to those declarations without
  * requiring -march on the command line.
  *
  * `arm_neon.h` is included by common.h, so we put these defines
- * at the top of this file, before any includes.
+ * at the top of this file, before any includes but after the intrinsic
+ * declaration. This is necessary with
+ * Clang <=15.x. With Clang 16.0 and above, these macro definitions are
+ * no longer required, but they're harmless. See
+ * https://reviews.llvm.org/D131064
  */
 #define __ARM_FEATURE_CRYPTO 1
 /* See: https://arm-software.github.io/acle/main/acle.html#cryptographic-extensions
@@ -48,11 +56,6 @@
 #endif
 
 #endif /* defined(__clang__) &&  (__clang_major__ >= 4) */
-
-/* Ensure that SIG_SETMASK is defined when -std=c99 is used. */
-#if !defined(_GNU_SOURCE)
-#define _GNU_SOURCE
-#endif
 
 #include "common.h"
 
@@ -711,13 +714,21 @@ int mbedtls_sha256_update(mbedtls_sha256_context *ctx,
         return 0;
     }
 
-    left = ctx->total[0] & 0x3F;
-    fill = SHA256_BLOCK_SIZE - left;
+#if BSP_FEATURE_RSIP_RSIP_E51A_SUPPORTED || BSP_FEATURE_RSIP_RSIP_E50D_SUPPORTED || BSP_FEATURE_RSIP_RSIP_E31A_SUPPORTED
+    if (ctx->total[0] == 0) {
+        left = 0U;
+        fill = 0U;
+    } else if ((ctx->total[0] & 0x3F) == 0) {
+        left = 64U;
+        fill = 0U;
+    } else {
+        left = ctx->total[0] & 0x3F;
+        fill = SHA256_BLOCK_SIZE - left;
+    }
 
     ctx->total[0] += (uint32_t) ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-#if BSP_FEATURE_RSIP_RSIP_E51A_SUPPORTED || BSP_FEATURE_RSIP_RSIP_E50D_SUPPORTED || BSP_FEATURE_RSIP_RSIP_E31A_SUPPORTED
     uint32_t sha256_block_aligned_size_mod;
 
     if (ctx->total[0] < (uint32_t) ilen) {
@@ -725,7 +736,7 @@ int mbedtls_sha256_update(mbedtls_sha256_context *ctx,
     }
 
     /* If there is enough new data to fill up the ctx buffer then fill it up and process it. */
-    if (left && ilen >= fill) {
+    if (left && ilen > fill) {
         memcpy((void *) (ctx->buffer + left), input, fill);
 
         input += fill;
@@ -748,9 +759,13 @@ int mbedtls_sha256_update(mbedtls_sha256_context *ctx,
         }
     }
 
-    if (ilen >= SIZE_MBEDTLS_SHA256_PROCESS_BUFFER_BYTES)
+    if (ilen > fill + SIZE_MBEDTLS_SHA256_PROCESS_BUFFER_BYTES)
     {
         sha256_block_aligned_size_mod = ilen / SIZE_MBEDTLS_SHA256_PROCESS_BUFFER_BYTES;
+        if (sha256_block_aligned_size_mod * SIZE_MBEDTLS_SHA256_PROCESS_BUFFER_BYTES == ilen)
+        {
+            sha256_block_aligned_size_mod -= 1;
+        }
         sha256_block_aligned_size = sha256_block_aligned_size_mod;
         ilen = ilen - (sha256_block_aligned_size_mod * SIZE_MBEDTLS_SHA256_PROCESS_BUFFER_BYTES);
 
@@ -805,6 +820,11 @@ int mbedtls_sha256_update(mbedtls_sha256_context *ctx,
     }
    return 0;
 #else
+    left = ctx->total[0] & 0x3F;
+    fill = SHA256_BLOCK_SIZE - left;
+    ctx->total[0] += (uint32_t) ilen;
+    ctx->total[0] &= 0xFFFFFFFF;
+
 /* Update the HW sce operation status/rsip command */
     ctx->sce_operation_state = SCE_OEM_CMD_HASH_RESUME_TO_SUSPEND;
 
@@ -851,20 +871,27 @@ int mbedtls_sha256_finish(mbedtls_sha256_context *ctx,
                           unsigned char *output)
 {
     int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
-    uint32_t used;
-    int truncated = 0;
+    uint32_t used = 0U;
+    int truncated = 0U;
+
+  #if BSP_FEATURE_RSIP_RSIP_E51A_SUPPORTED || BSP_FEATURE_RSIP_RSIP_E50D_SUPPORTED || BSP_FEATURE_RSIP_RSIP_E31A_SUPPORTED
 
     /*
      * Add padding: 0x80 then 0x00 until 8 bytes remain for the length
      */
-    used = ctx->total[0] & 0x3F;
+    if (ctx->total[0] == 0) {
+        used = 0U;
+    } else if ((ctx->total[0] & 0x3F) == 0) {
+        used = 64U;
+    } else {
+        used = ctx->total[0] & 0x3F;
+    }
 
-  #if BSP_FEATURE_RSIP_RSIP_E51A_SUPPORTED || BSP_FEATURE_RSIP_RSIP_E50D_SUPPORTED || BSP_FEATURE_RSIP_RSIP_E31A_SUPPORTED
     /* If there is no unaligned data in the context buffer. */
     if (0 == used)
     {
         /* If there is aligned data buffered in the rsip buffer, process that.*/
-        if ((1U == ctx->use_rsip_buffer) && (0U == ctx->rsip_buffer_processed))
+        if (((1U == ctx->use_rsip_buffer) && (0U == ctx->rsip_buffer_processed)))
         {
             if (SCE_OEM_CMD_HASH_INIT_TO_SUSPEND == ctx->sce_operation_state)
             {
@@ -921,8 +948,9 @@ int mbedtls_sha256_finish(mbedtls_sha256_context *ctx,
     }
 
   #else
-    uint32_t high, low;
 
+    uint32_t high, low;
+    used = ctx->total[0] & 0x3F;
     ctx->buffer[used++] = 0x80;
 
     if (used <= 56) {

@@ -153,6 +153,7 @@ fsp_err_t RM_MOTOR_SENSOR_HALL_Close (motor_sensor_ctrl_t * const p_ctrl)
  **********************************************************************************************************************/
 fsp_err_t RM_MOTOR_SENSOR_HALL_Reset (motor_sensor_ctrl_t * const p_ctrl)
 {
+    uint8_t   i;
     fsp_err_t err = FSP_SUCCESS;
     motor_sensor_hall_instance_ctrl_t * p_instance_ctrl = (motor_sensor_hall_instance_ctrl_t *) p_ctrl;
 
@@ -162,6 +163,24 @@ fsp_err_t RM_MOTOR_SENSOR_HALL_Reset (motor_sensor_ctrl_t * const p_ctrl)
 
     p_instance_ctrl->signals.speed_el = 0.0F;
     p_instance_ctrl->signals.angle_el = 0.0F;
+
+    /* Reset valid period tracking for correct first-revolution speed calculation */
+    p_instance_ctrl->signals.hall_signal_count              = 0U;
+    p_instance_ctrl->signals.period_counter                 = 0U;
+    p_instance_ctrl->signals.carrier_count                  = 0U;
+    p_instance_ctrl->signals.last_hall_signal               = 0U;
+    p_instance_ctrl->signals.hall_signal                    = 0U;
+    p_instance_ctrl->signals.calculated_speed_el            = 0.0F;
+    p_instance_ctrl->signals.calculated_speed_el_last_pulse = 0.0F;
+    p_instance_ctrl->signals.calculated_speed_el_mvavg      = 0.0F;
+    p_instance_ctrl->signals.calculated_angle_el            = 0.0F;
+    p_instance_ctrl->signals.calculated_angle_el_per_count  = 0.0F;
+
+    /* Clear period history */
+    for (i = 0U; i < MOTOR_SENSOR_HALL_SPEED_COUNTS; i++)
+    {
+        p_instance_ctrl->signals.hall_period[i] = 0U;
+    }
 
     return err;
 }
@@ -293,6 +312,8 @@ fsp_err_t RM_MOTOR_SENSOR_HALL_AngleSpeedCalc (motor_sensor_ctrl_t * const      
         uint8_t i                     = 0U;
         float   est_speed_el_max      = 0.0F;
         float   speed_reversal_factor = 1.0F;
+        uint8_t valid_pulse_count     = 0U;
+        uint8_t idx;
 
         /* Position acquisition (hall sensor) */
         p_instance_ctrl->signals.last_hall_signal = p_instance_ctrl->signals.hall_signal;
@@ -345,6 +366,7 @@ fsp_err_t RM_MOTOR_SENSOR_HALL_AngleSpeedCalc (motor_sensor_ctrl_t * const      
                 }
             }
 
+            /* Store current period into ring buffer */
             p_instance_ctrl->signals.hall_period[p_instance_ctrl->signals.period_counter] =
                 p_instance_ctrl->signals.carrier_count;
 
@@ -358,38 +380,79 @@ fsp_err_t RM_MOTOR_SENSOR_HALL_AngleSpeedCalc (motor_sensor_ctrl_t * const      
             /* When the change of rotational direction happens */
             if (p_instance_ctrl->signals.last_direction != p_instance_ctrl->signals.direction)
             {
-                /* Once the period is set to fix value */
-                p_instance_ctrl->signals.hall_period[0] = p_extended_cfg->default_counts;
-                p_instance_ctrl->signals.hall_period[1] = p_extended_cfg->default_counts;
-                p_instance_ctrl->signals.hall_period[2] = p_extended_cfg->default_counts;
-                p_instance_ctrl->signals.hall_period[3] = p_extended_cfg->default_counts;
-                p_instance_ctrl->signals.hall_period[4] = p_extended_cfg->default_counts;
-                p_instance_ctrl->signals.hall_period[5] = p_extended_cfg->default_counts;
+                /* Reset all period buffers to current period */
+                p_instance_ctrl->signals.hall_period[0] = p_instance_ctrl->signals.carrier_count;
+                p_instance_ctrl->signals.hall_period[1] = 0U;
+                p_instance_ctrl->signals.hall_period[2] = 0U;
+                p_instance_ctrl->signals.hall_period[3] = 0U;
+                p_instance_ctrl->signals.hall_period[4] = 0U;
+                p_instance_ctrl->signals.hall_period[5] = 0U;
+
+                /* Reset period counter: next write goes to index 1 */
+                p_instance_ctrl->signals.period_counter = 1U;
+
+                /* Reset accumulated valid pulse count to 1 (current pulse only) */
+                p_instance_ctrl->signals.hall_signal_count = 1U;
+
                 speed_reversal_factor = 0.0F;
             }
             else
             {
+                /* ====== Accumulation of effective pulse count (up to 6) ====== */
+                if (p_instance_ctrl->signals.hall_signal_count < MOTOR_SENSOR_HALL_SPEED_COUNTS)
+                {
+                    p_instance_ctrl->signals.hall_signal_count++;
+                }
+
                 speed_reversal_factor = 1.0F;
             }
 
-            uvw_sum = (uint32_t) p_instance_ctrl->signals.hall_period[0] +
-                      (uint32_t) p_instance_ctrl->signals.hall_period[1] +
-                      (uint32_t) p_instance_ctrl->signals.hall_period[2] +
-                      (uint32_t) p_instance_ctrl->signals.hall_period[3] +
-                      (uint32_t) p_instance_ctrl->signals.hall_period[4] +
-                      (uint32_t) p_instance_ctrl->signals.hall_period[5];
+            /* Obtain the number of active pulses (minimum 1, maximum 6) */
+            valid_pulse_count = p_instance_ctrl->signals.hall_signal_count;
+            if (valid_pulse_count == 0U)
+            {
+                valid_pulse_count = 1U;
+            }
+
+            /* Calculate the total time of only the active pulses. */
+            uvw_sum = 0U;
+
+            /* Sum the most recent valid_pulse_count from the ring buffer. */
+            idx = p_instance_ctrl->signals.period_counter;
+            for (i = 0U; i < valid_pulse_count; i++)
+            {
+                if (idx == 0U)
+                {
+                    idx = MOTOR_SENSOR_HALL_SPEED_COUNTS;
+                }
+
+                idx--;
+                uvw_sum += (uint32_t) p_instance_ctrl->signals.hall_period[idx];
+            }
+
+            /* Avoid zero division */
+            if (uvw_sum == 0U)
+            {
+                uvw_sum = 1U;
+            }
 
             /* Increase direction */
             if (MOTOR_SENSOR_HALL_DIRECTION_CW == p_instance_ctrl->signals.direction)
             {
-                p_instance_ctrl->signals.calculated_angle_el           = -(MOTOR_SENSOR_HALL_30DEGREE);
-                p_instance_ctrl->signals.calculated_angle_el_per_count = (MOTOR_FUNDLIB_TWOPI / (float) uvw_sum);
+                p_instance_ctrl->signals.calculated_angle_el = -(MOTOR_SENSOR_HALL_30DEGREE);
+
+                /* Angle increment per count = Angle increment per pulse (number of active pulses) / Total time */
+                p_instance_ctrl->signals.calculated_angle_el_per_count =
+                    ((MOTOR_FUNDLIB_TWOPI / MOTOR_SENSOR_HALL_HALL_SIGNAL_NUMBER) *
+                     (float) valid_pulse_count) / (float) uvw_sum;
             }
             /* Decrease direction */
             else
             {
                 p_instance_ctrl->signals.calculated_angle_el           = MOTOR_SENSOR_HALL_30DEGREE;
-                p_instance_ctrl->signals.calculated_angle_el_per_count = -(MOTOR_FUNDLIB_TWOPI / (float) uvw_sum);
+                p_instance_ctrl->signals.calculated_angle_el_per_count =
+                    -((MOTOR_FUNDLIB_TWOPI / MOTOR_SENSOR_HALL_HALL_SIGNAL_NUMBER) *
+                      (float) valid_pulse_count) / (float) uvw_sum;
             }
 
             /* switched denominator and numerator from original */

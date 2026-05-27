@@ -46,9 +46,9 @@ FSP_HEADER
 typedef enum e_ctsu_event
 {
     CTSU_EVENT_SCAN_COMPLETE = 0x00,   ///< Normal end
-    CTSU_EVENT_OVERFLOW      = 0x01,   ///< Sensor counter overflow (CTSUST.CTSUSOVF set)
-    CTSU_EVENT_ICOMP         = 0x02,   ///< Abnormal TSCAP voltage (CTSUERRS.CTSUICOMP set)
-    CTSU_EVENT_ICOMP1        = 0x04    ///< Abnormal sensor current (CTSUSR.ICOMP1 set)
+    CTSU_EVENT_OVERFLOW      = 0x01,   ///< Sensor counter overflow (CTSU1: CTSUST.CTSUSOVF set, CTSU2: CTSUSR.SENSOVF set)
+    CTSU_EVENT_ICOMP         = 0x02,   ///< Abnormal TSCAP voltage (CTSU1: CTSUERRS.CTSUICOMP set, CTSU2 : CTSUSR.ICOMP0 set)
+    CTSU_EVENT_ICOMP1        = 0x04    ///< Abnormal sensor current (CTSU2: CTSUSR.ICOMP1 set)
 } ctsu_event_t;
 
 /** CTSU Scan Start Trigger Select */
@@ -65,7 +65,7 @@ typedef enum e_ctsu_txvsel
     CTSU_TXVSEL_INTERNAL_POWER         ///< Internal logic power supply selected
 } ctsu_txvsel_t;
 
-/** CTSU Transmission Power Supply Select 2 (CTSU2 Only) */
+/** CTSU Transmission Power Supply Select 2 (CTSU2) */
 typedef enum e_ctsu_txvsel2
 {
     CTSU_TXVSEL_MODE,                  ///< Follow TXVSEL setting
@@ -91,12 +91,12 @@ typedef enum e_ctsu_atune12
 /** CTSU Measurement Mode Select */
 typedef enum e_ctsu_mode
 {
-    CTSU_MODE_SELF_MULTI_SCAN  = 1,    ///< Self-capacitance multi scan mode
-    CTSU_MODE_MUTUAL_FULL_SCAN = 3,    ///< Mutual capacitance full scan mode
-    CTSU_MODE_MUTUAL_CFC_SCAN  = 7,    ///< Mutual capacitance cfc scan mode (CTSU2 Only)
-    CTSU_MODE_CURRENT_SCAN     = 9,    ///< Current scan mode (CTSU2 Only)
-    CTSU_MODE_CORRECTION_SCAN  = 17,   ///< Correction scan mode (CTSU2 Only)
-    CTSU_MODE_DIAGNOSIS_SCAN   = 33    ///< Diagnosis scan mode
+    CTSU_MODE_SELF_MULTI_SCAN  = 1,    ///< Self-capacitance measurement mode
+    CTSU_MODE_MUTUAL_FULL_SCAN = 3,    ///< Mutual-capacitance measurement mode
+    CTSU_MODE_MUTUAL_CFC_SCAN  = 7,    ///< Mutual-capacitance parallel measurement mode (CTSU2 only)
+    CTSU_MODE_CURRENT_SCAN     = 9,    ///< Current measurement mode (CTSU2)
+    CTSU_MODE_CORRECTION_SCAN  = 17,   ///< Correction measurement mode (CTSU2)
+    CTSU_MODE_DIAGNOSIS_SCAN   = 33    ///< Diagnosis mode
 } ctsu_md_t;
 
 /** CTSU Non-Measured Channel Output Select (CTSU2 Only) */
@@ -108,7 +108,7 @@ typedef enum e_ctsu_posel
     CTSU_POSEL_SAME_PULSE              ///< Same phase pulse output as transmission channel through the power setting by the TXVSEL[1:0] bits
 } ctsu_posel_t;
 
-/** CTSU Spectrum Diffusion Frequency Division Setting (CTSU Only) */
+/** CTSU Spectrum Diffusion Frequency Division Setting (CTSU1) */
 typedef enum e_ctsu_ssdiv
 {
     CTSU_SSDIV_4000,                   ///< 4.00 <= Base clock frequency (MHz)
@@ -153,7 +153,7 @@ typedef void ctsu_ctrl_t;
 /** Element Configuration */
 typedef struct st_ctsu_element
 {
-    ctsu_ssdiv_t ssdiv;                ///< CTSU Spectrum Diffusion Frequency Division Setting (CTSU Only)
+    ctsu_ssdiv_t ssdiv;                ///< CTSU Spectrum Diffusion Frequency Division Setting (CTSU1)
     uint16_t     so;                   ///< CTSU Sensor Offset Adjustment
     uint8_t      snum;                 ///< CTSU Measurement Count Setting
     uint8_t      sdpa;                 ///< CTSU Base Clock Setting
@@ -172,11 +172,11 @@ typedef struct st_ctsu_cfg
 {
     ctsu_cap_t                 cap;                     ///< CTSU Scan Start Trigger Select
     ctsu_txvsel_t              txvsel;                  ///< CTSU Transmission Power Supply Select
-    ctsu_txvsel2_t             txvsel2;                 ///< CTSU Transmission Power Supply Select 2 (CTSU2 Only)
-    ctsu_atune1_t              atune1;                  ///< CTSU Power Supply Capacity Adjustment (CTSU Only)
-    ctsu_atune12_t             atune12;                 ///< CTSU Power Supply Capacity Adjustment (CTSU2 Only)
+    ctsu_txvsel2_t             txvsel2;                 ///< CTSU Transmission Power Supply Select 2 (CTSU2)
+    ctsu_atune1_t              atune1;                  ///< CTSU Power Supply Capacity Adjustment (CTSU1)
+    ctsu_atune12_t             atune12;                 ///< CTSU Power Supply Capacity Adjustment (CTSU2)
     ctsu_md_t                  md;                      ///< CTSU Measurement Mode Select
-    ctsu_posel_t               posel;                   ///< CTSU Non-Measured Channel Output Select (CTSU2 Only)
+    ctsu_posel_t               posel;                   ///< CTSU Non-Measured Channel Output Select (CTSU2)
     uint8_t                    tsod;                    ///< TS all terminal output control for multi electrode scan
     uint8_t                    mec_ts;                  ///< TS number used when using the MEC function
     uint8_t                    mec_shield_ts;           ///< TS number of active shield used when using MEC function
@@ -207,7 +207,8 @@ typedef struct st_ctsu_cfg
     void (* p_callback)(ctsu_callback_args_t * p_args); ///< Callback provided when CTSUFN ISR occurs.
     transfer_instance_t const * p_transfer_tx;          ///< DTC instance for transmit at CTSUWR. Set to NULL if unused.
     transfer_instance_t const * p_transfer_rx;          ///< DTC instance for receive at CTSURD. Set to NULL if unused.
-    adc_instance_t const      * p_adc_instance;         ///< ADC instance for temperature correction.
+    adc_instance_t const      * p_adc_instance;         ///< ADC instance for diagnosis.
+    adc_instance_t const      * p_adc_ivref_instance;   ///< ADC instance for diagnosis.
     IRQn_Type    write_irq;                             ///< CTSU_CTSUWR interrupt vector
     IRQn_Type    read_irq;                              ///< CTSU_CTSURD interrupt vector
     IRQn_Type    end_irq;                               ///< CTSU_CTSUFN interrupt vector

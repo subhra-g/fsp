@@ -59,10 +59,11 @@ rsip_ret_t r_rsip_p73s (uint32_t OutData_State[])
     WR1_PROG(REG_1458H, 0x00000000U);
     RD1_ADDR(REG_2014H, &OutData_State[18]);
     RD1_ADDR(REG_2010H, &OutData_State[19]);
-    r_rsip_func102(bswap_32big(0x1727bd13U),
-                   bswap_32big(0x4857d99eU),
-                   bswap_32big(0xe40b45a8U),
-                   bswap_32big(0x2f3fe937U));
+    static const uint32_t Param_p73s_func102_001[] =
+    {
+        BSWAP_32BIG_C(0x1727bd13U), BSWAP_32BIG_C(0x4857d99eU), BSWAP_32BIG_C(0xe40b45a8U), BSWAP_32BIG_C(0x2f3fe937U),
+    };
+    r_rsip_func102(Param_p73s_func102_001);
     WR1_PROG(REG_14BCH, 0x00000040U);
     WAIT_STS(REG_142CH, 12U, 0U);
 

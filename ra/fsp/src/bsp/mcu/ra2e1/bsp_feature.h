@@ -201,9 +201,12 @@
 #define BSP_FEATURE_CRC_SNOOP_ADDRESS_TYPE_TDR                          (0x03UL)        // Used to indicate the type of register being snooped on; derived from the least-significant nybble of the address of SCI TDR registers.
 
 #define BSP_FEATURE_CTSU_IS_AVAILABLE                                   (1UL)
+#define BSP_FEATURE_CTSU_CORRECTION_TYPE                                (0UL)           // CTSU correction algorithm type.
 #define BSP_FEATURE_CTSU_CTSUCHAC_REGISTER_COUNT                        (5UL)           // Number of CTSUCHAC registers.
 #define BSP_FEATURE_CTSU_CTSUCHTRC_REGISTER_COUNT                       (5UL)           // Number of CTSUCHTRC registers.
 #define BSP_FEATURE_CTSU_HAS_TXVSEL                                     (1UL)           // CTSUCR0.CTSUTXVSEL field is available.
+#define BSP_FEATURE_CTSU_SUCLK_LV_MAX_MHZ                               (32UL)          // Maximum SUCLK frequency (MHz) in low-voltage operating mode.
+#define BSP_FEATURE_CTSU_SUCLK_MAX_MHZ                                  (40UL)          // Maximum SUCLK frequency (MHz) in normal voltage operating mode.
 #define BSP_FEATURE_CTSU_VERSION                                        (2UL)           // Version of the CTSU peripheral.
 
 #define BSP_FEATURE_DAC_IS_AVAILABLE                                    (0UL)

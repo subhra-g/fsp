@@ -82,7 +82,7 @@ static void      rmac_init_buffers(rmac_instance_ctrl_t * const p_instance_ctrl)
 static void      rmac_configure_reception_filter(rmac_instance_ctrl_t const * const p_instance_ctrl);
 static fsp_err_t rmac_do_link(rmac_instance_ctrl_t * const                 p_instance_ctrl,
                               const layer3_switch_magic_packet_detection_t mode);
-static fsp_err_t rmac_link_status_check(rmac_instance_ctrl_t const * const p_instance_ctrl);
+static fsp_err_t rmac_link_status_check(rmac_instance_ctrl_t * const p_instance_ctrl);
 
 static void rmac_call_callback(rmac_instance_ctrl_t  * p_instance_ctrl,
                                ether_callback_args_t * p_callback_args);
@@ -199,6 +199,12 @@ fsp_err_t R_RMAC_Open (ether_ctrl_t * const p_ctrl, ether_cfg_t const * const p_
     p_instance_ctrl->p_callback        = p_cfg->p_callback;
     p_instance_ctrl->p_context         = p_cfg->p_context;
     p_instance_ctrl->p_callback_memory = NULL;
+
+    for (uint8_t i = 0; i <= ((BSP_FEATURE_ETHER_NUM_CHANNELS - 1) / (sizeof(uint32_t) * 8)); i++)
+    {
+        p_instance_ctrl->current_link_up_ports.link_status[i] = 0;
+        p_instance_ctrl->last_link_up_ports.link_status[i]    = 0;
+    }
 
     /* Open ethernet switch module.  */
     err = p_ether_switch->p_api->open(p_ether_switch->p_ctrl, p_ether_switch->p_cfg);
@@ -974,6 +980,7 @@ fsp_err_t R_RMAC_GetRxTimestamp (ether_ctrl_t * const p_ctrl, rmac_timestamp_t *
 static fsp_err_t rmac_open_param_check (rmac_instance_ctrl_t const * const p_instance_ctrl,
                                         ether_cfg_t const * const          p_cfg)
 {
+    rmac_extended_cfg_t * p_rmac_extended_cfg;
     FSP_ASSERT(p_instance_ctrl);
     FSP_ERROR_RETURN(NULL != p_cfg, FSP_ERR_INVALID_POINTER);
     FSP_ERROR_RETURN(NULL != p_cfg->p_mac_address, FSP_ERR_INVALID_POINTER);
@@ -987,6 +994,11 @@ static fsp_err_t rmac_open_param_check (rmac_instance_ctrl_t const * const p_ins
 
     /* RMAC does not support padding feature. */
     FSP_ERROR_RETURN(p_cfg->padding == ETHER_PADDING_DISABLE, FSP_ERR_UNSUPPORTED);
+
+    p_rmac_extended_cfg = (rmac_extended_cfg_t *) p_cfg->p_extend;
+    FSP_ERROR_RETURN(((NULL != p_rmac_extended_cfg->p_link_monitored_ports) ||
+                      (p_rmac_extended_cfg->link_detection == RMAC_LINK_DETECTION_DEFAULT_PORTS_UP)),
+                     FSP_ERR_INVALID_POINTER);
 
     return FSP_SUCCESS;
 }
@@ -1069,11 +1081,11 @@ static fsp_err_t rmac_do_link (rmac_instance_ctrl_t * const                 p_in
     layer3_switch_extended_cfg_t * p_switch_extended_cfg;
     const ether_phy_instance_t   * p_phy_instance;
 
-    layer3_switch_port_cfg_t port_cfg           = {0};
-    uint32_t                 link_speed_duplex  = 0;
-    uint32_t                 local_pause_bits   = 0;
-    uint32_t                 partner_pause_bits = 0;
-    fsp_err_t                link_result;
+    layer3_switch_port_cfg_t port_cfg = {0};
+    uint32_t                 line_speed_duplex;
+    uint32_t                 local_pause;
+    uint32_t                 partner_pause;
+    fsp_err_t                link_result = FSP_SUCCESS;
 
 #if (RMAC_CFG_PARAM_CHECKING_ENABLE)
     FSP_ASSERT(p_instance_ctrl);
@@ -1082,15 +1094,32 @@ static fsp_err_t rmac_do_link (rmac_instance_ctrl_t * const                 p_in
 
     p_rmac_extended_cfg   = (rmac_extended_cfg_t *) p_instance_ctrl->p_cfg->p_extend;
     p_switch_extended_cfg = (layer3_switch_extended_cfg_t *) p_rmac_extended_cfg->p_ether_switch->p_cfg->p_extend;
-    p_phy_instance        =
-        (ether_phy_instance_t *) p_switch_extended_cfg->p_ether_phy_instances[p_instance_ctrl->p_cfg->channel];
 
-    /* Set the link status */
-    R_RMAC_PHY_ChipSelect(p_phy_instance->p_ctrl, p_instance_ctrl->p_cfg->channel);
-    link_result = p_phy_instance->p_api->linkPartnerAbilityGet(p_phy_instance->p_ctrl,
-                                                               &link_speed_duplex,
-                                                               &local_pause_bits,
-                                                               &partner_pause_bits);
+    for (uint8_t j = 0;
+         (j <= ((BSP_FEATURE_ETHER_NUM_CHANNELS - 1) / (sizeof(uint32_t) * 8))) && (FSP_SUCCESS == link_result);
+         j++)
+    {
+        for (uint8_t i = 0;
+             (p_instance_ctrl->last_link_up_ports.link_status[j] >= (1U << i)) && (FSP_SUCCESS == link_result);
+             i++)
+        {
+            if (p_instance_ctrl->last_link_up_ports.link_status[j] & (1U << i))
+            {
+                p_phy_instance =
+                    (ether_phy_instance_t *) p_switch_extended_cfg->p_ether_phy_instances[i +
+                                                                                          (j * (sizeof(uint32_t) * 8))];
+
+                /* Change targets PHY LSI */
+                R_RMAC_PHY_ChipSelect(p_phy_instance->p_ctrl, (uint8_t) (i + (j * (sizeof(uint32_t) * 8))));
+
+                /* Call LinkPartnerAbilityGet to configure link speed. */
+                link_result = p_phy_instance->p_api->linkPartnerAbilityGet(p_phy_instance->p_ctrl,
+                                                                           &line_speed_duplex,
+                                                                           &local_pause,
+                                                                           &partner_pause);
+            }
+        }
+    }
 
     if (FSP_SUCCESS == link_result)
     {
@@ -1154,45 +1183,71 @@ static fsp_err_t rmac_do_link (rmac_instance_ctrl_t * const                 p_in
  * @retval  FSP_ERR_ETHER_ERROR_LINK:     Link is down
  * @retval  FSP_ERR_ETHER_PHY_ERROR_LINK  Initialization of PHY-LSI failed.
  **********************************************************************************************************************/
-static fsp_err_t rmac_link_status_check (rmac_instance_ctrl_t const * const p_instance_ctrl)
+static fsp_err_t rmac_link_status_check (rmac_instance_ctrl_t * const p_instance_ctrl)
 {
-    fsp_err_t err = FSP_SUCCESS;
-    fsp_err_t link_status;
+    fsp_err_t                             err;
+    rmac_extended_cfg_t                 * p_rmac_extended_cfg;
+    ether_switch_ctrl_t                 * p_ether_switch_ctrl;
+    ether_switch_link_status_bitmaps_t    link_status = {0};
+    layer3_switch_target_port_bitmaps_t   default_ports;
+    layer3_switch_target_port_bitmaps_t * p_check_ports;
+    uint16_t link_ports_num     = 0;
+    uint16_t monitored_port_num = 0;
 
-    rmac_extended_cfg_t          * p_rmac_extended_cfg;
-    layer3_switch_extended_cfg_t * p_switch_extended_cfg;
-    const ether_phy_instance_t   * p_phy_instance;
-    uint32_t line_speed_duplex;
-    uint32_t local_pause;
-    uint32_t partner_pause;
+    p_rmac_extended_cfg = (rmac_extended_cfg_t *) p_instance_ctrl->p_cfg->p_extend;
+    p_ether_switch_ctrl = p_rmac_extended_cfg->p_ether_switch->p_ctrl;
 
-    p_rmac_extended_cfg   = (rmac_extended_cfg_t *) p_instance_ctrl->p_cfg->p_extend;
-    p_switch_extended_cfg = (layer3_switch_extended_cfg_t *) p_rmac_extended_cfg->p_ether_switch->p_cfg->p_extend;
-    p_phy_instance        =
-        (ether_phy_instance_t *) p_switch_extended_cfg->p_ether_phy_instances[p_instance_ctrl->p_cfg->channel];
-
-    /* Update PHY LSI information */
-    R_RMAC_PHY_ChipSelect(p_phy_instance->p_ctrl, p_instance_ctrl->p_cfg->channel);
-
-    /* Get link status */
-    link_status = p_phy_instance->p_api->linkStatusGet(p_phy_instance->p_ctrl);
-
-    if (FSP_ERR_ETHER_PHY_ERROR_LINK == link_status)
+    if (p_rmac_extended_cfg->link_detection == RMAC_LINK_DETECTION_DEFAULT_PORTS_UP)
     {
-        /* Link is down */
-        err = FSP_ERR_ETHER_ERROR_LINK;
+        default_ports.ports[p_instance_ctrl->p_cfg->channel / (sizeof(uint32_t) * 8)] =
+            (1U << (p_instance_ctrl->p_cfg->channel % (sizeof(uint32_t) * 8)));
+        p_check_ports = &default_ports;
     }
     else
     {
-        /* Link is up */
-        err = FSP_SUCCESS;
-
-        /* Call LinkPartnerAbilityGet to configure link speed. */
-        p_phy_instance->p_api->linkPartnerAbilityGet(p_phy_instance->p_ctrl,
-                                                     &line_speed_duplex,
-                                                     &local_pause,
-                                                     &partner_pause);
+        p_check_ports = p_rmac_extended_cfg->p_link_monitored_ports;
     }
+
+    err = R_LAYER3_SWITCH_LinkStatusCheck(p_ether_switch_ctrl, p_check_ports, &link_status);
+
+    if (err == FSP_SUCCESS)
+    {
+        for (uint8_t i = 0; i <= ((BSP_FEATURE_ETHER_NUM_CHANNELS - 1) / (sizeof(uint32_t) * 8)); i++)
+        {
+            monitored_port_num += (uint16_t) __builtin_popcount(p_check_ports->ports[i]);
+            link_ports_num     += (uint16_t) __builtin_popcount(link_status.link_status[i]);
+        }
+
+        if (p_rmac_extended_cfg->link_detection == RMAC_LINK_DETECTION_ALL_MONITORED_PORTS_UP)
+        {
+            /* All ports must be link up */
+            if (link_ports_num != monitored_port_num)
+            {
+                err = FSP_ERR_ETHER_ERROR_LINK;
+            }
+        }
+        else
+        {
+            /* Any port must be link up */
+            if (link_ports_num == 0)
+            {
+                err = FSP_ERR_ETHER_ERROR_LINK;
+            }
+        }
+    }
+
+    if (err == FSP_SUCCESS)
+    {
+        for (uint8_t i = 0; i <= ((BSP_FEATURE_ETHER_NUM_CHANNELS - 1) / (sizeof(uint32_t) * 8)); i++)
+        {
+            /* Save ports that have just transitioned to link up */
+            p_instance_ctrl->last_link_up_ports.link_status[i] = link_status.link_status[i] &
+                                                                 ~p_instance_ctrl->current_link_up_ports.link_status[i];
+        }
+    }
+
+    /* Update current link up ports for next comparison */
+    p_instance_ctrl->current_link_up_ports = link_status;
 
     return err;
 }                                      /* End of function rmac_link_status_check() */

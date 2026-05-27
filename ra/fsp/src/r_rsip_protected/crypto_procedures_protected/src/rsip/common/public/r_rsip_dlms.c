@@ -237,7 +237,7 @@ fsp_err_t R_RSIP_xDLMS_InitiateRequest_Decrypt (rsip_ctrl_t * const             
     /* Check Security Suite within the SC (Security Control) byte */
     else
     {
-        uint8_t security_suite = p_apdu[RSIP_PRV_BYTE_POS_APDU_SC] & RSIP_PRV_MASK_SC_SECURITY_SUITE;
+        uint8_t security_suite = p_apdu[RSIP_PRV_BYTE_POS_APDU_SC] & (uint8_t) RSIP_PRV_MASK_SC_SECURITY_SUITE;
 
         switch (security_suite)
         {
@@ -332,16 +332,16 @@ fsp_err_t R_RSIP_xDLMS_InitiateRequest_Decrypt (rsip_ctrl_t * const             
         memcpy(hashed_ivec, p_nonce, RSIP_PRV_BYTE_SIZE_NONCE);
         hashed_ivec[3] = bswap_32big(0x00000001U);
         memcpy(aad_tmp, p_aad, aad_length);
-        memcpy(msg_tmp, p_apdu + RSIP_PRV_BYTE_POS_APDU_C, msg_length);
+        memcpy(msg_tmp, p_apdu + RSIP_PRV_BYTE_POS_APDU_C, (size_t) msg_length);
         memcpy(tag_tmp, p_apdu + RSIP_PRV_BYTE_POS_APDU_C + msg_length, RSIP_PRV_BYTE_SIZE_APDU_T);
 
         /* Set parameters */
         uint32_t aad_bit_size[2] =
         {
-            bswap_32big(r_rsip_byte_to_bit_convert_upper(aad_length)),
-            bswap_32big(r_rsip_byte_to_bit_convert_lower(aad_length))
+            bswap_32big(r_rsip_byte_to_bit_convert_upper((uint64_t) aad_length)),
+            bswap_32big(r_rsip_byte_to_bit_convert_lower((uint64_t) aad_length))
         };
-        uint32_t msg_length_tmp[1] = {bswap_32big(msg_length)};
+        uint32_t msg_length_tmp[1] = {bswap_32big((uint32_t) msg_length)};
         uint32_t tag_length_tmp[1] = {bswap_32big(RSIP_PRV_BYTE_SIZE_APDU_T)};
 
         /* Call function (cast to match the argument type with the primitive function) */

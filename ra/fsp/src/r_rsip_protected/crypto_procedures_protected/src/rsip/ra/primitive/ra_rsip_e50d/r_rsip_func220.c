@@ -15,6 +15,8 @@
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 void r_rsip_func220 (const uint32_t ARG1[], uint32_t ARG2, uint32_t ARG3[])
 {
     uint32_t iLoop = 0U;

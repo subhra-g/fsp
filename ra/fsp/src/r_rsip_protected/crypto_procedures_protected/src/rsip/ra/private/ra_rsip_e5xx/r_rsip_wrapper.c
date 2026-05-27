@@ -126,49 +126,49 @@ typedef enum e_cmd
 
 typedef enum e_rsip_oem_cmd
 {
-    RSIP_OEM_CMD_INVALID = 0,
-    RSIP_OEM_CMD_AES128  = 5,
-    RSIP_OEM_CMD_AES192,
-    RSIP_OEM_CMD_AES256,
-    RSIP_OEM_CMD_AES128_XTS,
-    RSIP_OEM_CMD_AES256_XTS,
-    RSIP_OEM_CMD_RSA1024_PUBLIC,
-    RSIP_OEM_CMD_RSA1024_PRIVATE,
-    RSIP_OEM_CMD_RSA2048_PUBLIC,
-    RSIP_OEM_CMD_RSA2048_PRIVATE,
-    RSIP_OEM_CMD_RSA3072_PUBLIC,
-    RSIP_OEM_CMD_RSA3072_PRIVATE,
-    RSIP_OEM_CMD_RSA4096_PUBLIC,
-    RSIP_OEM_CMD_RSA4096_PRIVATE,
-    RSIP_OEM_CMD_ECC_P192_PUBLIC,
-    RSIP_OEM_CMD_ECC_P192_PRIVATE,
-    RSIP_OEM_CMD_ECC_P224_PUBLIC,
-    RSIP_OEM_CMD_ECC_P224_PRIVATE,
-    RSIP_OEM_CMD_ECC_SECP256R1_PUBLIC,
-    RSIP_OEM_CMD_ECC_SECP256R1_PRIVATE,
-    RSIP_OEM_CMD_ECC_SECP384R1_PUBLIC,
-    RSIP_OEM_CMD_ECC_SECP384R1_PRIVATE,
-    RSIP_OEM_CMD_HMAC_SHA224,
-    RSIP_OEM_CMD_HMAC_SHA256,
-    RSIP_OEM_CMD_ECC_BRAINPOOLP256R1_PUBLIC,
-    RSIP_OEM_CMD_ECC_BRAINPOOLP256R1_PRIVATE,
-    RSIP_OEM_CMD_ECC_BRAINPOOLP384R1_PUBLIC,
-    RSIP_OEM_CMD_ECC_BRAINPOOLP384R1_PRIVATE,
-    RSIP_OEM_CMD_ECC_BRAINPOOLP512R1_PUBLIC,
-    RSIP_OEM_CMD_ECC_BRAINPOOLP512R1_PRIVATE,
-    RSIP_OEM_CMD_ECC_SECP256K1_PUBLIC,
-    RSIP_OEM_CMD_ECC_SECP256K1_PRIVATE,
-    RSIP_OEM_CMD_ECC_SECP521R1_PUBLIC,
-    RSIP_OEM_CMD_ECC_SECP521R1_PRIVATE,
-    RSIP_OEM_CMD_ECC_EDWARDS25519_PUBLIC,
-    RSIP_OEM_CMD_ECC_EDWARDS25519_PRIVATE,
-    RSIP_OEM_CMD_HMAC_SHA384,
-    RSIP_OEM_CMD_HMAC_SHA512,
-    RSIP_OEM_CMD_HMAC_SHA512_224,
-    RSIP_OEM_CMD_HMAC_SHA512_256,
-    RSIP_OEM_CMD_CHACHA20                = 0x30,
-    RSIP_OEM_CMD_RAS_2048_PUBLIC_FOR_TLS = 0xfe,
-    RSIP_OEM_CMD_NUM
+    RSIP_OEM_CMD_INVALID                     = 0x00,
+    RSIP_OEM_CMD_AES128                      = 0x05,
+    RSIP_OEM_CMD_AES192                      = 0x06,
+    RSIP_OEM_CMD_AES256                      = 0x07,
+    RSIP_OEM_CMD_AES128_XTS                  = 0x08,
+    RSIP_OEM_CMD_AES256_XTS                  = 0x09,
+    RSIP_OEM_CMD_RSA1024_PUBLIC              = 0x0a,
+    RSIP_OEM_CMD_RSA1024_PRIVATE             = 0x0b,
+    RSIP_OEM_CMD_RSA2048_PUBLIC              = 0x0c,
+    RSIP_OEM_CMD_RSA2048_PRIVATE             = 0x0d,
+    RSIP_OEM_CMD_RSA3072_PUBLIC              = 0x0e,
+    RSIP_OEM_CMD_RSA3072_PRIVATE             = 0x0f,
+    RSIP_OEM_CMD_RSA4096_PUBLIC              = 0x10,
+    RSIP_OEM_CMD_RSA4096_PRIVATE             = 0x11,
+    RSIP_OEM_CMD_ECC_SECP256R1_PUBLIC        = 0x16,
+    RSIP_OEM_CMD_ECC_SECP256R1_PRIVATE       = 0x17,
+    RSIP_OEM_CMD_ECC_SECP384R1_PUBLIC        = 0x18,
+    RSIP_OEM_CMD_ECC_SECP384R1_PRIVATE       = 0x19,
+    RSIP_OEM_CMD_HMAC_SHA224                 = 0x1a,
+    RSIP_OEM_CMD_HMAC_SHA256                 = 0x1b,
+    RSIP_OEM_CMD_ECC_BRAINPOOLP256R1_PUBLIC  = 0x1c,
+    RSIP_OEM_CMD_ECC_BRAINPOOLP256R1_PRIVATE = 0x1d,
+    RSIP_OEM_CMD_ECC_BRAINPOOLP384R1_PUBLIC  = 0x1e,
+    RSIP_OEM_CMD_ECC_BRAINPOOLP384R1_PRIVATE = 0x1f,
+    RSIP_OEM_CMD_ECC_BRAINPOOLP512R1_PUBLIC  = 0x20,
+    RSIP_OEM_CMD_ECC_BRAINPOOLP512R1_PRIVATE = 0x21,
+    RSIP_OEM_CMD_ECC_SECP256K1_PUBLIC        = 0x22,
+    RSIP_OEM_CMD_ECC_SECP256K1_PRIVATE       = 0x23,
+    RSIP_OEM_CMD_ECC_SECP521R1_PUBLIC        = 0x24,
+    RSIP_OEM_CMD_ECC_SECP521R1_PRIVATE       = 0x25,
+    RSIP_OEM_CMD_ECC_EDWARDS25519_PUBLIC     = 0x26,
+    RSIP_OEM_CMD_ECC_EDWARDS25519_PRIVATE    = 0x27,
+    RSIP_OEM_CMD_HMAC_SHA384                 = 0x28,
+    RSIP_OEM_CMD_HMAC_SHA512                 = 0x29,
+    RSIP_OEM_CMD_HMAC_SHA512_224             = 0x2a,
+    RSIP_OEM_CMD_HMAC_SHA512_256             = 0x2b,
+    RSIP_OEM_CMD_HMAC_SHA3_224               = 0x2c,
+    RSIP_OEM_CMD_HMAC_SHA3_256               = 0x2d,
+    RSIP_OEM_CMD_HMAC_SHA3_384               = 0x2e,
+    RSIP_OEM_CMD_HMAC_SHA3_512               = 0x2f,
+    RSIP_OEM_CMD_CHACHA20                    = 0x30,
+    RSIP_OEM_CMD_RSA_2048_PUBLIC_FOR_TLS     = 0xfe,
+    RSIP_OEM_CMD_NUM = 0xff
 } rsip_oem_cmd_t;
 
 /***********************************************************************************************************************
@@ -895,6 +895,54 @@ rsip_ret_t r_rsip_wrapper_p6f_hmacsha512_256 (const uint32_t InData_IV[],
     return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
 }
 
+rsip_ret_t r_rsip_wrapper_p6f_hmacsha3_224 (const uint32_t InData_IV[],
+                                            const uint32_t InData_InstData[],
+                                            uint32_t       OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA3_224)};
+    uint32_t LC[1]  = {0};
+    LC[0]          = R_PSCU->DLMMON;
+    INST_DATA_SIZE = RSIP_OEM_KEY_SIZE_HMAC_SHA3_224_KEY_INST_DATA_WORD;
+
+    return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p6f_hmacsha3_256 (const uint32_t InData_IV[],
+                                            const uint32_t InData_InstData[],
+                                            uint32_t       OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA3_256)};
+    uint32_t LC[1]  = {0};
+    LC[0]          = R_PSCU->DLMMON;
+    INST_DATA_SIZE = RSIP_OEM_KEY_SIZE_HMAC_SHA3_256_KEY_INST_DATA_WORD;
+
+    return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p6f_hmacsha3_384 (const uint32_t InData_IV[],
+                                            const uint32_t InData_InstData[],
+                                            uint32_t       OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA3_384)};
+    uint32_t LC[1]  = {0};
+    LC[0]          = R_PSCU->DLMMON;
+    INST_DATA_SIZE = RSIP_OEM_KEY_SIZE_HMAC_SHA3_384_KEY_INST_DATA_WORD;
+
+    return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p6f_hmacsha3_512 (const uint32_t InData_IV[],
+                                            const uint32_t InData_InstData[],
+                                            uint32_t       OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA3_512)};
+    uint32_t LC[1]  = {0};
+    LC[0]          = R_PSCU->DLMMON;
+    INST_DATA_SIZE = RSIP_OEM_KEY_SIZE_HMAC_SHA3_512_KEY_INST_DATA_WORD;
+
+    return r_rsip_p6f(LC, CMD, InData_IV, InData_InstData, OutData_KeyIndex);
+}
+
 rsip_ret_t r_rsip_wrapper_p8f_aes128 (const uint32_t InData_KeyIndex[],
                                       const uint32_t InData_WrappedKeyType[],
                                       const uint32_t InData_WrappedKeyIndex[],
@@ -1400,6 +1448,41 @@ rsip_ret_t r_rsip_wrapper_p97r_dec (const uint32_t * InData_KeyIndex,
                                     const uint32_t * InData_State)
 {
     return r_rsip_p97r(InData_KeyIndex, &gs_cmd[CMD_CHACHA20_POLY1305_MODE_DECRYPT], InData_Nonce, InData_State);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_chacha20 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_CHACHA20)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_hmacsha3_224 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA3_224)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_hmacsha3_256 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA3_256)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_hmacsha3_384 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA3_384)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
+}
+
+rsip_ret_t r_rsip_wrapper_p55_hmacsha3_512 (uint32_t OutData_KeyIndex[])
+{
+    uint32_t CMD[1] = {bswap_32big(RSIP_OEM_CMD_HMAC_SHA3_512)};
+
+    return r_rsip_p55(CMD, OutData_KeyIndex);
 }
 
 #endif
@@ -2110,7 +2193,7 @@ rsip_ret_t r_rsip_wrapper_p2c_ch0 (const uint32_t InData_KeyIndex[], const uint3
 
     return r_rsip_p2c(&gs_cmd[CMD_OTF_CHANNEL_0], InData_KeyIndex, InData_DOTFSEED);
 #endif
-};
+}
 
 rsip_ret_t r_rsip_wrapper_p2d_ch0 (const uint32_t InData_KeyIndex[], const uint32_t InData_DOTFSEED[])
 {
@@ -2121,7 +2204,7 @@ rsip_ret_t r_rsip_wrapper_p2d_ch0 (const uint32_t InData_KeyIndex[], const uint3
 
     return r_rsip_p2d(&gs_cmd[CMD_OTF_CHANNEL_0], InData_KeyIndex, InData_DOTFSEED);
 #endif
-};
+}
 
 rsip_ret_t r_rsip_wrapper_p2e_ch0 (const uint32_t InData_KeyIndex[], const uint32_t InData_DOTFSEED[])
 {
@@ -2132,23 +2215,24 @@ rsip_ret_t r_rsip_wrapper_p2e_ch0 (const uint32_t InData_KeyIndex[], const uint3
 
     return r_rsip_p2e(&gs_cmd[CMD_OTF_CHANNEL_0], InData_KeyIndex, InData_DOTFSEED);
 #endif
-};
+}
 
 #if BSP_FEATURE_RSIP_RSIP_E50D_SUPPORTED
 rsip_ret_t r_rsip_wrapper_p2c_ch1 (const uint32_t InData_KeyIndex[], const uint32_t InData_DOTFSEED[])
 {
     return r_rsip_p2c(&gs_cmd[CMD_OTF_CHANNEL_1], InData_KeyIndex, InData_DOTFSEED);
-};
+}
 
 rsip_ret_t r_rsip_wrapper_p2d_ch1 (const uint32_t InData_KeyIndex[], const uint32_t InData_DOTFSEED[])
 {
     return r_rsip_p2d(&gs_cmd[CMD_OTF_CHANNEL_1], InData_KeyIndex, InData_DOTFSEED);
-};
+}
 
 rsip_ret_t r_rsip_wrapper_p2e_ch1 (const uint32_t InData_KeyIndex[], const uint32_t InData_DOTFSEED[])
 {
     return r_rsip_p2e(&gs_cmd[CMD_OTF_CHANNEL_1], InData_KeyIndex, InData_DOTFSEED);
-};
+}
+
 #endif
 
 /***********************************************************************************************************************

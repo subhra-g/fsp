@@ -38,12 +38,13 @@
  * @addtogroup RM_PSA_CRYPTO
  * @{
  **********************************************************************************************************************/
-fsp_err_t RM_PSA_CRYPTO_TRNG_Read(uint8_t * const p_rngbuf, uint32_t num_req_bytes, uint32_t * p_num_gen_bytes);
 
   #ifdef __cplusplus
 extern "C"
 {
   #endif
+
+fsp_err_t RM_PSA_CRYPTO_TRNG_Read(uint8_t * const p_rngbuf, uint32_t num_req_bytes, uint32_t * p_num_gen_bytes);
 
   #ifdef __cplusplus
 }
@@ -56,7 +57,17 @@ extern "C"
  * The dummy function can be replaced by defining a different value for MBEDTLS_PLATFORM_SETBUF_MACRO value in the FSP configurator.
  */
  #if defined(MBEDTLS_PLATFORM_SETBUF_MACRO)
+
+  #ifdef __cplusplus
+extern "C"
+{
+  #endif
+
 void dummy_setbuf(void * stream, char * buf);
+
+  #ifdef __cplusplus
+}
+  #endif
 
  #endif                                /* MBEDTLS_PLATFORM_SETBUF_MACRO */
 

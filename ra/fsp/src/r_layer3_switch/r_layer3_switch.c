@@ -334,6 +334,11 @@ fsp_err_t R_LAYER3_SWITCH_Open (ether_switch_ctrl_t * const p_ctrl, ether_switch
         p_instance_ctrl->psfp_meter_filter_info_list[i].p_psfp_meter_filter_cfg = NULL;
     }
 
+    for (uint8_t i = 0; i <= ((BSP_FEATURE_ETHER_NUM_CHANNELS - 1) / (sizeof(uint32_t) * 8)); i++)
+    {
+        p_instance_ctrl->link_status_bitmaps.link_status[i] = 0;
+    }
+
     /* Clear module stops. */
     r_layer3_switch_module_start();
 
@@ -1451,6 +1456,91 @@ fsp_err_t R_LAYER3_SWITCH_PsfpClearErrorStatus (ether_switch_ctrl_t * const     
 }                                      /* End of function R_LAYER3_SWITCH_PsfpClearErrorStatus() */
 
 /*******************************************************************************************************************//**
+ * Check the link status of multiple ports.
+ *
+ * @retval  FSP_SUCCESS                  Status bit cleared successfully.
+ * @retval  FSP_ERR_ASSERTION            A required pointer is NULL.
+ * @retval  FSP_ERR_NOT_OPEN             The control block has not been opened.
+ * @retval  FSP_ERR_INVALID_POINTER      Pointer to a argument is NULL.
+ **********************************************************************************************************************/
+fsp_err_t R_LAYER3_SWITCH_LinkStatusCheck (ether_switch_ctrl_t * const           p_ctrl,
+                                           layer3_switch_target_port_bitmaps_t * p_port_bitmaps,
+                                           ether_switch_link_status_bitmaps_t  * p_link_status_bitmaps)
+{
+    fsp_err_t err = FSP_SUCCESS;
+    fsp_err_t link_status;
+    layer3_switch_instance_ctrl_t * p_instance_ctrl = (layer3_switch_instance_ctrl_t *) p_ctrl;
+    layer3_switch_extended_cfg_t  * p_extend;
+    ether_phy_instance_t          * p_phy_instance;
+    ether_switch_callback_args_t    callback_arg = {0};
+
+#if (LAYER3_SWITCH_CFG_PARAM_CHECKING_ENABLE)
+
+    /* Check parameters. */
+    FSP_ASSERT(p_instance_ctrl);
+    FSP_ERROR_RETURN(NULL != p_port_bitmaps, FSP_ERR_INVALID_POINTER);
+    FSP_ERROR_RETURN(NULL != p_link_status_bitmaps, FSP_ERR_INVALID_POINTER);
+    FSP_ERROR_RETURN(LAYER3_SWITCH_OPEN == p_instance_ctrl->open, FSP_ERR_NOT_OPEN);
+#endif
+
+    /* Initialize argument with previous link status. */
+    memcpy(p_link_status_bitmaps, &p_instance_ctrl->link_status_bitmaps, sizeof(ether_switch_link_status_bitmaps_t));
+
+    p_extend = (layer3_switch_extended_cfg_t *) p_instance_ctrl->p_cfg->p_extend;
+
+    /* Check link status of each Ethernet port using port bitmaps. */
+    for (uint8_t j = 0; j <= ((BSP_FEATURE_ETHER_NUM_CHANNELS - 1) / (sizeof(uint32_t) * 8)); j++)
+    {
+        for (uint8_t i = 0; p_port_bitmaps->ports[j] >= (1U << i); i++)
+        {
+            if (p_port_bitmaps->ports[j] & (1U << i))
+            {
+                p_phy_instance =
+                    (ether_phy_instance_t *) p_extend->p_ether_phy_instances[i + (j * (sizeof(uint32_t) * 8))];
+
+                /* Change targets PHY LSI */
+                R_RMAC_PHY_ChipSelect(p_phy_instance->p_ctrl, (uint8_t) (i + (j * (sizeof(uint32_t) * 8))));
+
+                /* Get link status */
+                link_status = p_phy_instance->p_api->linkStatusGet(p_phy_instance->p_ctrl);
+
+                if (FSP_SUCCESS == link_status)
+                {
+                    /* Link is up */
+                    p_link_status_bitmaps->link_status[j] |= (1U << i);
+                }
+                else
+                {
+                    /* Link is down */
+                    p_link_status_bitmaps->link_status[j] &= ~((uint32_t) (1U << i));
+                }
+            }
+        }
+    }
+
+    /* If link status has changed, call a user callback */
+    if (0 !=
+        memcmp(&p_instance_ctrl->link_status_bitmaps, p_link_status_bitmaps,
+               sizeof(ether_switch_link_status_bitmaps_t)))
+    {
+        memcpy(&p_instance_ctrl->link_status_bitmaps, p_link_status_bitmaps,
+               sizeof(ether_switch_link_status_bitmaps_t));
+        if (NULL != p_instance_ctrl->p_callback)
+        {
+            callback_arg.channel   = p_instance_ctrl->p_cfg->channel;
+            callback_arg.p_context = p_instance_ctrl->p_context;
+            callback_arg.event     = ETHER_SWITCH_EVENT_LINK_CHANGE;
+            memcpy(&callback_arg.link_status, &p_instance_ctrl->link_status_bitmaps,
+                   sizeof(ether_switch_link_status_bitmaps_t));
+            r_layer3_switch_call_callback(p_instance_ctrl->p_callback, &callback_arg,
+                                          p_instance_ctrl->p_callback_memory);
+        }
+    }
+
+    return err;
+}                                      /* End of function rmac_link_status_check() */
+
+/*******************************************************************************************************************//**
  * @} (end addtogroup LAYER3_SWITCH)
  **********************************************************************************************************************/
 
@@ -1786,7 +1876,19 @@ static void r_layer3_switch_configure_forwarding_port (layer3_switch_forwarding_
     /* Set MAC configuration. */
     if (p_port_cfg->mac_table_enable)
     {
-        fwpc0_value |= (R_MFWD_FWPC00_MACDSA_Msk | R_MFWD_FWPC00_MACSSA_Msk);
+        /* When using the destination MAC address for forwarding. */
+        if (LAYER3_SWITCH_MAC_ADDRESS_SEARCH_DESTINATION ==
+            (LAYER3_SWITCH_MAC_ADDRESS_SEARCH_DESTINATION & p_port_cfg->mac_address_search))
+        {
+            fwpc0_value |= R_MFWD_FWPC00_MACDSA_Msk;
+        }
+
+        /* When using the source MAC address for forwarding. */
+        if (LAYER3_SWITCH_MAC_ADDRESS_SEARCH_SOURCE ==
+            (LAYER3_SWITCH_MAC_ADDRESS_SEARCH_SOURCE & p_port_cfg->mac_address_search))
+        {
+            fwpc0_value |= R_MFWD_FWPC00_MACSSA_Msk;
+        }
     }
 
     if (p_port_cfg->mac_reject_unknown)
@@ -2091,7 +2193,10 @@ static fsp_err_t r_layer3_switch_learn_vlan_entry (layer3_switch_frame_filter_t 
         /* Set forwarding ports. */
         R_MFWD->FWVLANTL2  = p_entry_cfg->source_ports;
         R_MFWD->FWVLANTL30 = p_entry_cfg->destination_queue_index;
-        R_MFWD->FWVLANTL4  = (p_entry_cfg->destination_ports);
+        R_MFWD->FWVLANTL4  = (p_entry_cfg->internal_priority_update_enable << R_MFWD_FWVLANTL4_VLANIPUL_Pos) |
+                             (R_MFWD_FWVLANTL4_VLANIPVL_Msk & p_entry_cfg->internal_priority_update_value <<
+                             R_MFWD_FWVLANTL4_VLANIPVL_Pos) |
+                             (R_MFWD_FWVLANTL4_VLANDVL_Msk & p_entry_cfg->destination_ports);
     }
     else
     {
@@ -2313,8 +2418,10 @@ static fsp_err_t r_layer3_switch_learn_l3_entry (layer3_switch_instance_ctrl_t  
                         (p_entry_cfg->destination_queue_index << R_MFWD_FWLTHTL80_LTHCSDL_Pos));
 
         /* Configure destination ports, mirroring and internal priority. After writing this register, hardware start learning. */
-        R_MFWD->FWLTHTL9 =
-            (p_entry_cfg->destination_ports << R_MFWD_FWLTHTL9_LTHDVL_Pos);
+        R_MFWD->FWLTHTL9 = (p_entry_cfg->internal_priority_update_enable << R_MFWD_FWLTHTL9_LTHIPUL_Pos) |
+                           (R_MFWD_FWLTHTL9_LTHIPVL_Msk & p_entry_cfg->internal_priority_update_value <<
+                            R_MFWD_FWLTHTL9_LTHIPVL_Pos) |
+                           (R_MFWD_FWLTHTL9_LTHDVL_Msk & p_entry_cfg->destination_ports);
     }
     else
     {

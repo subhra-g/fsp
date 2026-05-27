@@ -51,6 +51,21 @@ typedef enum e_rmac_transmission_discriptor_format
     RMAC_TRANSMISSION_DESCRIPTOR_FORMAT_DIRECT   = 1, ///< Use direct descriptor
 } rmac_transmission_discriptor_format_t;
 
+/** Bitmasks for each port. */
+typedef enum e_rmac_link_port_bitmask
+{
+    RMAC_LINK_PORT_BITMASK_PORT0 = (1U << 0U), ///< Port 0
+    RMAC_LINK_PORT_BITMASK_PORT1 = (1U << 1U), ///< Port 1
+} rmac_link_port_bitmask_t;
+
+/** Method for detecting link status changes on multiple ports */
+typedef enum e_rmac_link_detection
+{
+    RMAC_LINK_DETECTION_DEFAULT_PORTS_UP       = 0, /**< Default port becomes link up */
+    RMAC_LINK_DETECTION_ALL_MONITORED_PORTS_UP = 1, /**< All ports become link up */
+    RMAC_LINK_DETECTION_ANY_MONITORED_PORT_UP  = 2, /**< At least one port becomes link up */
+} rmac_link_detection_t;
+
 /** Information of a descriptor queue. */
 typedef struct st_rmac_queue_info
 {
@@ -108,6 +123,8 @@ typedef struct st_rmac_extended_cfg
     rmac_buffer_node_t * p_buffer_node_list;                              ///< List of buffer nodes for managing TX/RX buffers.
     uint32_t             buffer_node_num;                                 ///< Length of buffer nodes list.
     rmac_transmission_discriptor_format_t transmission_descriptor_format; ///< Transmission descriptor format.
+    layer3_switch_target_port_bitmaps_t * p_link_monitored_ports;         ///< Target port bitmaps.
+    rmac_link_detection_t                 link_detection;                 ///< Link detection method.
 } rmac_extended_cfg_t;
 
 /** Instance control block. DO NOT INITIALIZE.  Initialization occurs when @ref spi_flash_api_t::open is called */
@@ -123,34 +140,37 @@ typedef struct st_rmac_instance_ctrl
     R_RMAC0_Type * p_reg_rmac;
 
     /* RX statuses. */
-    uint32_t            read_queue_index;                ///< RX queue that used for next BufferRelease API.
-    uint32_t            rx_running_queue_index;          ///< Whether a RX queue is running or not.
-    rmac_buffer_queue_t rx_completed_buffer_queue;       ///< RX buffers that have completed reception.
-    rmac_buffer_queue_t rx_unreleased_buffer_queue;      ///< RX buffers that  have been read but not yet released.
-    rmac_buffer_queue_t rx_empty_buffer_queue;           ///< RX Buffers that have no data.
-    uint32_t            rx_initialized_buffer_num;       ///< RX buffer num of initialized. This is used in RxBufferUpdate API.
+    uint32_t            read_queue_index;                     ///< RX queue that used for next BufferRelease API.
+    uint32_t            rx_running_queue_index;               ///< Whether a RX queue is running or not.
+    rmac_buffer_queue_t rx_completed_buffer_queue;            ///< RX buffers that have completed reception.
+    rmac_buffer_queue_t rx_unreleased_buffer_queue;           ///< RX buffers that  have been read but not yet released.
+    rmac_buffer_queue_t rx_empty_buffer_queue;                ///< RX Buffers that have no data.
+    uint32_t            rx_initialized_buffer_num;            ///< RX buffer num of initialized. This is used in RxBufferUpdate API.
 
     /* TX statuses. */
-    uint32_t            write_queue_index;               ///< TX queue that used for next Write API.
-    uint32_t            tx_running_queue_index;          ///< Index of the queue that is running now.
-    void              * p_last_sent_buffer;              ///< Pointer to the last sent TX buffer.
-    rmac_buffer_queue_t tx_pending_buffer_queue;         ///< Delayed TX buffers.
-    rmac_buffer_queue_t tx_empty_buffer_queue;           ///< TX Buffers that have no data.
-    uint32_t            write_descriptor_count;          ///< Count of descriptor that already write in active queue.
+    uint32_t            write_queue_index;                    ///< TX queue that used for next Write API.
+    uint32_t            tx_running_queue_index;               ///< Index of the queue that is running now.
+    void              * p_last_sent_buffer;                   ///< Pointer to the last sent TX buffer.
+    rmac_buffer_queue_t tx_pending_buffer_queue;              ///< Delayed TX buffers.
+    rmac_buffer_queue_t tx_empty_buffer_queue;                ///< TX Buffers that have no data.
+    uint32_t            write_descriptor_count;               ///< Count of descriptor that already write in active queue.
 
-    rmac_buffer_queue_t buffer_node_pool;                ///< Buffer nodes pool.
+    rmac_buffer_queue_t buffer_node_pool;                     ///< Buffer nodes pool.
 
     /* Timestamp features. */
-    rmac_timestamp_t * p_rx_timestamp;                   ///< RX timestamp pointer.
-    rmac_timestamp_t   tx_timestamp;                     ///< TX timestamp.
-    uint32_t           tx_timestamp_seq_num;             ///< Sequence number of TX timestamp.
-    rmac_write_cfg_t   write_cfg;                        ///< Configuration of transmission.
+    rmac_timestamp_t * p_rx_timestamp;                        ///< RX timestamp pointer.
+    rmac_timestamp_t   tx_timestamp;                          ///< TX timestamp.
+    uint32_t           tx_timestamp_seq_num;                  ///< Sequence number of TX timestamp.
+    rmac_write_cfg_t   write_cfg;                             ///< Configuration of transmission.
 
     /* Status of ethernet driver. */
-    ether_previous_link_status_t  previous_link_status;  ///< Previous link status
-    ether_link_change_t           link_change;           ///< Status of link change
-    ether_link_establish_status_t link_establish_status; ///< Current Link status
-    ether_wake_on_lan_t           wake_on_lan;           ///< Wake on LAN mode.
+    ether_previous_link_status_t  previous_link_status;       ///< Previous link status
+    ether_link_change_t           link_change;                ///< Status of link change
+    ether_link_establish_status_t link_establish_status;      ///< Current Link status
+    ether_wake_on_lan_t           wake_on_lan;                ///< Wake on LAN mode.
+
+    ether_switch_link_status_bitmaps_t current_link_up_ports; ///< Current link status port bitmaps.
+    ether_switch_link_status_bitmaps_t last_link_up_ports;    ///< Last link up change port bitmaps.
 
     /* Pointer to callback and optional working memory */
     void (* p_callback)(ether_callback_args_t *);

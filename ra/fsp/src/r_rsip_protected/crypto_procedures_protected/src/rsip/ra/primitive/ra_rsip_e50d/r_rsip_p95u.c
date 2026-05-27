@@ -15,14 +15,17 @@
  * Functions
  **********************************************************************************************************************/
 
+RSIP_PRV_PRIMITIVE_FUNC
+
 void r_rsip_p95u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_t MAX_CNT)
 {
     uint32_t iLoop = 0U;
 
-    r_rsip_func100(bswap_32big(0x46f4be2bU),
-                   bswap_32big(0x4f4daf78U),
-                   bswap_32big(0x1df04261U),
-                   bswap_32big(0x2704085aU));
+    static const uint32_t Param_p95u_func100_001[] =
+    {
+        BSWAP_32BIG_C(0x46f4be2bU), BSWAP_32BIG_C(0x4f4daf78U), BSWAP_32BIG_C(0x1df04261U), BSWAP_32BIG_C(0x2704085aU),
+    };
+    r_rsip_func100(Param_p95u_func100_001);
     WR1_PROG(REG_1444H, 0x00020061U);
 
     WR1_PROG(REG_1824H, 0xe7000d06U);
@@ -45,8 +48,9 @@ void r_rsip_p95u (const uint32_t InData_Text[], uint32_t OutData_Text[], uint32_
 
     r_rsip_func215();
 
-    r_rsip_func101(bswap_32big(0x32c11cdfU),
-                   bswap_32big(0x6a2a7e8dU),
-                   bswap_32big(0x53668c30U),
-                   bswap_32big(0x2afae318U));
+    static const uint32_t Param_p95u_func101_001[] =
+    {
+        BSWAP_32BIG_C(0x32c11cdfU), BSWAP_32BIG_C(0x6a2a7e8dU), BSWAP_32BIG_C(0x53668c30U), BSWAP_32BIG_C(0x2afae318U),
+    };
+    r_rsip_func101(Param_p95u_func101_001);
 }

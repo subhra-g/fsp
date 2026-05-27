@@ -263,6 +263,10 @@ void tuner_pm_core_crnt_ctrl_handler (motor_tuner_pm_core_foc_t * p_foc,
     float                 temp_abc[3];
     float                 temp_abc_2[3];
     float                 temp_dq[2];
+    float                 f4_sin_pre  = 0.0F;
+    float                 f4_cos_pre  = 0.0F;
+    float                 f4_sin_post = 0.0F;
+    float                 f4_cos_post = 0.0F;
     motor_tuner_request_t request;
 
     if (TUNER_PM_RUNMODE_INIT == p_foc->run_mode)
@@ -309,10 +313,13 @@ void tuner_pm_core_crnt_ctrl_handler (motor_tuner_pm_core_foc_t * p_foc,
 
     if ((TUNER_PM_RUNMODE_READY == p_foc->run_mode) && (MOTOR_TUNER_PM_ERROR_NONE == p_foc->error_status))
     {
+        /* Pre-compute sin/cos once for all transformations using the same angle */
+        rm_motor_transform_sincos(p_foc->angle_rad, &f4_sin_pre, &f4_cos_pre);
+
         temp_abc[0] = p_foc->ia_ad;
         temp_abc[1] = p_foc->ib_ad;
         temp_abc[2] = p_foc->ic_ad;
-        rm_motor_transform_uvw_dq_abs(p_foc->angle_rad, temp_abc, temp_dq);
+        rm_motor_transform_uvw_dq_abs_trigo(f4_sin_pre, f4_cos_pre, temp_abc, temp_dq);
         p_foc->id_ad = temp_dq[0];
         p_foc->iq_ad = temp_dq[1];
 
@@ -332,6 +339,9 @@ void tuner_pm_core_crnt_ctrl_handler (motor_tuner_pm_core_foc_t * p_foc,
         /* Motor parameter identification sequences */
         tuner_pm_core_hook_before_current_ctrl(p_foc->p_context); /* =>tuner_pm_motorid_sequence() */
 
+        /* Pre-compute sin/cos once for all transformations using the same angle */
+        rm_motor_transform_sincos(p_foc->angle_rad, &f4_sin_post, &f4_cos_post);
+
         if (p_foc->ctrl_level >= TUNER_PM_CTRL_LEVEL_2)
         {
             /* Current PI */
@@ -343,7 +353,7 @@ void tuner_pm_core_crnt_ctrl_handler (motor_tuner_pm_core_foc_t * p_foc,
 
         temp_dq[0] = p_foc->vd_ref;
         temp_dq[1] = p_foc->vq_ref;
-        rm_motor_transform_dq_uvw_abs(p_foc->angle_rad, temp_dq, temp_abc);
+        rm_motor_transform_dq_uvw_abs_trigo(f4_sin_post, f4_cos_post, temp_dq, temp_abc);
         p_foc->va_ref = temp_abc[0];
         p_foc->vb_ref = temp_abc[1];
         p_foc->vc_ref = temp_abc[2];
@@ -353,7 +363,7 @@ void tuner_pm_core_crnt_ctrl_handler (motor_tuner_pm_core_foc_t * p_foc,
         {
             temp_dq[0] = p_foc->id_ref;
             temp_dq[1] = p_foc->iq_ref;
-            rm_motor_transform_dq_uvw_abs(p_foc->angle_rad, temp_dq, temp_abc);
+            rm_motor_transform_dq_uvw_abs_trigo(f4_sin_post, f4_cos_post, temp_dq, temp_abc);
             p_foc->ia_ref = temp_abc[0];
             p_foc->ib_ref = temp_abc[1];
             p_foc->ic_ref = temp_abc[2];
@@ -1022,6 +1032,8 @@ static void core_angle_speed_est (motor_tuner_pm_core_foc_t * p_foc)
  **********************************************************************************************************************/
 static void core_bemf_observer (motor_tuner_pm_core_foc_t * p_foc)
 {
+    float sign_eq;
+
     rm_motor_bemf_obs_observer(&p_foc->bemf_observer,
                                &(p_foc->motor_params),
                                p_foc->vd_ref,
@@ -1038,8 +1050,11 @@ static void core_bemf_observer (motor_tuner_pm_core_foc_t * p_foc)
         p_foc->e = -p_foc->e;
     }
 
-    /* delta angle estimate */
-    p_foc->phase_error = atan2f(p_foc->ed / p_foc->eq, 1.0F);
+    /* Get the sign of e_q */
+    sign_eq = (p_foc->eq >= 0.0F) ? 1.0F : -1.0F;
+
+    /* delta angle estimate Zero-division prevention */
+    p_foc->phase_error = sign_eq * atan2f(p_foc->ed, fabsf(p_foc->eq));
 }
 
 /*******************************************************************************************************************//**

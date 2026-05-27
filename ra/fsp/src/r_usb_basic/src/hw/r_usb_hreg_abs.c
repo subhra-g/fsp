@@ -187,6 +187,7 @@ void usb_hstd_interrupt_handler (usb_utr_t * ptr)
         {
             /* PDDETINT  interrupt disable */
             ptr->ipp1->INTSTS1 = (uint16_t) ((~USB_PDDETINT) & INTSTS1_MASK);
+            ptr->ipp1->INTENB1 = (uint16_t) (ptr->ipp1->INTENB1 & (~USB_PDDETINTE));
             ptr->keyword       = USB_INT_PDDETINT0;
         }
     }

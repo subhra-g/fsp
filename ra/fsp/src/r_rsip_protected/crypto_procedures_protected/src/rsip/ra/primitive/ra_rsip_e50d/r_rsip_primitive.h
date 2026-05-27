@@ -88,9 +88,9 @@ void r_rsip_func089(void);
 void r_rsip_func090(void);
 void r_rsip_func091(void);
 void r_rsip_func092(void);
-void r_rsip_func100(uint32_t ARG1, uint32_t ARG2, uint32_t ARG3, uint32_t ARG4);
-void r_rsip_func101(uint32_t ARG1, uint32_t ARG2, uint32_t ARG3, uint32_t ARG4);
-void r_rsip_func102(uint32_t ARG1, uint32_t ARG2, uint32_t ARG3, uint32_t ARG4);
+void r_rsip_func100(const uint32_t ARG1[]);
+void r_rsip_func101(const uint32_t ARG1[]);
+void r_rsip_func102(const uint32_t ARG1[]);
 void r_rsip_func103(void);
 void r_rsip_func113(void);
 void r_rsip_func202(void);
@@ -368,6 +368,8 @@ rsip_ret_t r_rsip_p3c(uint32_t OutData_KeyIndex[]);
 rsip_ret_t r_rsip_p3d(uint32_t OutData_KeyIndex[]);
 rsip_ret_t r_rsip_p3e(uint32_t OutData_KeyIndex[]);
 rsip_ret_t r_rsip_p3f(uint32_t OutData_KeyIndex[]);
+rsip_ret_t r_rsip_p55(const uint32_t InData_Cmd[], uint32_t OutData_KeyIndex[]);
+
 rsip_ret_t r_rsip_p56(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
 rsip_ret_t r_rsip_p57(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
 rsip_ret_t r_rsip_p79(const uint32_t InData_KeyIndex[], const uint32_t InData_Text[], uint32_t OutData_Text[]);
@@ -442,6 +444,23 @@ rsip_ret_t r_rsip_p75f(const uint32_t InData_Cmd[],
                        const uint32_t InData_length[],
                        uint32_t       MAX_CNT,
                        uint32_t       OutData_MAC[]);
+rsip_ret_t r_rsip_p58i(const uint32_t InData_KeyIndex[],
+                       const uint32_t InData_HashType[],
+                       const uint32_t InData_MsgLen[],
+                       uint32_t       KEY_INDEX_SIZE);
+rsip_ret_t r_rsip_p58r(const uint32_t InData_KeyIndex[],
+                       const uint32_t InData_HashType[],
+                       const uint32_t InData_State[],
+                       uint32_t       KEY_INDEX_SIZE);
+rsip_ret_t r_rsip_p58u(const uint32_t InData_Msg[], uint32_t MAX_CNT);
+rsip_ret_t r_rsip_p58s(uint32_t OutData_State[]);
+rsip_ret_t r_rsip_p58f(const uint32_t InData_Cmd[],
+                       const uint32_t InData_Msg[],
+                       const uint32_t InData_MAC[],
+                       const uint32_t InData_length[],
+                       uint32_t       MAX_CNT,
+                       uint32_t       OutData_MAC[]);
+
 rsip_ret_t r_rsip_p31(const uint32_t InData_HashType[],
                       const uint32_t InData_Msg[],
                       const uint32_t InData_MsgLen[],
@@ -597,7 +616,6 @@ rsip_ret_t r_rsip_pefu(const uint32_t InData_Msg1[],
                        const uint32_t InData_Msg2[],
                        const uint32_t InData_Msg2Length[]);
 
-rsip_ret_t r_rsip_p39(uint32_t OutData_KeyIndex[]);
 rsip_ret_t r_rsip_p96i(const uint32_t InData_KeyIndex[],
                        const uint32_t InData_Ctr[],
                        const uint32_t InData_Nonce[],

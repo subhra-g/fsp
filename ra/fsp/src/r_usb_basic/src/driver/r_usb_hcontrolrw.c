@@ -16,6 +16,11 @@
 #include "../hw/inc/r_usb_bitdefine.h"
 #include "../hw/inc/r_usb_reg_access.h"
 
+/******************************************************************************
+ * Macro definitions
+ ******************************************************************************/
+#define USB_STATUS_WAIT_50_MS    (50)
+
 #if ((USB_CFG_MODE & USB_CFG_HOST) == USB_CFG_HOST)
 
 /******************************************************************************
@@ -261,7 +266,7 @@ void usb_hstd_status_start (usb_utr_t * ptr)
  #if defined(USB_CFG_HUVC_USE)
             if ((USB_SET_INTERFACE | USB_HOST_TO_DEV | USB_STANDARD | USB_INTERFACE) == hw_usb_read_usbreq(ptr->ip))
             {
-                usb_cpu_delay_xms((uint16_t) 50);
+                usb_cpu_delay_xms((uint16_t) USB_STATUS_WAIT_50_MS);
             }
  #endif
 
