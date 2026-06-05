@@ -461,6 +461,9 @@ void SystemInit (void)
     }
 #endif
 
+    /* Call Post C runtime initialization hook. */
+    R_BSP_WarmStart(BSP_WARM_START_POST_C);
+
 #if BSP_CFG_C_RUNTIME_INIT
 
     /* Initialize data placed in external memories. */
@@ -511,9 +514,6 @@ void SystemInit (void)
     void const * ilimit = __section_end("SHT$$INIT_ARRAY");
     __call_ctors(pibase, ilimit);
 #endif
-
-    /* Call Post C runtime initialization hook. */
-    R_BSP_WarmStart(BSP_WARM_START_POST_C);
 
     /* Initialize ELC events that will be used to trigger NVIC interrupts. */
     bsp_irq_cfg();
